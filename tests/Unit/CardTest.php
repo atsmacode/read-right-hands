@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use App\Models\Card;
 use App\Models\Rank;
 use App\Models\Suit;
 
