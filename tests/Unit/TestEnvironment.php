@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Unit;
 
 use App\Models\Card;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
-use Tests\TestCase;
 use Tests\CreatesApplication;
+use Tests\TestCase;
 
 abstract class TestEnvironment extends TestCase
 {
