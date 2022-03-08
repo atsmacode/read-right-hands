@@ -14,7 +14,7 @@ class Card extends Model
      */
     public function rank()
     {
-        return $this->hasOne(Rank::class);
+        return $this->hasOne(Rank::class, 'id', 'rank_id');
     }
 
     /**
@@ -22,7 +22,7 @@ class Card extends Model
      */
     public function suit()
     {
-        return $this->hasOne(Suit::class);
+        return $this->hasOne(Suit::class, 'id', 'suit_id');
     }
 
 
