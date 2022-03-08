@@ -15,9 +15,9 @@ class CreateTableSeatsTable extends Migration
     {
         Schema::create('table_seats', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('table_id');
+            $table->integer('table_id')->unsigned();
             $table->foreign('table_id')->references('id')->on('tables');
-            $table->integer('player_id')->nullable();
+            $table->integer('player_id')->nullable()->unsigned();
             $table->foreign('player_id')->references('id')->on('players');
             $table->timestamps();
         });

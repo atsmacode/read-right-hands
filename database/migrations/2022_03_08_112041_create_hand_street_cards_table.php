@@ -15,9 +15,9 @@ class CreateHandStreetCardsTable extends Migration
     {
         Schema::create('hand_street_cards', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('hand_street_id');
+            $table->integer('hand_street_id')->unsigned();
             $table->foreign('hand_street_id')->references('id')->on('hand_streets');
-            $table->integer('card_id');
+            $table->integer('card_id')->unsigned();
             $table->foreign('card_id')->references('id')->on('cards');
             $table->timestamps();
         });

@@ -15,13 +15,13 @@ class CreatePlayerActionsTable extends Migration
     {
         Schema::create('player_actions', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('action_id');
+            $table->integer('action_id')->unsigned();
             $table->foreign('action_id')->references('id')->on('actions');
-            $table->integer('player_id');
+            $table->integer('player_id')->unsigned();
             $table->foreign('player_id')->references('id')->on('players');
-            $table->integer('hand_street_id');
+            $table->integer('hand_street_id')->unsigned();
             $table->foreign('hand_street_id')->references('id')->on('hand_streets');
-            $table->integer('table_seat_id');
+            $table->integer('table_seat_id')->unsigned();
             $table->foreign('table_seat_id')->references('id')->on('table_seats');
             $table->float('amount')->nullable();
             $table->timestamps();

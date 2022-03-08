@@ -15,11 +15,11 @@ class CreateWholeCardsTable extends Migration
     {
         Schema::create('whole_cards', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('card_id');
+            $table->integer('card_id')->unsigned();
             $table->foreign('card_id')->references('id')->on('cards');
-            $table->integer('hand_id');
+            $table->integer('hand_id')->unsigned();
             $table->foreign('hand_id')->references('id')->on('hands');
-            $table->integer('player_id');
+            $table->integer('player_id')->unsigned();
             $table->foreign('player_id')->references('id')->on('players');
             $table->boolean('active')->default(1);
             $table->boolean('can_continue')->default(1);

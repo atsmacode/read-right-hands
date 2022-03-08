@@ -15,11 +15,11 @@ class CreateHandWinnersTable extends Migration
     {
         Schema::create('hand_winners', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('hand_id');
+            $table->integer('hand_id')->unsigned();
             $table->foreign('hand_id')->references('id')->on('hands');
-            $table->integer('player_id');
+            $table->integer('player_id')->unsigned();
             $table->foreign('player_id')->references('id')->on('players');
-            $table->integer('hand_type_id');
+            $table->integer('hand_type_id')->unsigned();
             $table->foreign('hand_type_id')->references('id')->on('hand_types');
             $table->timestamps();
         });

@@ -15,8 +15,8 @@ class CreateCardsTable extends Migration
     {
         Schema::create('cards', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('rank_id');
-            $table->integer('suit_id');
+            $table->integer('rank_id')->unsigned();
+            $table->integer('suit_id')->unsigned();
             $table->foreign('rank_id')->references('id')->on('ranks');
             $table->foreign('suit_id')->references('id')->on('suits');
             $table->unique(['rank_id', 'suit_id']);
