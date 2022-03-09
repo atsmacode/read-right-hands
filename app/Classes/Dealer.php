@@ -3,10 +3,10 @@
 namespace App\Classes;
 
 use App\Models\Card;
+use App\Models\Player;
 use App\Models\Rank;
 use App\Models\Suit;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 class Dealer
 {
@@ -59,7 +59,7 @@ class Dealer
     }
 
     /**
-     * @param Collection|Model $players
+     * @param Collection|Player $players
      * @return $this
      */
     public function dealTo($players)
@@ -84,7 +84,7 @@ class Dealer
     }
 
     /**
-     * @param Model $player
+     * @param Player $player
      * @return $this
      */
     public function dealCardTo($player)
