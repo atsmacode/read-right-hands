@@ -9,7 +9,6 @@ use App\Models\Rank;
 use App\Models\Suit;
 use App\Models\Table;
 use App\Models\TableSeat;
-use Database\Factories\PlayerFactory;
 
 class DealerTest extends TestEnvironment
 {
@@ -38,7 +37,7 @@ class DealerTest extends TestEnvironment
      */
     public function it_can_select_a_random_card()
     {
-        $this->assertInstanceOf(Card::class, $this->dealer->setDeck()->shuffle()->pickCard()->card);
+        $this->assertInstanceOf(Card::class, $this->dealer->setDeck()->shuffle()->pickCard()->getCard());
     }
 
     /**
@@ -47,13 +46,30 @@ class DealerTest extends TestEnvironment
      */
     public function it_can_select_a_specific_card()
     {
-        $card = $this->dealer->setDeck()->shuffle()->pickCard(
+        $card = $this->dealer->setDeck()->pickCard(
             Rank::where('name', 'Ace')->first(),
             Suit::where('name', 'Spades')->first()
-        )->card;
+        )->getCard();
 
         $this->assertEquals('Ace', $card->rank->name);
         $this->assertEquals('Spades', $card->suit->name);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function once_a_card_is_dealt_it_is_no_longer_in_the_deck()
+    {
+
+        $rank = Rank::where('name', 'Ace')->first();
+        $suit = Suit::where('name', 'Spades')->first();
+
+        $player = Player::factory()->create();
+
+        $this->dealer->setDeck()->pickCard($rank, $suit)->dealCardTo($player);
+
+        $this->assertNotContains($this->dealer->getCard(), $this->dealer->getDeck()->fresh());
     }
 
     /**
@@ -98,9 +114,7 @@ class DealerTest extends TestEnvironment
             'player_id' => $player2->id
         ])->create();
 
-       $this->dealer->setDeck()->shuffle();
-
-       $this->dealer->dealTo($table->players);
+       $this->dealer->setDeck()->shuffle()->dealTo($table->players);
 
        $this->assertCount(1, $player1->fresh()->wholeCards);
        $this->assertCount(1, $player2->fresh()->wholeCards);

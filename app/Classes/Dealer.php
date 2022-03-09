@@ -3,9 +3,10 @@
 namespace App\Classes;
 
 use App\Models\Card;
-use App\Models\Player;
 use App\Models\Rank;
 use App\Models\Suit;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class Dealer
 {
@@ -39,29 +40,61 @@ class Dealer
             return $this;
         }
 
-        $filter = $this->deck->filter(function($value) use ($rank, $suit){
+        $this->card = $this->deck->filter(function($value) use ($rank, $suit){
             return $value->rank_id === $rank->id && $value->suit_id === $suit->id;
-        });
+        })->first();
 
-        $this->card = $filter->first();
+        $card = $this->card;
+
+        $this->deck->reject(function($value) use($card){
+            return $value === $card;
+        });
 
         return $this;
     }
 
-    public function dealTo(\Illuminate\Database\Eloquent\Collection $players)
+    public function getCard()
+    {
+        return $this->card;
+    }
+
+    /**
+     * @param Collection|Model $players
+     * @return $this
+     */
+    public function dealTo($players)
     {
         if($players->count() === 1){
-            $players->wholeCard = $players->wholeCards()->create([
-                'card_id' => $this->pickCard()->card->id
+            $players->wholeCards()->create([
+                'card_id' => $this->pickCard()->getCard()->id
             ]);
+
+            return $this;
         }
 
         if($players->count() > 1){
             foreach($players as $player){
-                $player->wholeCard = $player->wholeCards()->create([
-                    'card_id' => $this->pickCard()->card->id
+                $player->wholeCards()->create([
+                    'card_id' => $this->pickCard()->getCard()->id
                 ]);
             }
+
+            return $this;
         }
+    }
+
+    /**
+     * @param Model $player
+     * @return $this
+     */
+    public function dealCardTo($player)
+    {
+
+        $player->wholeCards()->create([
+            'card_id' => $this->getCard()->id
+        ]);
+
+        return $this;
+
     }
 }
