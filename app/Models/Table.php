@@ -13,4 +13,21 @@ class Table extends Model
         'name',
         'seats'
     ];
+
+    public function tableSeats()
+    {
+        return $this->hasMany(TableSeat::class, 'table_id', 'id');
+    }
+
+    public function players()
+    {
+        return $this->hasManyThrough(
+            Player::class,
+            TableSeat::class,
+            'table_id',
+            'id',
+            'id',
+            'id'
+        );
+    }
 }

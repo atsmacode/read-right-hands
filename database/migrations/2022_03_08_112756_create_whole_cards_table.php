@@ -17,7 +17,7 @@ class CreateWholeCardsTable extends Migration
             $table->increments('id');
             $table->integer('card_id')->unsigned();
             $table->foreign('card_id')->references('id')->on('cards');
-            $table->integer('hand_id')->unsigned();
+            $table->integer('hand_id')->unsigned()->nullable();
             $table->foreign('hand_id')->references('id')->on('hands');
             $table->integer('player_id')->unsigned();
             $table->foreign('player_id')->references('id')->on('players');
