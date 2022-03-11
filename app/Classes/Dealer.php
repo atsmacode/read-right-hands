@@ -67,7 +67,7 @@ class Dealer
      */
     public function dealTo($players, $hand = null)
     {
-        if($players->count() === 1){
+        if($players instanceof Player){
             $players->wholeCards()->create([
                 'card_id' => $this->pickCard()->getCard()->id,
                 'hand_id' => $hand ? $hand->id : null

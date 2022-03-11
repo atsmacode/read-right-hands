@@ -12,7 +12,7 @@ class CardTest extends TestEnvironment
      * @test
      * @return void
      */
-    public function a_card_has_a_suite()
+    public function a_card_has_a_suit()
     {
         $this->assertInstanceOf(Suit::class, $this->deck->first()->suit);
     }
