@@ -2,25 +2,24 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Table;
-use App\Models\TableSeat;
+use App\Models\Street;
 use Illuminate\Console\Command;
 
-class CreateTable extends Command
+class CreateStreets extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'create:table';
+    protected $signature = 'create:streets';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Populate the database with a table and it\'s associated seats';
+    protected $description = 'Populate the database with the basic streets';
 
     /**
      * Create a new command instance.
@@ -33,22 +32,28 @@ class CreateTable extends Command
     }
 
     /**
+     * Execute the console command.
+     *
      * @return int
      */
     public function handle()
     {
-        $table = Table::factory([
-            'name' => 'Table 1',
-            'seats' => 3
+
+        Street::factory([
+            'name' => 'pre_flop'
         ])->create();
 
-        $seats = TableSeat::factory([
-            'table_id' => $table->id
-        ])->count(3)->create();
+        Street::factory([
+            'name' => 'flop'
+        ])->create();
 
-        foreach($seats as $seat){
-            $seat->player()->create();
-        }
+        Street::factory([
+            'name' => 'turn'
+        ])->create();
+
+        Street::factory([
+            'name' => 'river'
+        ])->create();
 
         return 0;
     }

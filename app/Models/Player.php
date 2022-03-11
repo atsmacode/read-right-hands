@@ -46,4 +46,9 @@ class Player extends Authenticatable
     {
         return $this->hasMany(WholeCard::class, 'player_id', 'id');
     }
+
+    public function actions()
+    {
+        return $this->hasMany(PlayerAction::class, 'player_id', 'id');
+    }
 }

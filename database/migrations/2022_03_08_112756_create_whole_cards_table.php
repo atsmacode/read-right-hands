@@ -21,8 +21,6 @@ class CreateWholeCardsTable extends Migration
             $table->foreign('hand_id')->references('id')->on('hands');
             $table->integer('player_id')->unsigned();
             $table->foreign('player_id')->references('id')->on('players');
-            $table->boolean('active')->default(1);
-            $table->boolean('can_continue')->default(1);
             $table->timestamps();
         });
     }

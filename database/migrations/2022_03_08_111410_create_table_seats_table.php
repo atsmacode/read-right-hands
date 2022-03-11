@@ -19,6 +19,9 @@ class CreateTableSeatsTable extends Migration
             $table->foreign('table_id')->references('id')->on('tables');
             $table->integer('player_id')->nullable()->unsigned();
             $table->foreign('player_id')->references('id')->on('players');
+            $table->boolean('active')->default(0);
+            $table->boolean('can_continue')->default(0);
+            $table->boolean('is_dealer')->default(0);
             $table->timestamps();
         });
     }

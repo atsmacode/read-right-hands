@@ -4,5 +4,6 @@ return [
     'Fold',
     'Check',
     'Call',
-    'Raise'
+    'Bet',
+    'Raise',
 ];

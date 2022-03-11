@@ -12,4 +12,16 @@ class PlayerAction extends Model
     protected $fillable = [
         'amount'
     ];
+
+    public function hand()
+    {
+        return $this->hasOneThrough(
+            Hand::class,
+            HandStreet::class,
+            'hand_street_id',
+            'hand_id',
+            'hand_street_id',
+            'hand_id'
+        );
+    }
 }

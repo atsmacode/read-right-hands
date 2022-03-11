@@ -7,12 +7,11 @@ class PotLimitHoldEm implements Game
 
     public array $streets;
     public string $limit;
-    public integer $wholeCards;
 
     public function __construct()
     {
         $this->streets = [
-            'pre-flop' => [
+            'pre_flop' => [
                 'whole_cards' => 2,
                 'community_cards' => 0
             ],
@@ -30,7 +29,6 @@ class PotLimitHoldEm implements Game
             ]
         ];
         $this->limit = 'pot';
-        $this->wholeCards = 2;
     }
 
 }

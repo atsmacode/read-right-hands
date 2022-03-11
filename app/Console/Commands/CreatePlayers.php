@@ -2,25 +2,25 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Table;
+use App\Models\Player;
 use App\Models\TableSeat;
 use Illuminate\Console\Command;
 
-class CreateTable extends Command
+class CreatePlayers extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'create:table';
+    protected $signature = 'create:players';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Populate the database with a table and it\'s associated seats';
+    protected $description = 'Populate the table seats with players';
 
     /**
      * Create a new command instance.
@@ -33,21 +33,15 @@ class CreateTable extends Command
     }
 
     /**
+     * Execute the console command.
+     *
      * @return int
      */
     public function handle()
     {
-        $table = Table::factory([
-            'name' => 'Table 1',
-            'seats' => 3
-        ])->create();
 
-        $seats = TableSeat::factory([
-            'table_id' => $table->id
-        ])->count(3)->create();
-
-        foreach($seats as $seat){
-            $seat->player()->create();
+        foreach(TableSeat::all() as $seat){
+            $seat->player()->create([]);
         }
 
         return 0;
