@@ -10,7 +10,12 @@ class PlayerAction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'amount'
+        'amount',
+        'player_id',
+        'table_seat_id',
+        'hand_street_id',
+        'action_id',
+        'bet_amount'
     ];
 
     public function hand()

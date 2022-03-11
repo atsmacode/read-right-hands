@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Player;
+use App\Models\PlayerAction;
 use App\Models\Table;
 use App\Models\TableSeat;
 use Illuminate\Console\Command;
@@ -42,13 +44,9 @@ class CreateTable extends Command
             'seats' => 3
         ])->create();
 
-        $seats = TableSeat::factory([
+        TableSeat::factory([
             'table_id' => $table->id
         ])->count(3)->create();
-
-        foreach($seats as $seat){
-            $seat->player()->create();
-        }
 
         return 0;
     }

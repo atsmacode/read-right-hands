@@ -20,6 +20,9 @@ abstract class TestEnvironment extends TestCase
         Artisan::call('create:ranks');
         Artisan::call('create:suits');
         Artisan::call('create:deck');
+        Artisan::call('create:table');
+        Artisan::call('create:streets');
+        Artisan::call('create:actions');
 
         $this->deck = Card::all();
     }

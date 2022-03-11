@@ -19,14 +19,17 @@ class GamePlay
         $this->game = new PotLimitHoldEm();
         $this->dealer = new Dealer();
         $this->hand = $hand;
-        $this->handTable = Table::query()->first();
-        $this->players = $hand->handTable->players->where('active', 1)->all();
+        $this->handTable = Table::first();
+        $this->players = $this->handTable->players->where('active', 1);
         $this->street = null;
 
     }
 
     public function play()
     {
+        // If latest PlayerAction == ...
+
+        // Else if latest hand is completed start a new one...
         return $this->start();
     }
 
@@ -41,7 +44,7 @@ class GamePlay
 
         if($this->game->streets[0]['whole_cards']){
             $dealtCards = 0;
-            while($dealtCards < $this->game[0]['whole_cards']){
+            while($dealtCards < $this->game->streets[0]['whole_cards']){
                 $this->dealer->dealTo($this->players);
                 $dealtCards++;
             }
@@ -62,7 +65,8 @@ class GamePlay
 
         foreach($this->handTable->tableSeats as $seat){
             $seat->player->actions()->create([
-                'hand_street_id' => $this->street->id
+                'hand_street_id' => $this->street->id,
+                'table_seat_id' => $seat->id
             ]);
         }
     }

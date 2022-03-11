@@ -25,9 +25,9 @@ class Table extends Model
             Player::class,
             TableSeat::class,
             'table_id',
-            'id',
-            'id',
-            'id'
+            'player_id',
+            'table_id',
+            'player_id'
         );
     }
 }

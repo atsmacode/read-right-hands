@@ -11,19 +11,23 @@ class PotLimitHoldEm implements Game
     public function __construct()
     {
         $this->streets = [
-            'pre_flop' => [
+            [
+                'name' => 'Pre-flop',
                 'whole_cards' => 2,
                 'community_cards' => 0
             ],
-            'flop' => [
+            [
+                'name' => 'Flop',
                 'whole_cards' => 0,
                 'community_cards' => 3
             ],
-            'turn' => [
+            [
+                'name' => 'Turn',
                 'whole_cards' => 0,
                 'community_cards' => 1
             ],
-            'river' => [
+            [
+                'name' => 'River',
                 'whole_cards' => 0,
                 'community_cards' => 1
             ]

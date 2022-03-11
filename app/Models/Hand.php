@@ -9,6 +9,10 @@ class Hand extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'game_type_id'
+    ];
+
     public function handTable()
     {
         return $this->belongsTo(Table::class);
