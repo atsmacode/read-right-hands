@@ -13,4 +13,9 @@ class HandStreet extends Model
         'street_id',
         'hand_id'
     ];
+
+    public function cards()
+    {
+        return $this->hasMany(HandStreetCard::class, 'hand_street_id', 'id');
+    }
 }

@@ -11,7 +11,8 @@ class TableSeat extends Model
 
     protected $fillable = [
         'table_id',
-        'player_id'
+        'player_id',
+        'can_continue'
     ];
 
     public function player()

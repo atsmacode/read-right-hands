@@ -40,19 +40,19 @@ class CreateStreets extends Command
     {
 
         Street::factory([
-            'name' => 'pre_flop'
+            'name' => 'Pre-flop'
         ])->create();
 
         Street::factory([
-            'name' => 'flop'
+            'name' => 'Flop'
         ])->create();
 
         Street::factory([
-            'name' => 'turn'
+            'name' => 'Turn'
         ])->create();
 
         Street::factory([
-            'name' => 'river'
+            'name' => 'River'
         ])->create();
 
         return 0;

@@ -3,6 +3,8 @@
 namespace App\Classes;
 
 use App\Models\Card;
+use App\Models\Hand;
+use App\Models\HandStreet;
 use App\Models\Player;
 use App\Models\Rank;
 use App\Models\Suit;
@@ -60,13 +62,15 @@ class Dealer
 
     /**
      * @param Collection|Player $players
+     * @param Hand $hand
      * @return $this
      */
-    public function dealTo($players)
+    public function dealTo($players, $hand = null)
     {
         if($players->count() === 1){
             $players->wholeCards()->create([
-                'card_id' => $this->pickCard()->getCard()->id
+                'card_id' => $this->pickCard()->getCard()->id,
+                'hand_id' => $hand ? $hand->id : null
             ]);
 
             return $this;
@@ -75,7 +79,8 @@ class Dealer
         if($players->count() > 1){
             foreach($players as $player){
                 $player->wholeCards()->create([
-                    'card_id' => $this->pickCard()->getCard()->id
+                    'card_id' => $this->pickCard()->getCard()->id,
+                    'hand_id' => $hand ? $hand->id : null
                 ]);
             }
 
@@ -93,6 +98,19 @@ class Dealer
         $player->wholeCards()->create([
             'card_id' => $this->getCard()->id
         ]);
+
+        return $this;
+
+    }
+
+    /**
+     * @param HandStreet $handStreet
+     * @return $this
+     */
+    public function dealStreetCard($handStreet)
+    {
+
+        $handStreet->cards()->save($this->setDeck()->pickCard()->getCard());
 
         return $this;
 

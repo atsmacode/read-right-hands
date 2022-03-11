@@ -19,11 +19,14 @@ class CreatePlayerActionsTable extends Migration
             $table->foreign('action_id')->references('id')->on('actions');
             $table->integer('player_id')->unsigned();
             $table->foreign('player_id')->references('id')->on('players');
+            $table->integer('hand_id')->unsigned();
+            $table->foreign('hand_id')->references('id')->on('hands');
             $table->integer('hand_street_id')->unsigned();
             $table->foreign('hand_street_id')->references('id')->on('hand_streets');
             $table->integer('table_seat_id')->unsigned();
             $table->foreign('table_seat_id')->references('id')->on('table_seats');
             $table->float('bet_amount')->nullable();
+            $table->boolean('active')->default(0);
             $table->timestamps();
         });
     }

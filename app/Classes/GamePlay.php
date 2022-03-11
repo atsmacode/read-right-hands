@@ -20,17 +20,42 @@ class GamePlay
         $this->dealer = new Dealer();
         $this->hand = $hand;
         $this->handTable = Table::first();
-        $this->players = $this->handTable->players->where('active', 1);
         $this->street = null;
-
     }
 
     public function play()
     {
-        // If latest PlayerAction == ...
+
+        // If all active players can_continue
+        if($this->hand->actions->where('active', 1)->count() === $this->handTable->tableSeats->where('can_continue', 1)->count()){
+            return $this->continue();
+        }
 
         // Else if latest hand is completed start a new one...
         return $this->start();
+    }
+
+    public function continue()
+    {
+
+        // Not keen on the way I'm adding/subtracting from the handStreets->count() to match array starting with 0
+
+        $this->street = HandStreet::create([
+            'street_id' => $this->hand->streets->count() + 1,
+            'hand_id' => $this->hand->id
+        ]);
+
+        $dealtCards = 0;
+        while($dealtCards < $this->game->streets[$this->hand->streets->count() - 1]['community_cards']){
+            $this->dealer->dealStreetCard($this->street);
+            $dealtCards++;
+        }
+
+        return [
+            'hand' => $this->hand,
+            'handTable' => $this->handTable,
+            'actions' => $this->hand->actions
+        ];
     }
 
     public function start()
@@ -45,13 +70,15 @@ class GamePlay
         if($this->game->streets[0]['whole_cards']){
             $dealtCards = 0;
             while($dealtCards < $this->game->streets[0]['whole_cards']){
-                $this->dealer->dealTo($this->players);
+                $this->dealer->dealTo($this->handTable->players, $this->hand);
                 $dealtCards++;
             }
         }
 
         return [
-            'player_actions' => $this->hand->actions
+            'hand' => $this->hand,
+            'handTable' => $this->handTable,
+            'actions' => $this->hand->actions
         ];
 
     }
@@ -66,7 +93,12 @@ class GamePlay
         foreach($this->handTable->tableSeats as $seat){
             $seat->player->actions()->create([
                 'hand_street_id' => $this->street->id,
-                'table_seat_id' => $seat->id
+                'table_seat_id' => $seat->id,
+                'hand_id' => $this->hand->id
+            ]);
+
+            $seat->update([
+                'active' => 1
             ]);
         }
     }
@@ -80,14 +112,14 @@ class GamePlay
             'hand_street_id' => $this->street->id,
         ])->update([
             'action_id' => 4, // Bet
-            'bet_amount' => 25
+            'bet_amount' => 25,
+            'active' => 1,
         ]);
 
-        TableSeat::query()->find($this->handTable->tableSeats->slice(0, 1)->first()->id)
+        TableSeat::query()->where('id', $this->handTable->tableSeats->slice(0, 1)->first()->id)
             ->update([
-            'active' => 1,
-            'can_continue' => 1
-        ]);
+                'can_continue' => 1
+            ]);
 
         // Big Blind
         PlayerAction::where([
@@ -96,14 +128,14 @@ class GamePlay
             'hand_street_id' => $this->street->id,
         ])->update([
             'action_id' => 4, // Bet
-            'bet_amount' => 50
+            'bet_amount' => 50,
+            'active' => 1,
         ]);
 
-        TableSeat::query()->find($this->handTable->tableSeats->slice(1, 1)->first()->id)
+        TableSeat::query()->where('id', $this->handTable->tableSeats->slice(1, 1)->first()->id)
             ->update([
-            'active' => 1,
-            'can_continue' => 1
-        ]);
+                'can_continue' => 1
+            ]);
     }
 
     public function actionOn()
