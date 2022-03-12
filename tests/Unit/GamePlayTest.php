@@ -66,7 +66,7 @@ class GamePlayTest extends TestEnvironment
         $this->assertEquals(null, $response['actions']->slice(2, 1)->first()->bet_amount);
         $this->assertEquals(null, $response['actions']->slice(2, 1)->first()->action_id);
 
-        // Each player has 2 whole cards
+        // Each player in the hand has 2 whole cards
         foreach($response['handTable']->players as $player){
             $this->assertCount(2, $player->wholeCards->where('hand_id', $response['hand']->id));
         }
@@ -89,7 +89,33 @@ class GamePlayTest extends TestEnvironment
                 'active' => 1
             ]);
 
-        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+            ->update([
+                'can_continue' => 1
+            ]);
+
+        // Player 1 Folds
+        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
+            ->update([
+                'action_id' => 1,
+                'bet_amount' => null,
+                'active' => 0
+            ]);
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        // Player 2 Checks
+        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
+            ->update([
+                'action_id' => 2,
+                'bet_amount' => null,
+                'active' => 1
+            ]);
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
