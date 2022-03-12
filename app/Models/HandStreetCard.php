@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class HandStreetCard extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'card_id',
+        'hand_street_id'
+    ];
 }

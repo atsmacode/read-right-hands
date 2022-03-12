@@ -5,6 +5,7 @@ namespace App\Classes;
 use App\Models\Card;
 use App\Models\Hand;
 use App\Models\HandStreet;
+use App\Models\HandStreetCard;
 use App\Models\Player;
 use App\Models\Rank;
 use App\Models\Suit;
@@ -110,7 +111,12 @@ class Dealer
     public function dealStreetCard($handStreet)
     {
 
-        $handStreet->cards()->save($this->setDeck()->pickCard()->getCard());
+        $cardId = $this->setDeck()->pickCard()->getCard()->id;
+
+        HandStreetCard::create([
+            'card_id' => $cardId,
+            'hand_street_id' => $handStreet->id
+        ]);
 
         return $this;
 

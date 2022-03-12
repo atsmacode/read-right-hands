@@ -57,7 +57,7 @@ class GamePlay
         ]);
 
         $dealtCards = 0;
-        while($dealtCards < $this->game->streets[$this->hand->streets->fresh()->count() - 1]['community_cards']){
+        while($dealtCards < $this->game->streets[$this->hand->fresh()->streets->count() - 1]['community_cards']){
             $this->dealer->dealStreetCard($this->street);
             $dealtCards++;
         }
