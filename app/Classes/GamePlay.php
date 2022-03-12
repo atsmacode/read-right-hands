@@ -52,7 +52,7 @@ class GamePlay
 
         // Not keen on the way I'm adding/subtracting from the handStreets->count() to match array starting with 0
         $this->street = HandStreet::create([
-            'street_id' => $this->hand->streets->count() + 1,
+            'street_id' => $this->hand->fresh()->streets->count() + 1,
             'hand_id' => $this->hand->id
         ]);
 
