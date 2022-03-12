@@ -77,16 +77,15 @@ class Dealer
             return $this;
         }
 
-        if($players->count() > 1){
-            foreach($players as $player){
-                $player->wholeCards()->create([
-                    'card_id' => $this->pickCard()->getCard()->id,
-                    'hand_id' => $hand ? $hand->id : null
-                ]);
-            }
-
-            return $this;
+        foreach($players as $player){
+            $player->wholeCards()->create([
+                'card_id' => $this->pickCard()->getCard()->id,
+                'hand_id' => $hand ? $hand->id : null
+            ]);
         }
+
+        return $this;
+
     }
 
     /**

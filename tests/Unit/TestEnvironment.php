@@ -5,13 +5,12 @@ namespace Tests\Unit;
 use App\Models\Card;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
-use Tests\CreatesApplication;
 use Tests\TestCase;
 
 abstract class TestEnvironment extends TestCase
 {
 
-    use CreatesApplication, RefreshDatabase;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {

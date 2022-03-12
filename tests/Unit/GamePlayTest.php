@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Classes\GamePlay;
+use App\Models\Action;
 use App\Models\Hand;
 use App\Models\Player;
 use App\Models\PlayerAction;
@@ -84,7 +85,7 @@ class GamePlayTest extends TestEnvironment
         // Player 3 Calls BB
         PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
             ->update([
-                'action_id' => 3,
+                'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1
             ]);
@@ -97,7 +98,7 @@ class GamePlayTest extends TestEnvironment
         // Player 1 Folds
         PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
-                'action_id' => 1,
+                'action_id' => Action::where('name', 'Fold')->first()->id,
                 'bet_amount' => null,
                 'active' => 0
             ]);
@@ -110,7 +111,7 @@ class GamePlayTest extends TestEnvironment
         // Player 2 Checks
         PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
             ->update([
-                'action_id' => 2,
+                'action_id' => Action::where('name', 'Check')->first()->id,
                 'bet_amount' => null,
                 'active' => 1
             ]);
@@ -139,7 +140,7 @@ class GamePlayTest extends TestEnvironment
         // Player 3 Calls BB
         PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
             ->update([
-                'action_id' => 3,
+                'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1
             ]);
@@ -152,7 +153,7 @@ class GamePlayTest extends TestEnvironment
         // Player 1 Folds
         PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
-                'action_id' => 1,
+                'action_id' => Action::where('name', 'Fold')->first()->id,
                 'bet_amount' => null,
                 'active' => 0
             ]);

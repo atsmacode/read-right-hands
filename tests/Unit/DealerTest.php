@@ -114,7 +114,7 @@ class DealerTest extends TestEnvironment
             'player_id' => $player2->id
         ])->create();
 
-       $this->dealer->setDeck()->shuffle()->dealTo($table->players);
+       $this->dealer->setDeck()->shuffle()->dealTo($table->fresh()->players);
 
        $this->assertCount(1, $player1->fresh()->wholeCards);
        $this->assertCount(1, $player2->fresh()->wholeCards);

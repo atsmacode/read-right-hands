@@ -2,16 +2,18 @@
 
 namespace App\Classes;
 
+use App\Models\Action;
 use App\Models\HandStreet;
 use App\Models\PlayerAction;
+use App\Models\Street;
 use App\Models\Table;
 use App\Models\Hand;
 use App\Models\TableSeat;
 
 class GamePlay
 {
-    protected $game;
-    protected $dealer;
+    public $game;
+    public $dealer;
     protected $actionOn;
 
     public function __construct(Hand $hand)
@@ -29,12 +31,19 @@ class GamePlay
         $this->updateSeatStatusOfLatestAction();
         $this->updateAllOtherSeatsBasedOnLatestAction();
 
+        // Showdown
+        if($this->hand->fresh()->streets->count() === count($this->game->streets) &&
+            $this->hand->fresh()->actions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
+            return $this->showdown();
+        }
+
         // If all active players can_continue
         if($this->hand->fresh()->actions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
+
             return $this->continue();
         }
 
-        // Else if latest hand is completed start a new one...
+        // If the hand is completed start a new one...
         if($this->hand->fresh()->completed_on){
             return $this->start();
         }
@@ -47,12 +56,22 @@ class GamePlay
 
     }
 
+    public function showdown()
+    {
+        return [
+            'hand' => $this->hand->fresh(),
+            'handTable' => $this->handTable->fresh(),
+            'actions' => $this->hand->actions->fresh(),
+            'winner' => 'test'
+        ];
+    }
+
     public function continue()
     {
 
         // Not keen on the way I'm adding/subtracting from the handStreets->count() to match array starting with 0
         $this->street = HandStreet::create([
-            'street_id' => $this->hand->fresh()->streets->count() + 1,
+            'street_id' => Street::where('name', $this->game->streets[$this->hand->fresh()->streets->count()]['name'])->first()->id,
             'hand_id' => $this->hand->id
         ]);
 
@@ -139,7 +158,7 @@ class GamePlay
     public function initiateStreetActions()
     {
         $this->street = HandStreet::create([
-            'street_id' => 1,
+            'street_id' => Street::where('name', 'Pre-flop')->first()->id,
             'hand_id' => $this->hand->id
         ]);
 
@@ -164,7 +183,7 @@ class GamePlay
             'table_seat_id' =>  $this->handTable->tableSeats->slice(0, 1)->first()->id,
             'hand_street_id' => $this->street->id,
         ])->update([
-            'action_id' => 4, // Bet
+            'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 25,
             'active' => 1,
         ]);
@@ -180,7 +199,7 @@ class GamePlay
             'table_seat_id' =>  $this->handTable->tableSeats->slice(1, 1)->first()->id,
             'hand_street_id' => $this->street->id,
         ])->update([
-            'action_id' => 4, // Bet
+            'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 50,
             'active' => 1,
         ]);
