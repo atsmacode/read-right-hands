@@ -13,4 +13,9 @@ class HandStreetCard extends Model
         'card_id',
         'hand_street_id'
     ];
+
+    public function card()
+    {
+        return $this->hasOne(Card::class, 'id', 'card_id');
+    }
 }

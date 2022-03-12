@@ -30,4 +30,14 @@ class PlayerAction extends Model
             'hand_id'
         );
     }
+
+    public function action()
+    {
+        return $this->hasOne(Action::class, 'id', 'action_id');
+    }
+
+    public function tableSeat()
+    {
+        return $this->hasOne(TableSeat::class, 'id', 'table_seat_id');
+    }
 }

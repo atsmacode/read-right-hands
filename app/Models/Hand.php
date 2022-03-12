@@ -18,7 +18,7 @@ class Hand extends Model
         return $this->belongsTo(Table::class, '');
     }
 
-    public function actions()
+    public function playerActions()
     {
         // This hasManyThrough returns empty collection, I've added hand_id directly to player_actions for now
         return $this->hasManyThrough(
@@ -32,5 +32,10 @@ class Hand extends Model
     public function streets()
     {
         return $this->hasMany(HandStreet::class, 'hand_id', 'id');
+    }
+
+    public function wholeCards()
+    {
+        return $this->hasMany(WholeCard::class, 'hand_id', 'id');
     }
 }

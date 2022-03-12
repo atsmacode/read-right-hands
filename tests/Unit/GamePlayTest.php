@@ -57,11 +57,11 @@ class GamePlayTest extends TestEnvironment
 
         // The small blind was posted
         $this->assertEquals(25.0, $response['actions']->slice(0, 1)->first()->bet_amount);
-        $this->assertEquals(4, $response['actions']->slice(0, 1)->first()->action_id);
+        $this->assertEquals('Bet', $response['actions']->slice(0, 1)->first()->action->name);
 
         // The big blind was posted
         $this->assertEquals(50.0, $response['actions']->slice(1, 1)->first()->bet_amount);
-        $this->assertEquals(4, $response['actions']->slice(1, 1)->first()->action_id);
+        $this->assertEquals('Bet', $response['actions']->slice(1, 1)->first()->action->name);
 
         // The last player at the table has not acted yet
         $this->assertEquals(null, $response['actions']->slice(2, 1)->first()->bet_amount);

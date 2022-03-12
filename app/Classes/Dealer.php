@@ -39,7 +39,7 @@ class Dealer
     public function pickCard(Rank $rank = null, Suit $suit = null)
     {
         if($rank === null && $suit === null){
-            $this->card = $this->deck->shift();
+            $this->card = $this->getDeck()->shift();
             return $this;
         }
 
@@ -110,7 +110,7 @@ class Dealer
     public function dealStreetCard($handStreet)
     {
 
-        $cardId = $this->setDeck()->pickCard()->getCard()->id;
+        $cardId = $this->pickCard()->getCard()->id;
 
         HandStreetCard::create([
             'card_id' => $cardId,

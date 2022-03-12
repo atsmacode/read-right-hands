@@ -31,28 +31,7 @@ class GamePlay
         $this->updateSeatStatusOfLatestAction();
         $this->updateAllOtherSeatsBasedOnLatestAction();
 
-        // Showdown
-        if($this->hand->fresh()->streets->count() === count($this->game->streets) &&
-            $this->hand->fresh()->actions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
-            return $this->showdown();
-        }
-
-        // If all active players can_continue
-        if($this->hand->fresh()->actions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
-
-            return $this->continue();
-        }
-
-        // If the hand is completed start a new one...
-        if($this->hand->fresh()->completed_on){
-            return $this->start();
-        }
-
-        return [
-            'hand' => $this->hand->fresh(),
-            'handTable' => $this->handTable->fresh(),
-            'actions' => $this->hand->actions->fresh()
-        ];
+        return $this->nextStep();
 
     }
 
@@ -61,8 +40,8 @@ class GamePlay
         return [
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
-            'actions' => $this->hand->actions->fresh(),
-            'winner' => 'test'
+            'actions' => $this->hand->playerActions->fresh(),
+            'winner' => (new Showdown($this->hand->fresh()))->decideWinner()
         ];
     }
 
@@ -84,7 +63,7 @@ class GamePlay
         return [
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
-            'actions' => $this->hand->actions->fresh()
+            'actions' => $this->hand->playerActions->fresh()
         ];
     }
 
@@ -108,15 +87,35 @@ class GamePlay
         return [
             'hand' => $this->hand,
             'handTable' => $this->handTable,
-            'actions' => $this->hand->actions
+            'actions' => $this->hand->playerActions
         ];
 
+    }
+
+    public function nextStep()
+    {
+        // Showdown
+        if($this->hand->fresh()->streets->count() === count($this->game->streets) &&
+            $this->hand->fresh()->playerActions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
+            return $this->showdown();
+        }
+
+        // If all active players can_continue
+        if($this->hand->fresh()->playerActions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
+
+            return $this->continue();
+        }
+
+        // If the hand is completed start a new one...
+        if($this->hand->fresh()->completed_on){
+            return $this->start();
+        }
     }
 
     public function updateAllOtherSeatsBasedOnLatestAction()
     {
         // Update the table seat status of the latest action accordingly
-        switch($this->hand->actions->fresh()->sortByDesc('updated_at')->first()->action_id){
+        switch($this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->action_id){
             case 4:
             case 5:
                 $canContinue = 0;
@@ -128,7 +127,7 @@ class GamePlay
 
         TableSeat::query()
             ->where('table_id', $this->handTable->id)
-            ->where('id', '!=', $this->hand->actions->fresh()->sortByDesc('updated_at')->first()->table_seat_id)
+            ->where('id', '!=', $this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->table_seat_id)
             ->update([
                 'can_continue' => $canContinue
             ]);
@@ -137,7 +136,7 @@ class GamePlay
     public function updateSeatStatusOfLatestAction()
     {
         // Update the table seat status of the latest action accordingly
-        switch($this->hand->actions->fresh()->sortByDesc('updated_at')->first()->action_id){
+        switch($this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->action_id){
             case 2:
             case 3:
             case 4:
@@ -149,7 +148,7 @@ class GamePlay
                 break;
         }
 
-        TableSeat::where('id', $this->hand->actions->fresh()->sortByDesc('updated_at')->first()->table_seat_id)
+        TableSeat::where('id', $this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->table_seat_id)
             ->update([
                 'can_continue' => $canContinue
             ]);

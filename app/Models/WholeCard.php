@@ -14,4 +14,9 @@ class WholeCard extends Model
         'player_id',
         'hand_id'
     ];
+
+    public function card()
+    {
+        return $this->hasOne(Card::class, 'id', 'card_id');
+    }
 }
