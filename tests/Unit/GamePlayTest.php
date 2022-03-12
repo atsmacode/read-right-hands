@@ -131,7 +131,7 @@ class GamePlayTest extends TestEnvironment
      * @test
      * @return void
      */
-    public function it_removes_a_folded_player_from_the_list_of_active_players()
+    public function it_removes_a_folded_player_from_the_list_of_seats_that_can_continue()
     {
         $response = $this->gamePlay->start();
 
@@ -158,14 +158,10 @@ class GamePlayTest extends TestEnvironment
                 'active' => 0
             ]);
 
-        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
-            ->update([
-                'can_continue' => 0
-            ]);
-
         $response = $this->gamePlay->play();
 
-        $this->assertCount(2, $response['actions']->fresh()->where('active', 1));
+        $this->assertCount(2, $response['handTable']->tableSeats->where('can_continue', 1));
+        $this->assertEquals(0, $response['handTable']->tableSeats->slice(0, 1)->first()->can_continue);
 
     }
 
