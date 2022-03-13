@@ -9,9 +9,10 @@ use App\Models\Suit;
 class HandIdentifier
 {
     protected $handTytpes;
-    public $allCards;
+    protected $allCards;
     protected $pairs = [];
     protected $threeOfAKind = false;
+    protected $straight = false;
     protected $flush = false;
     protected $fourOfAKind;
     protected $royalFlush = false;
@@ -23,7 +24,7 @@ class HandIdentifier
 
     public function identify($wholeCards, $communityCards)
     {
-        $this->allCards = collect(array_merge($wholeCards, $communityCards));
+        $this->allCards = collect(array_merge($wholeCards, $communityCards))->sortByDesc('ranking')->values();
 
         return $this;
     }
@@ -76,10 +77,34 @@ class HandIdentifier
 
     public function hasStraight()
     {
-        $sort =
-        $straight = $this->allCards->filter(function($value, $key){
 
-        });
+        $straight = $this->allCards->filter(function($value, $key) {
+
+            $nextCardRankingPlusOne = null;
+            $previousCardRankingMinusOne = null;
+
+            if(array_key_exists($key + 1, $this->allCards->toArray())){
+                $nextCardRankingPlusOne = $this->allCards[$key + 1]->ranking + 1;
+            }
+
+            if(array_key_exists($key - 1, $this->allCards->toArray())){
+                $previousCardRankingMinusOne = $this->allCards[$key - 1]->ranking - 1;
+            }
+
+            return $value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne;
+
+        })->unique(function ($item) {
+
+            return $item['rank']['ranking'];
+
+        })->take(5);
+
+        if($straight && count($straight) === 5){
+            $this->straight = $straight;
+            return true;
+        }
+
+        return false;
     }
 
     public function hasFlush()
