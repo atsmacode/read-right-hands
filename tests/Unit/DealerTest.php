@@ -4,8 +4,11 @@ namespace Tests\Unit;
 
 use App\Classes\Dealer;
 use App\Models\Card;
+use App\Models\Hand;
+use App\Models\HandStreet;
 use App\Models\Player;
 use App\Models\Rank;
+use App\Models\Street;
 use App\Models\Suit;
 use App\Models\Table;
 use App\Models\TableSeat;
@@ -120,6 +123,48 @@ class DealerTest extends TestEnvironment
        $this->assertCount(1, $player2->fresh()->wholeCards);
 
 
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function it_can_deal_a_street_card()
+    {
+
+        $handStreet = HandStreet::factory()->create([
+            'street_id' => Street::where('name', 'Flop')->first()->id,
+            'hand_id' => Hand::factory()->create()
+        ]);
+
+        $this->dealer->setDeck()->dealStreetCard($handStreet);
+
+        $this->assertCount(1, $handStreet->cards);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function it_can_deal_a_specific_street_card()
+    {
+
+        $handStreet = HandStreet::factory()->create([
+            'street_id' => Street::where('name', 'Flop')->first()->id,
+            'hand_id' => Hand::factory()->create()
+        ]);
+
+        $rank = Rank::where('name', 'Ace')->first();
+        $suit = Suit::where('name', 'Spades')->first();
+
+        $this->dealer->setDeck()->dealThisStreetCard($rank, $suit, $handStreet);
+
+        $this->assertCount(1, $handStreet->cards);
+
+        $this->assertTrue($handStreet->cards->contains('card_id', Card::where([
+            'rank_id' => $rank->id,
+            'suit_id' => $suit->id
+        ])->first()->id));
     }
 
 }

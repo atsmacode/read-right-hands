@@ -120,4 +120,24 @@ class Dealer
         return $this;
 
     }
+
+    /**
+     * @param HandStreet $handStreet
+     * @param Rank $rank
+     * @param Suit $suit
+     * @return $this
+     */
+    public function dealThisStreetCard($rank, $suit, $handStreet)
+    {
+
+        $cardId = $this->pickCard($rank, $suit)->getCard()->id;
+
+        HandStreetCard::create([
+            'card_id' => $cardId,
+            'hand_street_id' => $handStreet->id
+        ]);
+
+        return $this;
+
+    }
 }
