@@ -9,7 +9,7 @@ use App\Models\Suit;
 class HandIdentifier
 {
     protected $handTytpes;
-    protected $allCards;
+    public $allCards;
     protected $pairs = [];
     protected $threeOfAKind = false;
     protected $flush = false;
@@ -31,15 +31,10 @@ class HandIdentifier
     public function highestCard()
     {
 
-        $max = $this->allCards->filter(function($value, $key){
-            if($key > 0){
-                return $value->rank->ranking > $this->allCards[$key - 1]->rank->ranking || $value->rank->ranking === 1;
-            }
-
-            return $value->rank->ranking > $this->allCards[$key + 1]->rank->ranking || $value->rank->ranking === 1;
-        })->first();
-
-        return $max->rank->ranking;
+        if($this->allCards->pluck('ranking')->min() === 1){
+            return 1;
+        }
+        return $this->allCards->pluck('ranking')->max();
     }
 
     public function hasPair()
@@ -75,12 +70,16 @@ class HandIdentifier
             }
         }
 
+        // There could be 2 trips - add handling for this
         return $this->threeOfAKind;
     }
 
     public function hasStraight()
     {
+        $sort =
+        $straight = $this->allCards->filter(function($value, $key){
 
+        });
     }
 
     public function hasFlush()

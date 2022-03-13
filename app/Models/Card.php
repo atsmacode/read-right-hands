@@ -25,5 +25,10 @@ class Card extends Model
         return $this->hasOne(Suit::class, 'id', 'suit_id');
     }
 
+    public function getRankingAttribute()
+    {
+        return $this->rank->ranking;
+    }
+
 
 }
