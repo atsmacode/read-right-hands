@@ -64,6 +64,6 @@ return [
     [
         'name' => 'King',
         'abbreviation' => 'K',
-        'ranking' => 12
+        'ranking' => 13
     ],
 ];
