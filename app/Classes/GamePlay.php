@@ -41,7 +41,7 @@ class GamePlay
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
             'actions' => $this->hand->playerActions->fresh(),
-            'winner' => (new Showdown($this->hand->fresh()))->decideWinner()
+            'winner' => (new Showdown($this->hand->fresh()))->compileHands()->decideWinner()
         ];
     }
 

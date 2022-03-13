@@ -23,8 +23,6 @@ class Showdown
 
     public function decideWinner()
     {
-        $this->compileHands();
-
         // Return the player hand with the highest rank
         return $this->playerHands;
     }
@@ -40,6 +38,8 @@ class Showdown
             }
             $this->playerHands[$tableSeat->player->id] = $this->handIdentifier->identify($wholeCards, $this->communityCards);
         }
+
+        return $this;
 
     }
 
