@@ -60,96 +60,61 @@ class ShowdownTest extends TestEnvironment
 
         $response = $this->gamePlay->initiateStreetActions()->postBlinds();
 
-        WholeCard::factory([
-            'player_id' => $this->player3->id,
-            'card_id' => Card::where([
-                'rank_id' => Rank::where('name', 'Ace')->first()->id,
-                'suit_id' => Suit::where('name', 'Spades')->first()->id
-            ])->first(),
-            'hand_id' => $this->gamePlay->hand->id
-        ])->create();
+        $wholeCards = [
+            [
+                'player' => $this->player3,
+                'rank' => 'Ace',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'King',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player2,
+                'rank' => 'Eight',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player2,
+                'rank' => 'Nine',
+                'suit' => 'Spades'
+            ],
+        ];
 
-        WholeCard::factory([
-            'player_id' => $this->player3->id,
-            'card_id' => Card::where([
-                'rank_id' => Rank::where('name', 'King')->first()->id,
-                'suit_id' => Suit::where('name', 'Spades')->first()->id
-            ])->first(),
-            'hand_id' => $this->gamePlay->hand->id
-        ])->create();
+        $this->setWholeCards($wholeCards);
 
-        WholeCard::factory([
-            'player_id' => $this->player2->id,
-            'card_id' => Card::where([
-                'rank_id' => Rank::where('name', 'Eight')->first()->id,
-                'suit_id' => Suit::where('name', 'Spades')->first()->id
-            ])->first(),
-            'hand_id' => $this->gamePlay->hand->id
-        ])->create();
+        $flopCards = [
+            [
+                'rank' => 'Queen',
+                'suit' => 'Spades'
+            ],
+            [
+                'rank' => 'Three',
+                'suit' => 'Hearts'
+            ],
+            [
+                'rank' => 'Seven',
+                'suit' => 'Diamonds'
+            ]
+        ];
 
-        WholeCard::factory([
-            'player_id' => $this->player2->id,
-            'card_id' => Card::where([
-                'rank_id' => Rank::where('name', 'Nine')->first()->id,
-                'suit_id' => Suit::where('name', 'Spades')->first()->id
-            ])->first(),
-            'hand_id' => $this->gamePlay->hand->id
-        ])->create();
+        $this->setFlop($flopCards);
 
-        $flop = HandStreet::factory()->create([
-            'street_id' => Street::where('name', $this->gamePlay->game->streets[1]['name'])->first()->id,
-            'hand_id' => $this->gamePlay->hand->id
-        ]);
+        $turnCard = [
+            'rank' => 'Jack',
+            'suit' => 'Spades'
+        ];
 
-        HandStreetCard::factory()->create([
-            'hand_street_id' => $flop->id,
-            'card_id' => Card::where([
-                'rank_id' => Rank::where('name', 'Queen')->first()->id,
-                'suit_id' => Suit::where('name', 'Spades')->first()->id
-            ])->first()
-        ]);
+        $this->setTurn($turnCard);
 
-        HandStreetCard::factory()->create([
-            'hand_street_id' => $flop->id,
-            'card_id' => Card::where([
-                'rank_id' => Rank::where('name', 'Three')->first()->id,
-                'suit_id' => Suit::where('name', 'Hearts')->first()->id
-            ])->first()
-        ]);
+        $riverCard = [
+            'rank' => 'Ten',
+            'suit' => 'Spades'
+        ];
 
-        HandStreetCard::factory()->create([
-            'hand_street_id' => $flop->id,
-            'card_id' => Card::where([
-                'rank_id' => Rank::where('name', 'Seven')->first()->id,
-                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
-            ])->first()
-        ]);
-
-        $turn = HandStreet::factory()->create([
-            'street_id' => Street::where('name', $this->gamePlay->game->streets[2]['name'])->first()->id,
-            'hand_id' => $this->gamePlay->hand->id
-        ]);
-
-        HandStreetCard::factory()->create([
-            'hand_street_id' => $turn->id,
-            'card_id' => Card::where([
-                'rank_id' => Rank::where('name', 'Jack')->first()->id,
-                'suit_id' => Suit::where('name', 'Spades')->first()->id
-            ])->first()
-        ]);
-
-        $river = HandStreet::factory()->create([
-            'street_id' => Street::where('name', $this->gamePlay->game->streets[3]['name'])->first()->id,
-            'hand_id' => $this->gamePlay->hand->id
-        ]);
-
-        HandStreetCard::factory()->create([
-            'hand_street_id' => $river->id,
-            'card_id' => Card::where([
-                'rank_id' => Rank::where('name', 'Ten')->first()->id,
-                'suit_id' => Suit::where('name', 'Spades')->first()->id
-            ])->first()
-        ]);
+        $this->setRiver($riverCard);
 
         $this->executeActions([
             'actions' => $response->hand->playerActions->fresh(),
@@ -161,6 +126,70 @@ class ShowdownTest extends TestEnvironment
         $this->assertEquals($this->player3->id, $response['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'Royal Flush')->first()->id, $response['winner']['handType']->id);
 
+    }
+
+    protected function setWholeCards($wholeCards)
+    {
+        foreach($wholeCards as $wholeCard){
+            WholeCard::factory([
+                'player_id' => $wholeCard['player']->id,
+                'card_id' => Card::where([
+                    'rank_id' => Rank::where('name', $wholeCard['rank'])->first()->id,
+                    'suit_id' => Suit::where('name', $wholeCard['suit'])->first()->id
+                ])->first(),
+                'hand_id' => $this->gamePlay->hand->id
+            ])->create();
+        }
+    }
+
+    protected function setflop($flopCards)
+    {
+        $flop = HandStreet::factory()->create([
+            'street_id' => Street::where('name', $this->gamePlay->game->streets[1]['name'])->first()->id,
+            'hand_id' => $this->gamePlay->hand->id
+        ]);
+
+        foreach($flopCards as $card){
+            HandStreetCard::factory()->create([
+                'hand_street_id' => $flop->id,
+                'card_id' => Card::where([
+                    'rank_id' => Rank::where('name', $card['rank'])->first()->id,
+                    'suit_id' => Suit::where('name', $card['suit'])->first()->id
+                ])->first()
+            ]);
+        }
+    }
+
+    protected function setTurn($turnCard)
+    {
+        $turn = HandStreet::factory()->create([
+            'street_id' => Street::where('name', $this->gamePlay->game->streets[2]['name'])->first()->id,
+            'hand_id' => $this->gamePlay->hand->id
+        ]);
+
+        HandStreetCard::factory()->create([
+            'hand_street_id' => $turn->id,
+            'card_id' => Card::where([
+                'rank_id' => Rank::where('name', $turnCard['rank'])->first()->id,
+                'suit_id' => Suit::where('name', $turnCard['suit'])->first()->id
+            ])->first()
+        ]);
+    }
+
+    protected function setRiver($riverCard)
+    {
+        $river = HandStreet::factory()->create([
+            'street_id' => Street::where('name', $this->gamePlay->game->streets[3]['name'])->first()->id,
+            'hand_id' => $this->gamePlay->hand->id
+        ]);
+
+        HandStreetCard::factory()->create([
+            'hand_street_id' => $river->id,
+            'card_id' => Card::where([
+                'rank_id' => Rank::where('name', $riverCard['rank'])->first()->id,
+                'suit_id' => Suit::where('name', $riverCard['suit'])->first()->id
+            ])->first()
+        ]);
     }
 
     protected function executeActions($response)
