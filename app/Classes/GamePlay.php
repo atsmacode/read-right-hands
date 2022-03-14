@@ -186,14 +186,6 @@ class GamePlay
 
     public function postBlinds()
     {
-        PlayerAction::where([
-            'player_id' =>  $this->handTable->tableSeats->slice(0, 1)->first()->player->id,
-            'table_seat_id' =>  $this->handTable->tableSeats->slice(0, 1)->first()->id,
-            'hand_street_id' => HandStreet::where([
-                'street_id' => Street::where('name', $this->game->streets[0]['name'])->first()->id,
-                'hand_id' => $this->hand->id
-            ])->first()->id
-        ])->first();
 
         // Small Blind
         PlayerAction::where([
