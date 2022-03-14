@@ -80,7 +80,6 @@ class HandIdentifier
             return true;
         }
 
-        $this->pairs = [];
         return $this;
     }
 
