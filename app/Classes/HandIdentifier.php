@@ -16,8 +16,8 @@ class HandIdentifier
     public $threeOfAKind = false;
     public $straight = false;
     public $flush = false;
-    public $fullHouse;
-    public $fourOfAKind;
+    public $fullHouse = false;
+    public $fourOfAKind = false;
     public $straightFlush = false;
     public $royalFlush = false;
     public $handMethods = [

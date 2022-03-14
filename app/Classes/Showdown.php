@@ -11,6 +11,7 @@ class Showdown
     public $hand;
     public $communityCards = [];
     public $playerHands = [];
+    public $winner;
 
     /**
      * @param Hand $hand
@@ -24,7 +25,12 @@ class Showdown
     public function decideWinner()
     {
         // Return the player hand with the highest rank
-        return $this->playerHands;
+        return collect($this->playerHands)
+            ->sortBy(function ($item) {
+                return $item['handType']['ranking'];
+            })
+            ->values()
+            ->first();
     }
 
     public function compileHands()
@@ -36,7 +42,11 @@ class Showdown
             foreach($tableSeat->player->wholeCards->where('hand_id', $this->hand->id) as $wholeCard){
                 $wholeCards[] = $wholeCard->card;
             }
-            $this->playerHands[$tableSeat->player->id] = $this->handIdentifier->identify($wholeCards, $this->communityCards);
+
+            $this->playerHands[] = [
+                'player' => $tableSeat->player,
+                'handType' => $this->handIdentifier->identify($wholeCards, $this->communityCards)->identifiedHandType
+            ];
         }
 
         return $this;

@@ -39,14 +39,10 @@ class CreateTable extends Command
      */
     public function handle()
     {
-        $table = Table::factory([
+        Table::factory([
             'name' => 'Table 1',
             'seats' => 3
         ])->create();
-
-        TableSeat::factory([
-            'table_id' => $table->id
-        ])->count(3)->create();
 
         return 0;
     }

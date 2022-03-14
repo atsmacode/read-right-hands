@@ -94,6 +94,7 @@ class GamePlay
 
     public function nextStep()
     {
+
         // Showdown
         if($this->hand->fresh()->streets->count() === count($this->game->streets) &&
             $this->hand->fresh()->playerActions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
@@ -172,15 +173,36 @@ class GamePlay
                 'active' => 1
             ]);
         }
+
+        return $this;
+    }
+
+    public function setStreet($street)
+    {
+        $this->street = $street;
+
+        return $this;
     }
 
     public function postBlinds()
     {
+        PlayerAction::where([
+            'player_id' =>  $this->handTable->tableSeats->slice(0, 1)->first()->player->id,
+            'table_seat_id' =>  $this->handTable->tableSeats->slice(0, 1)->first()->id,
+            'hand_street_id' => HandStreet::where([
+                'street_id' => Street::where('name', $this->game->streets[0]['name'])->first()->id,
+                'hand_id' => $this->hand->id
+            ])->first()->id
+        ])->first();
+
         // Small Blind
         PlayerAction::where([
             'player_id' =>  $this->handTable->tableSeats->slice(0, 1)->first()->player->id,
             'table_seat_id' =>  $this->handTable->tableSeats->slice(0, 1)->first()->id,
-            'hand_street_id' => $this->street->id,
+            'hand_street_id' => HandStreet::where([
+                'street_id' => Street::where('name', $this->game->streets[0]['name'])->first()->id,
+                'hand_id' => $this->hand->id
+            ])->first()->id
         ])->update([
             'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 25,
@@ -196,7 +218,10 @@ class GamePlay
         PlayerAction::where([
             'player_id' =>  $this->handTable->tableSeats->slice(1, 1)->first()->player->id,
             'table_seat_id' =>  $this->handTable->tableSeats->slice(1, 1)->first()->id,
-            'hand_street_id' => $this->street->id,
+            'hand_street_id' => HandStreet::where([
+                'street_id' => Street::where('name', $this->game->streets[0]['name'])->first()->id,
+                'hand_id' => $this->hand->id
+            ])->first()->id
         ])->update([
             'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 50,
@@ -207,6 +232,8 @@ class GamePlay
             ->update([
                 'can_continue' => 1
             ]);
+
+        return $this;
 
     }
 
