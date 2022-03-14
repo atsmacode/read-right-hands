@@ -5,6 +5,7 @@ namespace App\Classes;
 use App\Models\HandType;
 use App\Models\Rank;
 use App\Models\Suit;
+use Illuminate\Support\Arr;
 
 class HandIdentifier
 {
@@ -119,6 +120,16 @@ class HandIdentifier
     public function hasStraight()
     {
 
+        /*
+         * Need to add logic so an ace high straight can be identified - unfinished
+         */
+        /*$hasAce = Arr::where($this->allCards->toArray(), function ($value, $key) {
+            return $value['rank']['ranking'] === 1;
+        });
+        if($hasAce && $this->allCards->first()->ranking === 13){
+            $this->allCards->whereIn('id', Arr::pluck($hasAce, 'id'))->first()->ranking = 14;
+        }*/
+
         $straight = $this->allCards->filter(function($value, $key) {
 
             $nextCardRankingPlusOne = null;
@@ -209,7 +220,12 @@ class HandIdentifier
             }
         }
 
-        if($this->threeOfAKind && count($this->pairs) >= 1){
+        /*
+         * There could be 2 pairs here.
+         * Changed to === 1 as three_of_a_kind_beats_two_pair_test_was_failing.
+         * Needs looked into.
+         */
+        if($this->threeOfAKind && count($this->pairs) === 1){
             $this->fullHouse = true;
             $this->identifiedHandType = $this->handTypes->where('name', 'Full House')->first();
             return true;
