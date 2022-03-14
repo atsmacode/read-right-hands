@@ -21,31 +21,27 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
     {
         parent::setUp();
 
-        $this->table = Table::factory([
-            'name' => 'Table 1',
-            'seats' => 3
-        ])->create();
+        $this->gamePlay = new GamePlay(Hand::create());
 
         $this->player1 = Player::factory()->create();
         $this->player2 = Player::factory()->create();
         $this->player3 = Player::factory()->create();
 
         TableSeat::factory([
-            'table_id' => $this->table->id,
+            'table_id' => $this->gamePlay->handTable->id,
             'player_id' => $this->player1->id
         ])->create();
 
         TableSeat::factory([
-            'table_id' => $this->table->id,
+            'table_id' => $this->gamePlay->handTable->id,
             'player_id' => $this->player2->id
         ])->create();
 
         TableSeat::factory([
-            'table_id' => $this->table->id,
+            'table_id' => $this->gamePlay->handTable->id,
             'player_id' => $this->player3->id
         ])->create();
 
-        $this->gamePlay = new GamePlay(Hand::create());
     }
 
      /**
