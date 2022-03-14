@@ -39,7 +39,6 @@ return [
     ],
     [
         'name' => 'High Card',
-        'abbreviation' => '10',
         'ranking' => 10
     ]
 ];

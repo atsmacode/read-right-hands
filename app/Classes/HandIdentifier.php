@@ -41,6 +41,8 @@ class HandIdentifier
             $this->highCard = $this->allCards->pluck('ranking')->max();
         }
 
+        $this->identifiedHandType = $this->handTypes->where('name', 'High Card')->first();
+
         return $this;
     }
 
@@ -54,6 +56,7 @@ class HandIdentifier
         }
 
         if(count($this->pairs) === 1){
+            $this->identifiedHandType = $this->handTypes->where('name', 'Pair')->first();
             return true;
         }
 
@@ -70,6 +73,7 @@ class HandIdentifier
         }
 
         if(count($this->pairs) >= 2){
+            $this->identifiedHandType = $this->handTypes->where('name', 'Two Pair')->first();
             return true;
         }
 
@@ -82,6 +86,7 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 3){
                 $this->threeOfAKind = $rank;
+                $this->identifiedHandType = $this->handTypes->where('name', 'Three of a Kind')->first();
                 return true;
             }
         }
@@ -116,6 +121,7 @@ class HandIdentifier
 
         if($straight && count($straight) === 5){
             $this->straight = $straight;
+            $this->identifiedHandType = $this->handTypes->where('name', 'Straight')->first();
             return true;
         }
 
@@ -127,6 +133,7 @@ class HandIdentifier
         foreach(Suit::all() as $suit){
             if($this->allCards->where('suit_id', $suit->id)->count() >= 5){
                 $this->flush = $suit;
+                $this->identifiedHandType = $this->handTypes->where('name', 'Flush')->first();
                 return true;
             }
         }
@@ -140,6 +147,7 @@ class HandIdentifier
         $this->hasThreeOfAKind();
 
         if($this->hasTwoPair() && $this->hasThreeOfAKind()){
+            $this->identifiedHandType = $this->handTypes->where('name', 'Full House')->first();
             return true;
         }
 
@@ -151,6 +159,7 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 4){
                 $this->fourOfAKind = $rank;
+                $this->identifiedHandType = $this->handTypes->where('name', 'Four of a Kind')->first();
                 return true;
             }
         }
@@ -181,6 +190,7 @@ class HandIdentifier
 
             if($straightFlush && count($straightFlush) === 5){
                 $this->straightFlush = $straightFlush;
+                $this->identifiedHandType = $this->handTypes->where('name', 'Straight Flush')->first();
                 return true;
             }
         }
@@ -202,6 +212,7 @@ class HandIdentifier
 
             if($royalFlush && count($royalFlush) === 5){
                 $this->royalFlush = $royalFlush;
+                $this->identifiedHandType = $this->handTypes->where('name', 'Royal Flush')->first();
                 return true;
             }
         }
