@@ -575,6 +575,92 @@ class HandIdentifierTest extends TestEnvironment
      * @test
      * @return void
      */
+    public function it_can_identify_a_straight_flush()
+    {
+        $wholeCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Four')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Five')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
+            ])->first()
+        ];
+
+        $communityCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Six')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Seven')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Eight')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Deuce')->first()->id,
+                'suit_id' => Suit::where('name', 'Hearts')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Six')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id,
+            ])->first(),
+        ];
+
+        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasStraightFlush());
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function it_can_identify_that_four_suited_connectors_is_not_a_straight_flush()
+    {
+        $wholeCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Four')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Five')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
+            ])->first()
+        ];
+
+        $communityCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Six')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Seven')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Eight')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Deuce')->first()->id,
+                'suit_id' => Suit::where('name', 'Hearts')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Six')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id,
+            ])->first(),
+        ];
+
+        $this->assertFalse($this->handIdentifier->identify($wholeCards, $communityCards)->hasStraightFlush()->straightFlush);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
     public function it_can_identify_a_royal_flush()
     {
         $wholeCards = [

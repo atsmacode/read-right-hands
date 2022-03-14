@@ -160,7 +160,32 @@ class HandIdentifier
 
     public function hasStraightFlush()
     {
+        foreach(Suit::all() as $suit){
+            $straightFlush = $this->allCards->filter(function($value, $key) use ($suit){
 
+
+                $nextCardRankingPlusOne = null;
+                $previousCardRankingMinusOne = null;
+
+                if(array_key_exists($key + 1, $this->allCards->toArray())){
+                    $nextCardRankingPlusOne = $this->allCards[$key + 1]->ranking + 1;
+                }
+
+                if(array_key_exists($key - 1, $this->allCards->toArray())){
+                    $previousCardRankingMinusOne = $this->allCards[$key - 1]->ranking - 1;
+                }
+
+                return $value->suit_id === $suit->id &&
+                    ($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne);
+            });
+
+            if($straightFlush && count($straightFlush) === 5){
+                $this->straightFlush = $straightFlush;
+                return true;
+            }
+        }
+
+        return $this;
     }
 
     public function hasRoyalFlush()
