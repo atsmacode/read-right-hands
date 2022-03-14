@@ -8,18 +8,21 @@ use App\Models\Suit;
 
 class HandIdentifier
 {
-    protected $handTytpes;
-    protected $allCards;
-    protected $pairs = [];
-    protected $threeOfAKind = false;
-    protected $straight = false;
-    protected $flush = false;
-    protected $fourOfAKind;
-    protected $royalFlush = false;
+    protected $handTypes;
+    public $identifiedHandType;
+    public $allCards;
+    public $highCard;
+    public $pairs = [];
+    public $threeOfAKind = false;
+    public $straight = false;
+    public $flush = false;
+    public $fourOfAKind;
+    public $straightFlush = false;
+    public $royalFlush = false;
 
     public function __construct()
     {
-        $this->handTytpes = HandType::all();
+        $this->handTypes = HandType::all();
     }
 
     public function identify($wholeCards, $communityCards)
@@ -33,9 +36,12 @@ class HandIdentifier
     {
 
         if($this->allCards->pluck('ranking')->min() === 1){
-            return 1;
+            $this->highCard = 1;
+        } else {
+            $this->highCard = $this->allCards->pluck('ranking')->max();
         }
-        return $this->allCards->pluck('ranking')->max();
+
+        return $this;
     }
 
     public function hasPair()
@@ -47,7 +53,11 @@ class HandIdentifier
             }
         }
 
-        return count($this->pairs) === 1;
+        if(count($this->pairs) === 1){
+            return true;
+        }
+
+        return $this;
     }
 
     public function hasTwoPair()
@@ -59,7 +69,11 @@ class HandIdentifier
             }
         }
 
-        return count($this->pairs) >= 2;
+        if(count($this->pairs) >= 2){
+            return true;
+        }
+
+        return $this;
     }
 
     public function hasThreeOfAKind()
@@ -68,11 +82,12 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 3){
                 $this->threeOfAKind = $rank;
+                return true;
             }
         }
 
         // There could be 2 trips - add handling for this
-        return $this->threeOfAKind;
+        return $this;
     }
 
     public function hasStraight()
@@ -104,7 +119,7 @@ class HandIdentifier
             return true;
         }
 
-        return false;
+        return $this;
     }
 
     public function hasFlush()
@@ -112,10 +127,11 @@ class HandIdentifier
         foreach(Suit::all() as $suit){
             if($this->allCards->where('suit_id', $suit->id)->count() >= 5){
                 $this->flush = $suit;
+                return true;
             }
         }
 
-        return $this->flush;
+        return $this;
     }
 
     public function hasFullHouse()
@@ -123,7 +139,11 @@ class HandIdentifier
         $this->hasTwoPair();
         $this->hasThreeOfAKind();
 
-        return $this->hasTwoPair() && $this->hasThreeOfAKind();
+        if($this->hasTwoPair() && $this->hasThreeOfAKind()){
+            return true;
+        }
+
+        return $this;
     }
 
     public function hasFourOfAKind()
@@ -131,10 +151,11 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 4){
                 $this->fourOfAKind = $rank;
+                return true;
             }
         }
 
-        return $this->fourOfAKind;
+        return $this;
     }
 
     public function hasStraightFlush()
@@ -160,6 +181,6 @@ class HandIdentifier
             }
         }
 
-        return false;
+        return $this;
     }
 }
