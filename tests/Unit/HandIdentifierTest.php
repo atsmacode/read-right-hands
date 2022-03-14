@@ -36,37 +36,46 @@ class HandIdentifierTest extends TestEnvironment
     {
         $wholeCards = [
             Card::where([
-                'rank_id' => Rank::where('name', 'Deuce')->first()->id
+                'rank_id' => Rank::where('name', 'Deuce')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'King')->first()->id
+                'rank_id' => Rank::where('name', 'King')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
             ])->first()
         ];
 
         $communityCards = [
             Card::where([
-                'rank_id' => Rank::where('name', 'Queen')->first()->id
+                'rank_id' => Rank::where('name', 'Queen')->first()->id,
+                'suit_id' => Suit::where('name', 'Hearts')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Jack')->first()->id
+                'rank_id' => Rank::where('name', 'Seven')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Ten')->first()->id
+                'rank_id' => Rank::where('name', 'Ten')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Nine')->first()->id
+                'rank_id' => Rank::where('name', 'Three')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Eight')->first()->id
+                'rank_id' => Rank::where('name', 'Four')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
             ])->first(),
         ];
 
-        $this->assertEquals(
-            Rank::where('name', 'King')->first()->ranking,
-            $this->handIdentifier->identify($wholeCards, $communityCards)->highestCard()->highCard
-        );
+        $this->handIdentifier->identify($wholeCards, $communityCards);
 
         $this->assertEquals('High Card', $this->handIdentifier->identifiedHandType->name);
+
+        $this->assertEquals(
+            Rank::where('name', 'King')->first()->ranking,
+            $this->handIdentifier->highCard
+        );
 
     }
 
@@ -78,37 +87,47 @@ class HandIdentifierTest extends TestEnvironment
     {
         $wholeCards = [
             Card::where([
-                'rank_id' => Rank::where('name', 'Ace')->first()->id
+                'rank_id' => Rank::where('name', 'Ace')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'King')->first()->id
+                'rank_id' => Rank::where('name', 'King')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
             ])->first()
         ];
 
         $communityCards = [
             Card::where([
-                'rank_id' => Rank::where('name', 'Queen')->first()->id
+                'rank_id' => Rank::where('name', 'Queen')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Jack')->first()->id
+                'rank_id' => Rank::where('name', 'Four')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Ten')->first()->id
+                'rank_id' => Rank::where('name', 'Ten')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Nine')->first()->id
+                'rank_id' => Rank::where('name', 'Deuce')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Eight')->first()->id
+                'rank_id' => Rank::where('name', 'Eight')->first()->id,
+                'suit_id' => Suit::where('name', 'Hearts')->first()->id
             ])->first(),
         ];
 
-        $this->assertEquals(
-            Rank::where('name', 'Ace')->first()->ranking,
-            $this->handIdentifier->identify($wholeCards, $communityCards)->highestCard()->highCard
-        );
+        $this->handIdentifier->identify($wholeCards, $communityCards);
 
         $this->assertEquals('High Card', $this->handIdentifier->identifiedHandType->name);
+
+        $this->assertEquals(
+            Rank::where('name', 'Ace')->first()->ranking,
+            $this->handIdentifier->highCard
+        );
+
     }
 
     /**
@@ -124,6 +143,7 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
             Card::where([
                 'rank_id' => Rank::where('name', 'King')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
             ])->first()
         ];
 
@@ -133,22 +153,26 @@ class HandIdentifierTest extends TestEnvironment
                 'suit_id' => Suit::where('name', 'Hearts')->first()->id,
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Jack')->first()->id
+                'rank_id' => Rank::where('name', 'Jack')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Ten')->first()->id
+                'rank_id' => Rank::where('name', 'Four')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Nine')->first()->id
+                'rank_id' => Rank::where('name', 'Nine')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id
             ])->first(),
             Card::where([
-                'rank_id' => Rank::where('name', 'Eight')->first()->id
+                'rank_id' => Rank::where('name', 'Seven')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasPair());
-        $this->assertCount(1, $this->handIdentifier->pairs);
+        $this->handIdentifier->identify($wholeCards, $communityCards);
         $this->assertEquals('Pair', $this->handIdentifier->identifiedHandType->name);
+        $this->assertCount(1, $this->handIdentifier->pairs);
 
     }
 
@@ -189,9 +213,9 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasTwoPair());
-        $this->assertCount(2, $this->handIdentifier->pairs);
+        $this->handIdentifier->identify($wholeCards, $communityCards);
         $this->assertEquals('Two Pair', $this->handIdentifier->identifiedHandType->name);
+        $this->assertCount(2, $this->handIdentifier->pairs);
     }
 
     /**
@@ -231,14 +255,14 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasThreeOfAKind());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
+
+        $this->assertEquals('Three of a Kind', $this->handIdentifier->identifiedHandType->name);
 
         $this->assertEquals(
             Rank::where('name', 'King')->first(),
             $this->handIdentifier->threeOfAKind
         );
-
-        $this->assertEquals('Three of a Kind', $this->handIdentifier->identifiedHandType->name);
 
     }
 
@@ -280,7 +304,7 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasStraight());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
         $this->assertEquals('Straight', $this->handIdentifier->identifiedHandType->name);
     }
 
@@ -323,7 +347,7 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasStraight());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
         $this->assertEquals('Straight', $this->handIdentifier->identifiedHandType->name);
 
     }
@@ -366,7 +390,7 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasStraight());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
         $this->assertEquals('Straight', $this->handIdentifier->identifiedHandType->name);
 
     }
@@ -410,7 +434,7 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasStraight());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
         $this->assertEquals('Straight', $this->handIdentifier->identifiedHandType->name);
 
     }
@@ -454,7 +478,8 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertFalse($this->handIdentifier->identify($wholeCards, $communityCards)->hasStraight()->straight);
+        $this->handIdentifier->identify($wholeCards, $communityCards);
+        $this->assertFalse($this->handIdentifier->straight);
 
     }
 
@@ -496,15 +521,14 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue(
-            $this->handIdentifier->identify($wholeCards, $communityCards)->hasFlush());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
+
+        $this->assertEquals('Flush', $this->handIdentifier->identifiedHandType->name);
 
         $this->assertEquals(
             Suit::where('name', 'Spades')->first(),
             $this->handIdentifier->flush
         );
-
-        $this->assertEquals('Flush', $this->handIdentifier->identifiedHandType->name);
 
     }
 
@@ -546,7 +570,7 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasFullHouse());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
         $this->assertEquals('Full House', $this->handIdentifier->identifiedHandType->name);
 
     }
@@ -589,14 +613,14 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasFourOfAKind());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
+
+        $this->assertEquals('Four of a Kind', $this->handIdentifier->identifiedHandType->name);
 
         $this->assertEquals(
             Rank::where('name', 'King')->first(),
             $this->handIdentifier->fourOfAKind
         );
-
-        $this->assertEquals('Four of a Kind', $this->handIdentifier->identifiedHandType->name);
 
     }
 
@@ -640,7 +664,7 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasStraightFlush());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
         $this->assertEquals('Straight Flush', $this->handIdentifier->identifiedHandType->name);
 
     }
@@ -685,7 +709,8 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertFalse($this->handIdentifier->identify($wholeCards, $communityCards)->hasStraightFlush()->straightFlush);
+        $this->handIdentifier->identify($wholeCards, $communityCards);
+        $this->assertFalse($this->handIdentifier->straightFlush);
 
     }
 
@@ -727,7 +752,7 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
         ];
 
-        $this->assertTrue($this->handIdentifier->identify($wholeCards, $communityCards)->hasRoyalFlush());
+        $this->handIdentifier->identify($wholeCards, $communityCards);
         $this->assertEquals('Royal Flush', $this->handIdentifier->identifiedHandType->name);
 
     }

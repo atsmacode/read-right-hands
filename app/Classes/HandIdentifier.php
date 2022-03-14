@@ -16,9 +16,22 @@ class HandIdentifier
     public $threeOfAKind = false;
     public $straight = false;
     public $flush = false;
+    public $fullHouse;
     public $fourOfAKind;
     public $straightFlush = false;
     public $royalFlush = false;
+    public $handMethods = [
+        'hasRoyalFlush',
+        'hasStraightFlush',
+        'hasFourOfAKind',
+        'hasFullHouse',
+        'hasFlush',
+        'hasStraight',
+        'hasThreeOfAKind',
+        'hasTwoPair',
+        'hasPair',
+        'highestCard'
+    ];
 
     public function __construct()
     {
@@ -29,7 +42,14 @@ class HandIdentifier
     {
         $this->allCards = collect(array_merge($wholeCards, $communityCards))->sortByDesc('ranking')->values();
 
+        foreach($this->handMethods as $handMethod){
+            if($this->{$handMethod}() === true){
+                break;
+            }
+        }
+
         return $this;
+
     }
 
     public function highestCard()
@@ -60,6 +80,7 @@ class HandIdentifier
             return true;
         }
 
+        $this->pairs = [];
         return $this;
     }
 
@@ -77,6 +98,7 @@ class HandIdentifier
             return true;
         }
 
+        $this->pairs = [];
         return $this;
     }
 
@@ -102,6 +124,7 @@ class HandIdentifier
 
             $nextCardRankingPlusOne = null;
             $previousCardRankingMinusOne = null;
+            $previousCardRanking = null;
 
             if(array_key_exists($key + 1, $this->allCards->toArray())){
                 $nextCardRankingPlusOne = $this->allCards[$key + 1]->ranking + 1;
@@ -109,9 +132,41 @@ class HandIdentifier
 
             if(array_key_exists($key - 1, $this->allCards->toArray())){
                 $previousCardRankingMinusOne = $this->allCards[$key - 1]->ranking - 1;
+                $previousCardRanking = $this->allCards[$key - 1]->ranking;
             }
 
-            return $value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne;
+            /*
+             * Had to add extra logic to prevent K,Q,9,8,7 being set as a straight, for example.
+             * And checking if the current rank has already been counted towards a straight.
+             * Which makes this method quite long - extract or simplify.
+             */
+            $twoCardsInFrontRankingPlusTwo = null;
+            $twoCardsPreviousRankingMinusTwo = null;
+
+            if(array_key_exists($key + 2, $this->allCards->toArray())){
+                $twoCardsInFrontRankingPlusTwo = $this->allCards[$key + 2]->ranking + 2;
+            }
+
+            if(array_key_exists($key - 2, $this->allCards->toArray())){
+                $twoCardsPreviousRankingMinusTwo = $this->allCards[$key - 2]->ranking - 2;
+            }
+
+            /*
+             * Added this check to account for the situation in 'it_can_identify_an_ace_to_five_straight'
+             * where there are 2 deuces and the second one gets removed from the straight list,
+             * meaning the other conditionals do not include the Ace in the list.
+             *
+             * Could be cleaner/more robust.
+             */
+            if($twoCardsPreviousRankingMinusTwo === 0){
+                return
+                    ($value->ranking === $nextCardRankingPlusOne) ||
+                    ($value->ranking === $twoCardsPreviousRankingMinusTwo + 1 || $value->ranking === $twoCardsInFrontRankingPlusTwo);
+            } else {
+                return ($value->ranking !== $previousCardRanking) &&
+                    (($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne) &&
+                        ($value->ranking === $twoCardsPreviousRankingMinusTwo || $value->ranking === $twoCardsInFrontRankingPlusTwo));
+            }
 
         })->unique(function ($item) {
 
@@ -143,14 +198,26 @@ class HandIdentifier
 
     public function hasFullHouse()
     {
-        $this->hasTwoPair();
-        $this->hasThreeOfAKind();
+        foreach(Rank::all() as $rank){
+            if($this->allCards->where('rank_id', $rank->id)->count() === 3){
+                $this->threeOfAKind = $rank;
+            }
+        }
 
-        if($this->hasTwoPair() && $this->hasThreeOfAKind()){
+        foreach(Rank::all() as $rank){
+            if($this->allCards->where('rank_id', $rank->id)->count() === 2 && $this->threeOfAKind !== $rank){
+                $this->pairs[] = $rank;
+            }
+        }
+
+        if($this->threeOfAKind && count($this->pairs) >= 1){
+            $this->fullHouse = true;
             $this->identifiedHandType = $this->handTypes->where('name', 'Full House')->first();
             return true;
         }
 
+        $this->pairs = [];
+        $this->threeOfAKind = false;
         return $this;
     }
 
