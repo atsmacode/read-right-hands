@@ -37,13 +37,18 @@ class GamePlay
 
     public function showdown()
     {
+
+        $this->hand->completed_on = now();
+        $this->hand->save();
+
         return [
             'gamePlay' => $this,
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
             'actions' => $this->hand->playerActions->fresh(),
             'streets' => $this->hand->fresh()->streets,
-            'cards' => $this->getCommunityCards(),
+            'communityCards' => $this->getCommunityCards(),
+            'wholeCards' => $this->getWholeCards(),
             'winner' => (new Showdown($this->hand->fresh()))->compileHands()->decideWinner()
         ];
     }
@@ -69,7 +74,9 @@ class GamePlay
             'handTable' => $this->handTable->fresh(),
             'actions' => $this->hand->playerActions->fresh(),
             'streets' => $this->hand->fresh()->streets,
-            'cards' => $this->getCommunityCards()
+            'communityCards' => $this->getCommunityCards(),
+            'wholeCards' => $this->getWholeCards(),
+            'winner' => null
         ];
     }
 
@@ -96,7 +103,9 @@ class GamePlay
             'handTable' => $this->handTable,
             'actions' => $this->hand->playerActions,
             'streets' => $this->hand->streets,
-            'cards' => $this->getCommunityCards()
+            'communityCards' => $this->getCommunityCards(),
+            'wholeCards' => $this->getWholeCards(),
+            'winner' => null
         ];
 
     }
@@ -126,8 +135,26 @@ class GamePlay
             'handTable' => $this->handTable->fresh(),
             'actions' => $this->hand->playerActions->fresh(),
             'streets' => $this->hand->fresh()->streets,
-            'cards' => $this->getCommunityCards()
+            'communityCards' => $this->getCommunityCards(),
+            'wholeCards' => $this->getWholeCards(),
+            'winner' => null
         ];
+    }
+
+    public function getWholeCards()
+    {
+        $wholeCards = [];
+        foreach(TableSeat::where('can_continue', 1)->get() as $tableSeat){
+            foreach($tableSeat->player->wholeCards->where('hand_id',$this->hand->fresh()->id) as $wholeCard){
+                $wholeCards[] = [
+                    'player_id' => $tableSeat->player->id,
+                    'rank' => $wholeCard->card->rank->abbreviation,
+                    'suit' => $wholeCard->card->suit->name
+                ];
+            }
+        }
+
+        return $wholeCards;
     }
 
     public function getCommunityCards()

@@ -5,8 +5,10 @@ namespace Tests\Feature;
 use App\Classes\GamePlay;
 use App\Models\Action;
 use App\Models\Hand;
+use App\Models\HandStreet;
 use App\Models\Player;
 use App\Models\PlayerAction;
+use App\Models\Street;
 use App\Models\TableSeat;
 use Tests\Unit\TestEnvironment;
 
@@ -88,9 +90,162 @@ class PlayerActionControllerTest extends TestEnvironment
         $response->assertStatus(200);
 
         $this->assertCount(2, $response['streets']);
-        $this->assertCount(3, $response['cards']);
+        $this->assertCount(3, $response['communityCards']);
 
+    }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function a_turn_will_be_dealt_once_all_active_players_can_continue()
+    {
+
+        $gameData = $this->gamePlay->start();
+
+        $gameData = $this->setFlop($gameData);
+
+        $this->assertCount(2, $gameData['gamePlay']->hand->fresh()->streets);
+
+        $this->executeActions($gameData);
+
+        $response = $this->post('action', [
+            'game_play' => $gameData['gamePlay'],
+            'player_id' =>  $gameData['actions'][1]->player_id,
+            'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
+            'hand_street_id' => $gameData['actions'][1]->hand_street_id,
+            'action_id' => Action::where('name', 'Check')->first()->id,
+            'bet_amount' => null,
+            'active' => 1
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertCount(3, $response['streets']);
+        $this->assertCount(4, $response['communityCards']);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function a_river_will_be_dealt_once_all_active_players_can_continue()
+    {
+
+        $gameData = $this->gamePlay->start();
+
+        $gameData = $this->setFlop($gameData);
+        $gameData = $this->setTurn($gameData);
+
+        $this->assertCount(3, $gameData['gamePlay']->hand->fresh()->streets);
+
+        $this->executeActions($gameData);
+
+        $response = $this->post('action', [
+            'game_play' => $gameData['gamePlay'],
+            'player_id' =>  $gameData['actions'][1]->player_id,
+            'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
+            'hand_street_id' => $gameData['actions'][1]->hand_street_id,
+            'action_id' => Action::where('name', 'Check')->first()->id,
+            'bet_amount' => null,
+            'active' => 1
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertCount(4, $response['streets']);
+        $this->assertCount(5, $response['communityCards']);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function a_winner_will_be_decided_and_hand_set_to_completed_once_all_active_players_can_continue_on_the_river()
+    {
+
+        $gameData = $this->gamePlay->start();
+
+        $gameData = $this->setFlop($gameData);
+        $gameData = $this->setTurn($gameData);
+        $gameData = $this->setRiver($gameData);
+
+        $this->assertCount(4, $gameData['gamePlay']->hand->fresh()->streets);
+
+        $this->executeActions($gameData);
+
+        $response = $this->post('action', [
+            'game_play' => $gameData['gamePlay'],
+            'player_id' =>  $gameData['actions'][1]->player_id,
+            'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
+            'hand_street_id' => $gameData['actions'][1]->hand_street_id,
+            'action_id' => Action::where('name', 'Check')->first()->id,
+            'bet_amount' => null,
+            'active' => 1
+        ]);
+
+        $response->assertStatus(200);
+
+        dump($response['communityCards']);
+        dump($response['wholeCards']);
+        dump('Winner: ' . $response['winner']['player']['id']);
+        dump($response['winner']['handType']);
+
+        $this->assertNotNull($response['hand']['completed_on']);
+
+    }
+
+    protected function setFlop($gameData)
+    {
+        // Manually set the flop
+        $flop = HandStreet::create([
+            'street_id' => Street::where('name', 'Flop')->first()->id,
+            'hand_id' => $gameData['hand']->id
+        ]);
+
+        $dealtCards = 0;
+        while($dealtCards < $gameData['gamePlay']->game->streets[1]['community_cards']){
+            $gameData['gamePlay']->dealer->dealStreetCard($flop);
+            $dealtCards++;
+        }
+
+        return $gameData;
+    }
+
+    protected function setTurn($gameData)
+    {
+        // Manually set the turn
+        $turn = HandStreet::create([
+            'street_id' => Street::where('name', 'Turn')->first()->id,
+            'hand_id' => $gameData['hand']->id
+        ]);
+
+        $dealtCards = 0;
+        while($dealtCards < $gameData['gamePlay']->game->streets[2]['community_cards']){
+            $gameData['gamePlay']->dealer->dealStreetCard($turn);
+            $dealtCards++;
+        }
+
+        return $gameData;
+    }
+
+    protected function setRiver($gameData)
+    {
+        // Manually set the river
+        $river = HandStreet::create([
+            'street_id' => Street::where('name', 'River')->first()->id,
+            'hand_id' => $gameData['hand']->id
+        ]);
+
+        $dealtCards = 0;
+        while($dealtCards < $gameData['gamePlay']->game->streets[3]['community_cards']){
+            $gameData['gamePlay']->dealer->dealStreetCard($river);
+            $dealtCards++;
+        }
+
+        return $gameData;
     }
 
     protected function executeActions($response)
