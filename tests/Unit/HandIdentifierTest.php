@@ -575,6 +575,51 @@ class HandIdentifierTest extends TestEnvironment
      * @test
      * @return void
      */
+    public function it_can_identify_a_straight_with_a_duplicate_rank()
+    {
+        $wholeCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Four')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Five')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
+            ])->first()
+        ];
+
+        $communityCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Six')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Seven')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Eight')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Deuce')->first()->id,
+                'suit_id' => Suit::where('name', 'Hearts')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Six')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id,
+            ])->first(),
+        ];
+
+        $this->handIdentifier->identify($wholeCards, $communityCards);
+        $this->assertEquals('Straight', $this->handIdentifier->identifiedHandType->name);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
     public function it_can_identify_that_four_connecting_cards_is_not_a_straight()
     {
         $wholeCards = [
@@ -785,6 +830,51 @@ class HandIdentifierTest extends TestEnvironment
             Card::where([
                 'rank_id' => Rank::where('name', 'Eight')->first()->id,
                 'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Deuce')->first()->id,
+                'suit_id' => Suit::where('name', 'Hearts')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Six')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id,
+            ])->first(),
+        ];
+
+        $this->handIdentifier->identify($wholeCards, $communityCards);
+        $this->assertEquals('Straight Flush', $this->handIdentifier->identifiedHandType->name);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function it_can_identify_a_straight_flush_with_a_duplicate_rank()
+    {
+        $wholeCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Four')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Five')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id
+            ])->first()
+        ];
+
+        $communityCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Six')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Seven')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Eight')->first()->id,
+                'suit_id' => Suit::where('name', 'Diamonds')->first()->id,
             ])->first(),
             Card::where([
                 'rank_id' => Rank::where('name', 'Deuce')->first()->id,

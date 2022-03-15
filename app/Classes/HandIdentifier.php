@@ -136,19 +136,25 @@ class HandIdentifier
 
     protected function hasAnyOtherStraight()
     {
-        $straight = $this->allCards->sortByDesc('ranking')->values()->filter(function($value, $key) {
 
+        $removeDuplicates = $this->allCards->unique(function ($item) {
+            return $item['rank']['ranking'];
+        })->sortByDesc('ranking')->values();
+
+        $straight = $removeDuplicates->filter(function($value, $key) use($removeDuplicates){
+
+            $removeDuplicates = $removeDuplicates->toArray();
             $nextCardRankingPlusOne = null;
             $previousCardRankingMinusOne = null;
             $previousCardRanking = null;
 
-            if(array_key_exists($key + 1, $this->allCards->toArray())){
-                $nextCardRankingPlusOne = $this->allCards[$key + 1]->ranking + 1;
+            if(array_key_exists($key + 1, $removeDuplicates)){
+                $nextCardRankingPlusOne = $removeDuplicates[$key + 1]['rank']['ranking'] + 1;
             }
 
-            if(array_key_exists($key - 1, $this->allCards->toArray())){
-                $previousCardRankingMinusOne = $this->allCards[$key - 1]->ranking - 1;
-                $previousCardRanking = $this->allCards[$key - 1]->ranking;
+            if(array_key_exists($key - 1, $removeDuplicates)){
+                $previousCardRankingMinusOne = $removeDuplicates[$key - 1]['rank']['ranking'] - 1;
+                $previousCardRanking = $removeDuplicates[$key - 1]['rank']['ranking'];
             }
 
             /*
@@ -159,22 +165,18 @@ class HandIdentifier
             $twoCardsInFrontRankingPlusTwo = null;
             $twoCardsPreviousRankingMinusTwo = null;
 
-            if(array_key_exists($key + 2, $this->allCards->toArray())){
-                $twoCardsInFrontRankingPlusTwo = $this->allCards[$key + 2]->ranking + 2;
+            if(array_key_exists($key + 2, $removeDuplicates)){
+                $twoCardsInFrontRankingPlusTwo = $removeDuplicates[$key + 2]['rank']['ranking'] + 2;
             }
 
-            if(array_key_exists($key - 2, $this->allCards->toArray())){
-                $twoCardsPreviousRankingMinusTwo = $this->allCards[$key - 2]->ranking - 2;
+            if(array_key_exists($key - 2, $removeDuplicates)){
+                $twoCardsPreviousRankingMinusTwo = $removeDuplicates[$key - 2]['rank']['ranking'] - 2;
             }
 
             return ($value->ranking !== $previousCardRanking) &&
                 (($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne) &&
                     ($value->ranking === $twoCardsPreviousRankingMinusTwo || $value->ranking === $twoCardsInFrontRankingPlusTwo));
 
-
-        })->unique(function ($item) {
-
-            return $item['rank']['ranking'];
 
         })->take(5);
 
@@ -308,19 +310,29 @@ class HandIdentifier
 
     public function hasStraightFlush()
     {
+
         foreach(Suit::all() as $suit){
-            $straightFlush = $this->allCards->filter(function($value, $key) use ($suit){
 
+            /*
+             * Remove cards not in this suit.
+             * This also takes care of duplicates.
+             */
+            $onlyThisSuit = $this->allCards->reject(function ($item) use($suit){
+                return $item->suit_id !== $suit->id;
+            })->values();
 
+            $straightFlush = $onlyThisSuit->filter(function($value, $key) use ($suit, $onlyThisSuit){
+
+                $onlyThisSuit = $onlyThisSuit->toArray();
                 $nextCardRankingPlusOne = null;
                 $previousCardRankingMinusOne = null;
 
-                if(array_key_exists($key + 1, $this->allCards->toArray())){
-                    $nextCardRankingPlusOne = $this->allCards[$key + 1]->ranking + 1;
+                if(array_key_exists($key + 1, $onlyThisSuit)){
+                    $nextCardRankingPlusOne = $onlyThisSuit[$key + 1]['rank']['ranking'] + 1;
                 }
 
-                if(array_key_exists($key - 1, $this->allCards->toArray())){
-                    $previousCardRankingMinusOne = $this->allCards[$key - 1]->ranking - 1;
+                if(array_key_exists($key - 1, $onlyThisSuit)){
+                    $previousCardRankingMinusOne = $onlyThisSuit[$key - 1]['rank']['ranking'] - 1;
                 }
 
                 /*
@@ -331,17 +343,16 @@ class HandIdentifier
                 $twoCardsInFrontRankingPlusTwo = null;
                 $twoCardsPreviousRankingMinusTwo = null;
 
-                if(array_key_exists($key + 2, $this->allCards->toArray())){
-                    $twoCardsInFrontRankingPlusTwo = $this->allCards[$key + 2]->ranking + 2;
+                if(array_key_exists($key + 2, $onlyThisSuit)){
+                    $twoCardsInFrontRankingPlusTwo = $onlyThisSuit[$key + 2]['rank']['ranking'] + 2;
                 }
 
-                if(array_key_exists($key - 2, $this->allCards->toArray())){
-                    $twoCardsPreviousRankingMinusTwo = $this->allCards[$key - 2]->ranking - 2;
+                if(array_key_exists($key - 2, $onlyThisSuit)){
+                    $twoCardsPreviousRankingMinusTwo = $onlyThisSuit[$key - 2]['rank']['ranking'] - 2;
                 }
 
-                return $value->suit_id === $suit->id &&
-                    (($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne) &&
-                    ($value->ranking === $twoCardsPreviousRankingMinusTwo || $value->ranking === $twoCardsInFrontRankingPlusTwo));
+                return ($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne) &&
+                    ($value->ranking === $twoCardsPreviousRankingMinusTwo || $value->ranking === $twoCardsInFrontRankingPlusTwo);
             });
 
             if($straightFlush && count($straightFlush) === 5){
