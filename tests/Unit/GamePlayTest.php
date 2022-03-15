@@ -19,11 +19,6 @@ class GamePlayTest extends TestEnvironment
 
         $this->gamePlay = new GamePlay(Hand::create());
 
-        $this->table = Table::factory([
-            'name' => 'Table 1',
-            'seats' => 3
-        ])->create();
-
         $this->player1 = Player::factory()->create();
         $this->player2 = Player::factory()->create();
         $this->player3 = Player::factory()->create();

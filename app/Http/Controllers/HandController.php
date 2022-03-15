@@ -10,10 +10,8 @@ class HandController extends Controller
 {
     public function new(Request $request)
     {
-        $hand = Hand::create([
-            'game_type_id' => 1
-        ]);
+        $hand = Hand::create();
 
-        return (new GamePlay($hand))->play();
+        return response((new GamePlay($hand))->start());
     }
 }
