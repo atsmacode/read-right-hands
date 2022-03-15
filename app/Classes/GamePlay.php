@@ -130,12 +130,15 @@ class GamePlay
                 break;
         }
 
-        TableSeat::query()
-            ->where('table_id', $this->handTable->id)
-            ->where('id', '!=', $this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->table_seat_id)
-            ->update([
-                'can_continue' => $canContinue
-            ]);
+        if(isset($canContinue)){
+            TableSeat::query()
+                ->where('table_id', $this->handTable->id)
+                ->where('id', '!=', $this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->table_seat_id)
+                ->update([
+                    'can_continue' => $canContinue
+                ]);
+        }
+
     }
 
     public function updateSeatStatusOfLatestAction()
