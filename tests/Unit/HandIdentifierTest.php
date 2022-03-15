@@ -399,7 +399,7 @@ class HandIdentifierTest extends TestEnvironment
      * @test
      * @return void
      */
-    public function it_can_identify_an_ace_to_five_straight()
+    public function it_can_identify_an_ace_to_five_straight_where_there_are_also_two_deuces()
     {
         $wholeCards = [
             Card::where([
@@ -419,6 +419,94 @@ class HandIdentifierTest extends TestEnvironment
             ])->first(),
             Card::where([
                 'rank_id' => Rank::where('name', 'Four')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Five')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Ten')->first()->id
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Deuce')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+        ];
+
+        $this->handIdentifier->identify($wholeCards, $communityCards);
+        $this->assertEquals('Straight', $this->handIdentifier->identifiedHandType->name);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function it_can_identify_an_ace_to_five_straight()
+    {
+        $wholeCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Ace')->first()->id,
+                'suit_id' => Suit::where('name', 'Hearts')->first()->id
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Queen')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id
+            ])->first()
+        ];
+
+        $communityCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Three')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Four')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Five')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Ten')->first()->id
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Deuce')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+        ];
+
+        $this->handIdentifier->identify($wholeCards, $communityCards);
+        $this->assertEquals('Straight', $this->handIdentifier->identifiedHandType->name);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function it_can_identify_an_ace_high_straight()
+    {
+        $wholeCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Ace')->first()->id,
+                'suit_id' => Suit::where('name', 'Hearts')->first()->id
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'King')->first()->id,
+                'suit_id' => Suit::where('name', 'Clubs')->first()->id
+            ])->first()
+        ];
+
+        $communityCards = [
+            Card::where([
+                'rank_id' => Rank::where('name', 'Queen')->first()->id,
+                'suit_id' => Suit::where('name', 'Spades')->first()->id,
+            ])->first(),
+            Card::where([
+                'rank_id' => Rank::where('name', 'Jack')->first()->id,
                 'suit_id' => Suit::where('name', 'Spades')->first()->id,
             ])->first(),
             Card::where([

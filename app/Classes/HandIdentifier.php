@@ -120,17 +120,24 @@ class HandIdentifier
     public function hasStraight()
     {
 
-        /*
-         * Need to add logic so an ace high straight can be identified - unfinished
-         */
-        /*$hasAce = Arr::where($this->allCards->toArray(), function ($value, $key) {
-            return $value['rank']['ranking'] === 1;
-        });
-        if($hasAce && $this->allCards->first()->ranking === 13){
-            $this->allCards->whereIn('id', Arr::pluck($hasAce, 'id'))->first()->ranking = 14;
-        }*/
+        if($this->hasFiveHighStraight() === true){
+            return true;
+        }
 
-        $straight = $this->allCards->filter(function($value, $key) {
+        if($this->hasAceHighStraight() === true){
+            return true;
+        }
+
+        if($this->hasAnyOtherStraight() === true){
+            return true;
+        }
+
+        return $this;
+    }
+
+    protected function hasAnyOtherStraight()
+    {
+        $straight = $this->allCards->sortByDesc('ranking')->values()->filter(function($value, $key) {
 
             $nextCardRankingPlusOne = null;
             $previousCardRankingMinusOne = null;
@@ -161,22 +168,10 @@ class HandIdentifier
                 $twoCardsPreviousRankingMinusTwo = $this->allCards[$key - 2]->ranking - 2;
             }
 
-            /*
-             * Added this check to account for the situation in 'it_can_identify_an_ace_to_five_straight'
-             * where there are 2 deuces and the second one gets removed from the straight list,
-             * meaning the other conditionals do not include the Ace in the list.
-             *
-             * Could be cleaner/more robust.
-             */
-            if($twoCardsPreviousRankingMinusTwo === 0){
-                return
-                    ($value->ranking === $nextCardRankingPlusOne) ||
-                    ($value->ranking === $twoCardsPreviousRankingMinusTwo + 1 || $value->ranking === $twoCardsInFrontRankingPlusTwo);
-            } else {
-                return ($value->ranking !== $previousCardRanking) &&
-                    (($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne) &&
-                        ($value->ranking === $twoCardsPreviousRankingMinusTwo || $value->ranking === $twoCardsInFrontRankingPlusTwo));
-            }
+            return ($value->ranking !== $previousCardRanking) &&
+                (($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne) &&
+                    ($value->ranking === $twoCardsPreviousRankingMinusTwo || $value->ranking === $twoCardsInFrontRankingPlusTwo));
+
 
         })->unique(function ($item) {
 
@@ -190,7 +185,70 @@ class HandIdentifier
             return true;
         }
 
-        return $this;
+    }
+
+    protected function hasFiveHighStraight()
+    {
+        $straight = $this->allCards->sortByDesc('ranking')->values()->filter(function($value, $key) {
+
+            $previousCardRanking = null;
+
+            if(array_key_exists($key - 1, $this->allCards->toArray())){
+                $previousCardRanking = $this->allCards[$key - 1]->ranking;
+            }
+
+            switch($value->ranking){
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                    if($value->ranking !== $previousCardRanking){
+                        return true;
+                    }
+                    break;
+            }
+
+        })->take(5);
+
+        if($straight && count($straight) === 5){
+            $this->straight = $straight;
+            $this->identifiedHandType = $this->handTypes->where('name', 'Straight')->first();
+            return true;
+        }
+
+    }
+
+    protected function hasAceHighStraight()
+    {
+        $straight = $this->allCards->sortByDesc('ranking')->values()->filter(function($value, $key) {
+
+            $previousCardRanking = null;
+
+            if(array_key_exists($key - 1, $this->allCards->toArray())){
+                $previousCardRanking = $this->allCards[$key - 1]->ranking;
+            }
+
+            switch($value->ranking){
+                case 1:
+                case 13:
+                case 12:
+                case 11:
+                case 10:
+                    if($value->ranking !== $previousCardRanking){
+                        return true;
+                    }
+                    break;
+            }
+
+        })->take(5);
+
+        if($straight && count($straight) === 5){
+            $this->straight = $straight;
+            $this->identifiedHandType = $this->handTypes->where('name', 'Straight')->first();
+            return true;
+        }
+
     }
 
     public function hasFlush()
