@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\GamePlay;
 use App\Models\PlayerAction;
 use Illuminate\Http\Request;
 
@@ -19,9 +18,18 @@ class PlayerActionController extends Controller
         $playerAction->update([
             'action_id' => $request->action_id,
             'bet_amount' => $request->bet_amount,
-            'active' => 1
+            'active' => $request->active
         ]);
 
-        return response((new GamePlay($playerAction->hand))->play());
+        $gameData = $request['game_play']->play();
+
+        return response([
+            'game_play' => $gameData['gamePlay'],
+            'hand' => $gameData['hand'],
+            'handTable' => $gameData['handTable'],
+            'actions' => $gameData['actions'],
+            'streets' => $gameData['streets'],
+            'cards' => $gameData['cards']
+        ]);
     }
 }

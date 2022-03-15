@@ -38,9 +38,12 @@ class GamePlay
     public function showdown()
     {
         return [
+            'gamePlay' => $this,
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
             'actions' => $this->hand->playerActions->fresh(),
+            'streets' => $this->hand->fresh()->streets,
+            'cards' => $this->getCommunityCards(),
             'winner' => (new Showdown($this->hand->fresh()))->compileHands()->decideWinner()
         ];
     }
@@ -61,9 +64,12 @@ class GamePlay
         }
 
         return [
+            'gamePlay' => $this,
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
-            'actions' => $this->hand->playerActions->fresh()
+            'actions' => $this->hand->playerActions->fresh(),
+            'streets' => $this->hand->fresh()->streets,
+            'cards' => $this->getCommunityCards()
         ];
     }
 
@@ -85,9 +91,12 @@ class GamePlay
         }
 
         return [
+            'gamePlay' => $this,
             'hand' => $this->hand,
             'handTable' => $this->handTable,
-            'actions' => $this->hand->playerActions
+            'actions' => $this->hand->playerActions,
+            'streets' => $this->hand->streets,
+            'cards' => $this->getCommunityCards()
         ];
 
     }
@@ -112,10 +121,28 @@ class GamePlay
         }
 
         return [
+            'gamePlay' => $this,
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
-            'actions' => $this->hand->playerActions->fresh()
+            'actions' => $this->hand->playerActions->fresh(),
+            'streets' => $this->hand->fresh()->streets,
+            'cards' => $this->getCommunityCards()
         ];
+    }
+
+    public function getCommunityCards()
+    {
+        $cards = [];
+        foreach($this->hand->fresh()->streets as $street){
+            foreach($street->cards as $streetCard){
+                $cards[] = [
+                    'rank' => $streetCard->card->rank->abbreviation,
+                    'suit' => $streetCard->card->suit->name
+                ];
+            }
+        }
+
+        return $cards;
     }
 
     public function updateAllOtherSeatsBasedOnLatestAction()

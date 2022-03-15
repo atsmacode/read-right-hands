@@ -7,7 +7,6 @@ use App\Models\Action;
 use App\Models\Hand;
 use App\Models\Player;
 use App\Models\PlayerAction;
-use App\Models\Table;
 use App\Models\TableSeat;
 use Tests\Unit\TestEnvironment;
 
@@ -39,6 +38,7 @@ class PlayerActionControllerTest extends TestEnvironment
         ])->create();
 
     }
+
     /**
      * @test
      * @return void
@@ -49,6 +49,7 @@ class PlayerActionControllerTest extends TestEnvironment
         $gameData = $this->gamePlay->start();
 
         $response = $this->post('action', [
+            'game_play' => $gameData['gamePlay'],
             'player_id' =>  $gameData['actions'][2]->player_id,
             'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
             'hand_street_id' => $gameData['actions'][2]->hand_street_id,
@@ -58,6 +59,38 @@ class PlayerActionControllerTest extends TestEnvironment
         ]);
 
         $response->assertStatus(200);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function a_flop_will_be_dealt_once_all_active_players_can_continue()
+    {
+
+        $gameData = $this->gamePlay->start();
+
+        $this->assertCount(1, $gameData['streets']);
+
+        $this->executeActions($gameData);
+
+        $response = $this->post('action', [
+            'game_play' => $gameData['gamePlay'],
+            'player_id' =>  $gameData['actions'][1]->player_id,
+            'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
+            'hand_street_id' => $gameData['actions'][1]->hand_street_id,
+            'action_id' => Action::where('name', 'Check')->first()->id,
+            'bet_amount' => null,
+            'active' => 1
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertCount(2, $response['streets']);
+        $this->assertCount(3, $response['cards']);
+
+
     }
 
     protected function executeActions($response)
@@ -88,17 +121,5 @@ class PlayerActionControllerTest extends TestEnvironment
                 'can_continue' => 0
             ]);
 
-        // Player 2 Checks
-        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Check')->first()->id,
-                'bet_amount' => null,
-                'active' => 1
-            ]);
-
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
-            ->update([
-                'can_continue' => 1
-            ]);
     }
 }
