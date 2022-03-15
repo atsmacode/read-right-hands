@@ -5,7 +5,6 @@ namespace App\Classes;
 use App\Models\HandType;
 use App\Models\Rank;
 use App\Models\Suit;
-use Illuminate\Support\Arr;
 
 class HandIdentifier
 {
@@ -324,12 +323,29 @@ class HandIdentifier
                     $previousCardRankingMinusOne = $this->allCards[$key - 1]->ranking - 1;
                 }
 
+                /*
+                 * Had to add extra logic to prevent K,Q,9,8,7 being set as a straight, for example.
+                 * And checking if the current rank has already been counted towards a straight.
+                 * Which makes this method quite long - extract or simplify.
+                 */
+                $twoCardsInFrontRankingPlusTwo = null;
+                $twoCardsPreviousRankingMinusTwo = null;
+
+                if(array_key_exists($key + 2, $this->allCards->toArray())){
+                    $twoCardsInFrontRankingPlusTwo = $this->allCards[$key + 2]->ranking + 2;
+                }
+
+                if(array_key_exists($key - 2, $this->allCards->toArray())){
+                    $twoCardsPreviousRankingMinusTwo = $this->allCards[$key - 2]->ranking - 2;
+                }
+
                 return $value->suit_id === $suit->id &&
-                    ($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne);
+                    (($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne) &&
+                    ($value->ranking === $twoCardsPreviousRankingMinusTwo || $value->ranking === $twoCardsInFrontRankingPlusTwo));
             });
 
             if($straightFlush && count($straightFlush) === 5){
-                $this->straightFlush = $straightFlush;
+                $this->straightFlush = true;
                 $this->identifiedHandType = $this->handTypes->where('name', 'Straight Flush')->first();
                 return true;
             }
