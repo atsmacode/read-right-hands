@@ -8,12 +8,20 @@ use Illuminate\Http\Request;
 
 class PlayerActionController extends Controller
 {
-    public function new(Request $request)
+    public function action(Request $request)
     {
-        $playerAction = PlayerAction::create([
-            $request
+        $playerAction = PlayerAction::where([
+            'player_id' =>  $request->player_id,
+            'table_seat_id' =>  $request->table_seat_id,
+            'hand_street_id' => $request->hand_street_id
+        ])->first();
+
+        $playerAction->update([
+            'action_id' => $request->action_id,
+            'bet_amount' => $request->bet_amount,
+            'active' => 1
         ]);
 
-        return (new GamePlay($playerAction->hand))->play();
+        return response((new GamePlay($playerAction->hand))->play());
     }
 }

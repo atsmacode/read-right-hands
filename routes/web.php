@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HandController;
+use App\Http\Controllers\PlayerActionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,3 +20,4 @@ Route::get('/', function () {
 });
 
 Route::get('hand', [HandController::class, 'new']);
+Route::post('action', [PlayerActionController::class, 'action']);

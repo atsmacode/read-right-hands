@@ -103,7 +103,6 @@ class GamePlay
 
         // If all active players can_continue
         if($this->hand->fresh()->playerActions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
-
             return $this->continue();
         }
 
@@ -111,6 +110,12 @@ class GamePlay
         if($this->hand->fresh()->completed_on){
             return $this->start();
         }
+
+        return [
+            'hand' => $this->hand->fresh(),
+            'handTable' => $this->handTable->fresh(),
+            'actions' => $this->hand->playerActions->fresh()
+        ];
     }
 
     public function updateAllOtherSeatsBasedOnLatestAction()
@@ -122,7 +127,6 @@ class GamePlay
                 $canContinue = 0;
                 break;
             default:
-                $canContinue = 1;
                 break;
         }
 

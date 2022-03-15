@@ -16,17 +16,15 @@ class PlayerAction extends Model
         'hand_street_id',
         'action_id',
         'bet_amount',
-        'hand_id'
+        'hand_id',
+        'active'
     ];
 
     public function hand()
     {
-        return $this->hasOneThrough(
+        return $this->hasOne(
             Hand::class,
-            HandStreet::class,
-            'hand_street_id',
-            'hand_id',
-            'hand_street_id',
+            'id',
             'hand_id'
         );
     }
