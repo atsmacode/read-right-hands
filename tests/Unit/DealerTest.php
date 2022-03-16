@@ -107,15 +107,13 @@ class DealerTest extends TestEnvironment
         $this->assertCount(0, $player1->fresh()->wholeCards);
         $this->assertCount(0, $player2->fresh()->wholeCards);
 
-        TableSeat::factory([
-            'table_id' => $table->id,
+        $table->tableSeats()->create([
             'player_id' => $player1->id
-        ])->create();
+        ]);
 
-       TableSeat::factory([
-            'table_id' => $table->id,
+        $table->tableSeats()->create([
             'player_id' => $player2->id
-        ])->create();
+        ]);
 
        $this->dealer->setDeck()->shuffle()->dealTo($table->fresh()->players);
 
