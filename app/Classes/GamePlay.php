@@ -69,6 +69,12 @@ class GamePlay
             $dealtCards++;
         }
 
+        TableSeat::query()
+            ->where('table_id', $this->handTable->fresh()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
         return [
             'gamePlay' => $this,
             'hand' => $this->hand->fresh(),
@@ -152,15 +158,14 @@ class GamePlay
     {
 
         $playerAfter = TableSeat::query()
-            ->select('*')
+            ->select('table_seats.*')
             ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
             ->where(function($query){
-                $query->where('table_seats.table_id', $this->handTable->id);
-                $query->where('table_seats.id', '>=',
+                $query->where('table_seats.table_id', $this->handTable->fresh()->id);
+                $query->where('table_seats.id', '>',
                     $this->hand->playerActions
                         ->fresh()
                         ->sortBy([
-                            ['id', 'desc'],
                             ['updated_at', 'desc']
                         ], SORT_NUMERIC)
                         ->first()->table_seat_id);
@@ -171,9 +176,9 @@ class GamePlay
 
         if(!$playerAfter){
             return TableSeat::query()
-                ->select('*')
+                ->select('table_seats.*')
                 ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
-                ->where('table_seats.table_id', $this->handTable->id)
+                ->where('table_seats.table_id', $this->handTable->fresh()->id)
                 ->where('table_seats.can_continue', 0)
                 ->where('player_actions.active', 1)
                 ->first();
@@ -329,6 +334,18 @@ class GamePlay
                 'hand_id' => $this->hand->id,
                 'active' => 1
             ]);
+
+            /*
+             * For testing so I can get the latest action, otherwise they are all the same
+             */
+            PlayerAction::where([
+                'hand_street_id' => $this->street->id,
+                'table_seat_id' => $seat->id,
+                'hand_id' => $this->hand->id,
+            ])->update([
+                'updated_at' => date('Y-m-d H:i:s', strtotime('-15 seconds'))
+            ]);
+
         }
 
         return $this;

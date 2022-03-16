@@ -185,4 +185,94 @@ class GamePlayTest extends TestEnvironment
 
     }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function the_pre_flop_action_will_be_on_the_big_blind_after_all_other_players_act()
+    {
+        $response = $this->gamePlay->start();
+
+        $this->assertCount(1, $response['hand']->streets->fresh());
+
+        // Player 3 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Call')->first()->id,
+                'bet_amount' => 50.0,
+                'active' => 1,
+            ]);
+
+        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+            ->update([
+                'can_continue' => 1
+            ]);
+
+        // Player 1 Folds
+        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Fold')->first()->id,
+                'bet_amount' => null,
+                'active' => 0
+            ]);
+
+        $response = $this->gamePlay->play();
+
+        $this->assertCount(1, $response['hand']->streets->fresh());
+        $this->assertEquals($response['handTable']->tableSeats->slice(1, 1)->first()->id, $response['actionOn']->id);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function the_pre_flop_action_will_be_back_on_the_big_blind_caller_if_the_big_blind_raises()
+    {
+        $response = $this->gamePlay->start();
+
+        $this->assertCount(1, $response['hand']->streets->fresh());
+
+        // Player 3 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Call')->first()->id,
+                'bet_amount' => 50.0,
+                'active' => 1,
+            ]);
+
+        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+            ->update([
+                'can_continue' => 1
+            ]);
+
+        // Player 1 Folds
+        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Fold')->first()->id,
+                'bet_amount' => null,
+                'active' => 0
+            ]);
+
+        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        // BB Raises
+        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Raise')->first()->id,
+                'bet_amount' => 100.0,
+                'active' => 1,
+                'updated_at' => date('Y-m-d H:i:s', strtotime('+ 1 second')) // Realistically this needs to be manually set for testing to work
+            ]);
+
+        $response = $this->gamePlay->play();
+
+        $this->assertCount(1, $response['hand']->streets->fresh());
+        $this->assertEquals($response['handTable']->tableSeats->slice(2, 1)->first()->id, $response['actionOn']->id);
+
+    }
+
 }
