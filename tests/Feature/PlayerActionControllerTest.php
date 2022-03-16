@@ -9,6 +9,7 @@ use App\Models\HandStreet;
 use App\Models\Player;
 use App\Models\PlayerAction;
 use App\Models\Street;
+use App\Models\Table;
 use App\Models\TableSeat;
 use Tests\Unit\TestEnvironment;
 
@@ -18,7 +19,7 @@ class PlayerActionControllerTest extends TestEnvironment
     {
         parent::setUp();
 
-        $this->gamePlay = new GamePlay(Hand::create());
+        $this->gamePlay = new GamePlay(Hand::create(), Table::create(['name' => 'Table 1', 'seats' => 3]));
 
         $this->player1 = Player::factory()->create();
         $this->player2 = Player::factory()->create();
@@ -52,6 +53,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response = $this->post('action', [
             'game_play' => $gameData['gamePlay'],
+            'hand_id' => $gameData['hand']->id,
             'player_id' =>  $gameData['actions'][2]->player_id,
             'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
             'hand_street_id' => $gameData['actions'][2]->hand_street_id,
@@ -79,6 +81,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response = $this->post('action', [
             'game_play' => $gameData['gamePlay'],
+            'hand_id' => $gameData['hand']->id,
             'player_id' =>  $gameData['actions'][1]->player_id,
             'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
             'hand_street_id' => $gameData['actions'][1]->hand_street_id,
@@ -89,6 +92,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response->assertStatus(200);
 
+        //dump($response);
         $this->assertCount(2, $response['streets']);
         $this->assertCount(3, $response['communityCards']);
 
@@ -111,6 +115,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response = $this->post('action', [
             'game_play' => $gameData['gamePlay'],
+            'hand_id' => $gameData['hand']->id,
             'player_id' =>  $gameData['actions'][1]->player_id,
             'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
             'hand_street_id' => $gameData['actions'][1]->hand_street_id,
@@ -144,6 +149,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response = $this->post('action', [
             'game_play' => $gameData['gamePlay'],
+            'hand_id' => $gameData['hand']->id,
             'player_id' =>  $gameData['actions'][1]->player_id,
             'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
             'hand_street_id' => $gameData['actions'][1]->hand_street_id,
@@ -178,6 +184,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response = $this->post('action', [
             'game_play' => $gameData['gamePlay'],
+            'hand_id' => $gameData['hand']->id,
             'player_id' =>  $gameData['actions'][1]->player_id,
             'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
             'hand_street_id' => $gameData['actions'][1]->hand_street_id,
@@ -256,7 +263,8 @@ class PlayerActionControllerTest extends TestEnvironment
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
-                'active' => 1
+                'active' => 1,
+                'updated_at' => date('Y-m-d H:i:s', strtotime('- 10 seconds'))
             ]);
 
         TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
@@ -269,7 +277,8 @@ class PlayerActionControllerTest extends TestEnvironment
             ->update([
                 'action_id' => Action::where('name', 'Fold')->first()->id,
                 'bet_amount' => null,
-                'active' => 0
+                'active' => 0,
+                'updated_at' => date('Y-m-d H:i:s', strtotime('- 5 seconds'))
             ]);
 
         TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)

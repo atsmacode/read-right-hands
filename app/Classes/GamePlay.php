@@ -190,7 +190,7 @@ class GamePlay
         $actionOn = false;
         foreach($this->hand->playerActions->fresh() as $playerAction){
 
-            if($this->getActionOn()->player_id === $playerAction->player_id){
+            if($this->getActionOn() && $this->getActionOn()->player_id === $playerAction->player_id){
                 $actionOn = true;
             }
 
@@ -257,11 +257,19 @@ class GamePlay
 
     public function updateAllOtherSeatsBasedOnLatestAction()
     {
-        // Update the table seat status of the latest action accordingly
-        switch($this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->action_id){
-            case 4:
-            case 5:
-                $canContinue = 0;
+
+        $latestAction = $this->hand->playerActions
+            ->fresh()
+            ->sortBy([
+                ['updated_at', 'desc']
+            ], SORT_NUMERIC)
+            ->first();
+
+        // Update the other table seat statuses accordingly
+        switch($latestAction->action_id){
+            case Action::where('name', 'Bet')->first()->id:
+            case Action::where('name', 'Raise')->first()->id:
+            $canContinue = 0;
                 break;
             default:
                 break;
@@ -270,7 +278,7 @@ class GamePlay
         if(isset($canContinue)){
             TableSeat::query()
                 ->where('table_id', $this->handTable->id)
-                ->where('id', '!=', $this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->table_seat_id)
+                ->where('id', '!=', $latestAction->table_seat_id)
                 ->update([
                     'can_continue' => $canContinue
                 ]);
@@ -280,12 +288,20 @@ class GamePlay
 
     public function updateSeatStatusOfLatestAction()
     {
+
+        $latestAction = $this->hand->playerActions
+            ->fresh()
+            ->sortBy([
+                ['updated_at', 'desc']
+            ], SORT_NUMERIC)
+            ->first();
+
         // Update the table seat status of the latest action accordingly
-        switch($this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->action_id){
-            case 2:
-            case 3:
-            case 4:
-            case 5:
+        switch($latestAction->action_id){
+            case Action::where('name', 'Check')->first()->id:
+            case Action::where('name', 'Call')->first()->id:
+            case Action::where('name', 'Bet')->first()->id:
+            case Action::where('name', 'Raise')->first()->id:
                 $canContinue = 1;
                 break;
             default:
@@ -293,7 +309,7 @@ class GamePlay
                 break;
         }
 
-        TableSeat::where('id', $this->hand->playerActions->fresh()->sortByDesc('updated_at')->first()->table_seat_id)
+        TableSeat::where('id', $latestAction->table_seat_id)
             ->update([
                 'can_continue' => $canContinue
             ]);
@@ -340,6 +356,7 @@ class GamePlay
             'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 25,
             'active' => 1,
+            'updated_at' => date('Y-m-d H:i:s', strtotime('- 10 seconds'))
         ]);
 
         TableSeat::where('id', $this->handTable->tableSeats->slice(0, 1)->first()->id)
@@ -359,11 +376,12 @@ class GamePlay
             'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 50,
             'active' => 1,
+            'updated_at' => date('Y-m-d H:i:s', strtotime('- 5 seconds'))
         ]);
 
         TableSeat::where('id', $this->handTable->tableSeats->slice(1, 1)->first()->id)
             ->update([
-                'can_continue' => 1
+                'can_continue' => 0
             ]);
 
         return $this;

@@ -127,11 +127,11 @@ class GamePlayTest extends TestEnvironment
      * @test
      * @return void
      */
-    public function it_removes_a_folded_player_from_the_list_of_seats_that_can_continue()
+    public function it_adds_a_player_that_calls_the_big_blind_to_the_list_of_table_seats_that_can_continue()
     {
         $response = $this->gamePlay->start();
 
-        $this->assertCount(2, $response['actions']->fresh()->where('active', 1));
+        $this->assertCount(0, $response['handTable']->tableSeats->where('can_continue', 1));
 
         // Player 3 Calls BB
         PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
@@ -139,6 +139,31 @@ class GamePlayTest extends TestEnvironment
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1
+            ]);
+
+        $response = $this->gamePlay->play();
+
+        $this->assertCount(1, $response['handTable']->tableSeats->where('can_continue', 1));
+        $this->assertEquals(1, $response['handTable']->tableSeats->fresh()->slice(2, 1)->first()->can_continue);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function it_removes_a_folded_player_from_the_list_of_seats_that_can_continue()
+    {
+        $response = $this->gamePlay->start();
+
+        $this->assertCount(0, $response['handTable']->tableSeats->where('can_continue', 1));
+
+        // Player 3 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Call')->first()->id,
+                'bet_amount' => 50.0,
+                'active' => 1,
             ]);
 
         TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
@@ -156,7 +181,7 @@ class GamePlayTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
-        $this->assertCount(2, $response['handTable']->tableSeats->where('can_continue', 1));
+        $this->assertCount(1, $response['handTable']->tableSeats->where('can_continue', 1));
         $this->assertEquals(0, $response['handTable']->tableSeats->slice(0, 1)->first()->can_continue);
 
     }
