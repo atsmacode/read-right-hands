@@ -12,6 +12,18 @@ class HandController extends Controller
     {
         $hand = Hand::create();
 
-        return response((new GamePlay($hand))->start());
+        $gameData = (new GamePlay($hand))->start();
+
+        return response([
+            'game_play' => $gameData['gamePlay'],
+            'hand' => $gameData['hand'],
+            'handTable' => $gameData['handTable'],
+            'actions' => $gameData['actions'],
+            'streets' => $gameData['streets'],
+            'communityCards' => $gameData['communityCards'],
+            'wholeCards' => $gameData['wholeCards'],
+            'actionOn' => $gameData['actionOn'],
+            'winner' => $gameData['winner']
+        ]);
     }
 }

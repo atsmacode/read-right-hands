@@ -194,6 +194,7 @@ class PlayerActionControllerTest extends TestEnvironment
         dump($response['winner']['handType']);
 
         $this->assertNotNull($response['hand']['completed_on']);
+        $this->assertNotNull($response['winner']);
 
     }
 

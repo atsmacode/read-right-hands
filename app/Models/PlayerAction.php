@@ -34,6 +34,11 @@ class PlayerAction extends Model
         return $this->hasOne(Action::class, 'id', 'action_id');
     }
 
+    public function player()
+    {
+        return $this->belongsTo(Player::class, 'player_id', 'id');
+    }
+
     public function tableSeat()
     {
         return $this->hasOne(TableSeat::class, 'id', 'table_seat_id');

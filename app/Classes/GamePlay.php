@@ -99,12 +99,13 @@ class GamePlay
 
         return [
             'gamePlay' => $this,
-            'hand' => $this->hand,
-            'handTable' => $this->handTable,
-            'actions' => $this->hand->playerActions,
-            'streets' => $this->hand->streets,
+            'hand' => $this->hand->fresh(),
+            'handTable' => $this->handTable->fresh(),
+            'actions' => $this->hand->playerActions->fresh(),
+            'streets' => $this->hand->streets->fresh(),
             'communityCards' => $this->getCommunityCards(),
             'wholeCards' => $this->getWholeCards(),
+            'actionOn' => $this->getActionOn(),
             'winner' => null
         ];
 
@@ -141,9 +142,85 @@ class GamePlay
         ];
     }
 
-    public function getWholeCards()
+    public function getActionOn()
     {
+
+        $playerAfter = TableSeat::query()
+            ->select('*')
+            ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
+            ->where(function($query){
+                $query->where('table_seats.table_id', $this->handTable->id);
+                $query->where('table_seats.id', '>=',
+                    $this->hand->playerActions
+                        ->fresh()
+                        ->sortBy([
+                            ['id', 'desc'],
+                            ['updated_at', 'desc']
+                        ], SORT_NUMERIC)
+                        ->first()->table_seat_id);
+                $query->where('table_seats.can_continue', 0);
+                $query->where('player_actions.active', 1);
+            })
+            ->first();
+
+        if(!$playerAfter){
+            return TableSeat::query()
+                ->select('*')
+                ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
+                ->where('table_seats.table_id', $this->handTable->id)
+                ->where('table_seats.can_continue', 0)
+                ->where('player_actions.active', 1)
+                ->first();
+        }
+
+        return $playerAfter;
+
+    }
+
+    public function getPlayerData()
+    {
+
+        $playerData = [];
+        $actionOn = false;
+        foreach($this->hand->playerActions->fresh() as $playerAction){
+
+            if($this->getActionOn()->player_id === $playerAction->player_id){
+                $actionOn = true;
+            }
+
+            $playerData[] = [
+                'action_id' => $playerAction->action_id,
+                'player_id' => $playerAction->player_id,
+                'table_seat_id' =>  $playerAction->table_seat_id,
+                'hand_street_id' => $playerAction->hand_street_id,
+                'bet_amount' => $playerAction->bet_amount,
+                'active' => $playerAction->active,
+                'can_continue' => $playerAction->tableSeat->can_continue,
+                'whole_cards' => $this->getWholeCards($playerAction->player),
+                'action_on' => $actionOn
+            ];
+        }
+
+        return $playerData;
+    }
+
+    public function getWholeCards($player = null)
+    {
+
         $wholeCards = [];
+
+        if(isset($player)){
+            foreach($player->wholeCards as $wholeCard){
+                $wholeCards[] = [
+                    'player_id' => $wholeCard->player_id,
+                    'rank' => $wholeCard->card->rank->abbreviation,
+                    'suit' => $wholeCard->card->suit->name
+                ];
+            }
+
+            return $wholeCards;
+        }
+
         foreach(TableSeat::where('can_continue', 1)->get() as $tableSeat){
             foreach($tableSeat->player->wholeCards->where('hand_id',$this->hand->fresh()->id) as $wholeCard){
                 $wholeCards[] = [
@@ -227,10 +304,7 @@ class GamePlay
             $seat->player->actions()->create([
                 'hand_street_id' => $this->street->id,
                 'table_seat_id' => $seat->id,
-                'hand_id' => $this->hand->id
-            ]);
-
-            $seat->update([
+                'hand_id' => $this->hand->id,
                 'active' => 1
             ]);
         }

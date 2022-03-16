@@ -43,4 +43,15 @@ class HandControllerTest extends TestEnvironment
 
         $response->assertStatus(200);
     }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function the_action_will_be_on_the_player_after_the_big_blind_once_a_hand_is_started()
+    {
+        $response = $this->get('hand');
+
+        $this->assertEquals($this->player3->id, $response['actionOn']['player_id']);
+    }
 }
