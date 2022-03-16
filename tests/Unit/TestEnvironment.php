@@ -24,6 +24,5 @@ abstract class TestEnvironment extends TestCase
         Artisan::call('create:actions');
         Artisan::call('create:handtypes');
 
-        $this->deck = Card::all();
     }
 }

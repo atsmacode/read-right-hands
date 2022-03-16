@@ -7,6 +7,12 @@ use App\Models\Card;
 class DeckTest extends TestEnvironment
 {
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->deck = Card::all();
+    }
+
     /**
      * @test
      * @return void
