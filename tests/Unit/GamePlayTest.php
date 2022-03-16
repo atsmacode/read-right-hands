@@ -7,7 +7,6 @@ use App\Models\Action;
 use App\Models\Hand;
 use App\Models\Player;
 use App\Models\PlayerAction;
-use App\Models\Table;
 use App\Models\TableSeat;
 
 class GamePlayTest extends TestEnvironment
