@@ -356,7 +356,7 @@ class GamePlay
             'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 25,
             'active' => 1,
-            'updated_at' => date('Y-m-d H:i:s', strtotime('- 10 seconds'))
+            'updated_at' => date('Y-m-d H:i:s', strtotime('- 10 seconds')) // For testing so I can get the latest action, otherwise they are all the same
         ]);
 
         TableSeat::where('id', $this->handTable->tableSeats->slice(0, 1)->first()->id)
@@ -376,7 +376,7 @@ class GamePlay
             'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 50,
             'active' => 1,
-            'updated_at' => date('Y-m-d H:i:s', strtotime('- 5 seconds'))
+            'updated_at' => date('Y-m-d H:i:s', strtotime('- 5 seconds')) // For testing so I can get the latest action, otherwise they are all the same
         ]);
 
         TableSeat::where('id', $this->handTable->tableSeats->slice(1, 1)->first()->id)
@@ -386,33 +386,6 @@ class GamePlay
 
         return $this;
 
-    }
-
-    public function actionOn()
-    {
-        // return the PlayerAction record for this hand with, the lowest seat number, active 1 and can_continue 0
-            // and the available actions
-
-        return $this->actionOn;
-    }
-
-    public function currentStreet()
-    {
-        // Find out the latest HandStreet record for the $this->hand
-
-        return $this->hand->streets->latest();
-    }
-
-    public function isLastStreet()
-    {
-        // if we are on the last street
-
-        return true;
-    }
-
-    public function finish()
-    {
-        return 1;
     }
 
 }
