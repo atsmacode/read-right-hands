@@ -49,6 +49,7 @@ class GamePlay
             'streets' => $this->hand->fresh()->streets,
             'communityCards' => $this->getCommunityCards(),
             'wholeCards' => $this->getWholeCards(),
+            'players' => $this->getPlayerData(),
             'winner' => (new Showdown($this->hand->fresh()))->compileHands()->decideWinner()
         ];
     }
@@ -76,6 +77,8 @@ class GamePlay
             'streets' => $this->hand->fresh()->streets,
             'communityCards' => $this->getCommunityCards(),
             'wholeCards' => $this->getWholeCards(),
+            'actionOn' => $this->getActionOn(),
+            'players' => $this->getPlayerData(),
             'winner' => null
         ];
     }
@@ -106,6 +109,7 @@ class GamePlay
             'communityCards' => $this->getCommunityCards(),
             'wholeCards' => $this->getWholeCards(),
             'actionOn' => $this->getActionOn(),
+            'players' => $this->getPlayerData(),
             'winner' => null
         ];
 
@@ -138,6 +142,8 @@ class GamePlay
             'streets' => $this->hand->fresh()->streets,
             'communityCards' => $this->getCommunityCards(),
             'wholeCards' => $this->getWholeCards(),
+            'actionOn' => $this->getActionOn(),
+            'players' => $this->getPlayerData(),
             'winner' => null
         ];
     }
