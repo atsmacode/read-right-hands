@@ -15,9 +15,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::get('hand', [HandController::class, 'new']);
 Route::post('action', [PlayerActionController::class, 'action']);

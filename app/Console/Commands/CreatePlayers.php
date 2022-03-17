@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Player;
 use App\Models\TableSeat;
+use App\Models\Table;
 use Illuminate\Console\Command;
 
 class CreatePlayers extends Command
@@ -40,9 +41,20 @@ class CreatePlayers extends Command
     public function handle()
     {
 
-        foreach(TableSeat::all() as $seat){
-            $seat->player()->create([]);
-        }
+        TableSeat::factory([
+            'table_id' => Table::first()->id,
+            'player_id' => Player::factory()->create()
+        ])->create();
+
+        TableSeat::factory([
+            'table_id' => Table::first()->id,
+            'player_id' => Player::factory()->create()
+        ])->create();
+
+        TableSeat::factory([
+            'table_id' => Table::first()->id,
+            'player_id' => Player::factory()->create()
+        ])->create();
 
         return 0;
     }

@@ -7,7 +7,14 @@
         <title>Read Right Hands</title>
 
     </head>
+    
     <body>
-        <h1>Read Right Hands</h1>
+        <div id="app">
+            <h1>Read Right Hands</h1>
+            <p>@{{count}}</p>
+        </div>
+    
     </body>
+    <script src="{{asset('js/app.js')}}"></script>
+
 </html>
