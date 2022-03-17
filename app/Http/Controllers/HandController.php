@@ -8,22 +8,30 @@ use Illuminate\Http\Request;
 
 class HandController extends Controller
 {
-    public function new()
+    public function new(Request $request)
     {
-        $hand = Hand::create();
 
-        $gameData = (new GamePlay($hand))->start();
 
-        return view('index')->with([
-            'game_play' => $gameData['gamePlay'],
-            'hand' => $gameData['hand'],
-            'handTable' => $gameData['handTable'],
-            'actions' => $gameData['actions'],
-            'streets' => $gameData['streets'],
-            'communityCards' => $gameData['communityCards'],
-            'wholeCards' => $gameData['wholeCards'],
-            'actionOn' => $gameData['actionOn'],
-            'winner' => $gameData['winner']
-        ]);
+        if($request->expectsJson()){
+
+            $hand = Hand::create();
+
+            $gameData = (new GamePlay($hand))->start();
+
+            return response()->json([
+                'game_play' => json_encode($gameData['gamePlay']),
+                'deck' => $gameData['deck'],
+                'hand' => $gameData['hand'],
+                'handTable' => $gameData['handTable'],
+                'actions' => $gameData['actions'],
+                'streets' => $gameData['streets'],
+                'communityCards' => $gameData['communityCards'],
+                'actionOn' => $gameData['actionOn'],
+                'players' => $gameData['players'],
+                'winner' => $gameData['winner']
+            ]);
+        }
+
+        return view('index');
     }
 }

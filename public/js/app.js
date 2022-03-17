@@ -2071,11 +2071,63 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
   el: '#app',
   data: function data() {
     return {
-      count: 0
+      deck: false,
+      game_play: false,
+      players: false,
+      communityCards: false,
+      errors: {},
+      loading: false
     };
+  },
+  computed: {
+    payload: function payload() {
+      return {//
+      };
+    }
+  },
+  methods: {
+    action: function action(_action, player) {
+      var _this = this;
+
+      var payload = {
+        deck: this.deck,
+        game_play: this.game_play,
+        player_id: player.player_id,
+        action_id: _action,
+        table_seat_id: player.table_seat_id,
+        hand_street_id: player.hand_street_id,
+        active: player.active,
+        bet_amount: null
+      };
+      console.log(payload);
+      this.loading = true;
+      window.axios.post('action', payload).then(function (response) {
+        console.log(response);
+        _this.loading = false;
+        _this.players = response.data.players;
+        _this.communityCards = response.data.communityCards;
+        _this.deck = response.data.deck;
+      })["catch"](function (error) {
+        console.log(error);
+        _this.loading = false;
+        _this.errors = error.response.data.errors;
+      });
+    },
+    gameData: function gameData() {
+      var _this2 = this;
+
+      window.axios.get('hand').then(function (response) {
+        console.log(response.data);
+        _this2.players = response.data.players;
+        _this2.communityCards = response.data.communityCards;
+        _this2.game_play = response.data.game_play;
+        _this2.deck = response.data.deck;
+      });
+    }
   },
   mounted: function mounted() {
     console.log('mounted');
+    this.gameData();
   }
 });
 

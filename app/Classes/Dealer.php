@@ -17,9 +17,13 @@ class Dealer
     public $deck;
     public $card;
 
-    public function setDeck()
+    public function setDeck($deck = null)
     {
-        $this->deck = Card::all();
+        if($deck){
+            $this->deck = collect($deck);
+        } else {
+            $this->deck = Card::all();
+        }
 
         return $this;
     }
@@ -110,7 +114,7 @@ class Dealer
     public function dealStreetCard($handStreet)
     {
 
-        $cardId = $this->pickCard()->getCard()->id;
+        $cardId = is_object($this->pickCard()->getCard()) ? $this->pickCard()->getCard()->id : $this->pickCard()->getCard()['id'];
 
         HandStreetCard::create([
             'card_id' => $cardId,

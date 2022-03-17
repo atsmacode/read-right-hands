@@ -43,7 +43,6 @@ class HandControllerTest extends TestEnvironment
 
         $response->assertStatus(200);
         $response->assertViewIs('index');
-        $response->assertViewHas('game_play');
     }
 
 }

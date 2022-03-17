@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\PlayerAction;
+use App\Models\Hand;
 use Illuminate\Http\Request;
+use App\Classes\GamePlay;
 
 class PlayerActionController extends Controller
 {
@@ -15,15 +17,21 @@ class PlayerActionController extends Controller
             'hand_street_id' => $request->hand_street_id
         ])->first();
 
-        $playerAction->update([
-            'action_id' => $request->action_id,
-            'bet_amount' => $request->bet_amount,
-            'active' => $request->active
-        ]);
+    
+        /*
+         * Manually set updated_at in this way because framework will not 
+         * change the value if the action_id is the same as last street.
+        */
+        $playerAction->action_id = $request->action_id;
+        $playerAction->bet_amount = $request->bet_amount;
+        $playerAction->active = $request->active;
+        $playerAction->updated_at = now(); 
+        $playerAction->save();
 
-        $gameData = $request['game_play']->play();
+        $gameData = (new GamePlay(Hand::query()->latest()->first(), $request->deck))->play();
 
         return response()->json([
+            'deck' => $gameData['deck'],
             'game_play' => $gameData['gamePlay'],
             'hand' => $gameData['hand'],
             'handTable' => $gameData['handTable'],

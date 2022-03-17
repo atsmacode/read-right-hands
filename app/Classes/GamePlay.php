@@ -21,10 +21,10 @@ class GamePlay
     protected $bet;
     protected $raise;
 
-    public function __construct(Hand $hand)
+    public function __construct(Hand $hand, $deck = null)
     {
         $this->game = new PotLimitHoldEm();
-        $this->dealer = new Dealer();
+        $this->dealer = (new Dealer())->setDeck($deck);
         $this->hand = $hand;
         $this->handTable = Table::first();
         $this->street = null;
@@ -53,6 +53,7 @@ class GamePlay
 
         return [
             'gamePlay' => $this,
+            'deck' => $this->dealer->getDeck(),
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
             'actions' => $this->hand->playerActions->fresh(),
@@ -98,6 +99,7 @@ class GamePlay
 
         return [
             'gamePlay' => $this,
+            'deck' => $this->dealer->getDeck(),
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
             'actions' => $this->hand->playerActions->fresh(),
@@ -129,12 +131,12 @@ class GamePlay
 
         return [
             'gamePlay' => $this,
+            'deck' => $this->dealer->getDeck(),
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
             'actions' => $this->hand->playerActions->fresh(),
             'streets' => $this->hand->streets->fresh(),
             'communityCards' => $this->getCommunityCards(),
-            'wholeCards' => $this->getWholeCards(),
             'actionOn' => $this->getActionOn(),
             'players' => $this->getPlayerData(),
             'winner' => null
@@ -163,6 +165,7 @@ class GamePlay
 
         return [
             'gamePlay' => $this,
+            'deck' => $this->dealer->getDeck(),
             'hand' => $this->hand->fresh(),
             'handTable' => $this->handTable->fresh(),
             'actions' => $this->hand->playerActions->fresh(),
@@ -220,8 +223,11 @@ class GamePlay
                 $actionOn = true;
             }
 
+            $actionName = $playerAction->action ? $playerAction->action->name : null;
+
             $playerData[] = [
                 'action_id' => $playerAction->action_id,
+                'action_name' => $actionName ,
                 'player_id' => $playerAction->player_id,
                 'table_seat_id' =>  $playerAction->table_seat_id,
                 'hand_street_id' => $playerAction->hand_street_id,
@@ -243,7 +249,7 @@ class GamePlay
         $wholeCards = [];
 
         if(isset($player)){
-            foreach($player->wholeCards as $wholeCard){
+            foreach($player->wholeCards->where('hand_id', $this->hand->fresh()->id) as $wholeCard){
                 $wholeCards[] = [
                     'player_id' => $wholeCard->player_id,
                     'rank' => $wholeCard->card->rank->abbreviation,
@@ -319,6 +325,7 @@ class GamePlay
                     break;
                 case $this->bet->id:
                     array_push($options, $this->call, $this->raise);
+                    break;
                 case $this->raise->id:
                     array_push($options, $this->call, $this->raise);
                     break;
@@ -369,6 +376,8 @@ class GamePlay
                 ['updated_at', 'desc']
             ], SORT_NUMERIC)
             ->first();
+
+            logger($latestAction);
 
         // Update the table seat status of the latest action accordingly
         switch($latestAction->action_id){
