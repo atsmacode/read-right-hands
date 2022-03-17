@@ -371,16 +371,6 @@ class GamePlay
         switch($latestAction->action_id){
             case $this->bet->id:
             case $this->raise->id:
-                /*
-                 * Always reset action_id after a bet or raise.
-                 */
-                /*$playerActions = PlayerAction::query()
-                    ->where('hand_id', $this->hand->fresh()->id)
-                    ->get();
-                foreach($playerActions as $playerAction){
-                    $playerAction->action_id = null;
-                    $playerAction->save();
-                }*/
                 $canContinue = 0;
                 break;
             default:
