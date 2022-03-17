@@ -24,8 +24,11 @@
                     </button>
                 </div>
 
-                <div v-for="card in communityCards" class="card">
-                    @{{card.rank}} @{{card.suit}}   
+                <div v-if="communityCards.length > 0">
+                    <h2>Community Cards</h2>
+                    <div v-for="card in communityCards" class="card">
+                        @{{card.rank}} @{{card.suit}}   
+                    </div>
                 </div>
 
                 <div v-if="winner">
