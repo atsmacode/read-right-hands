@@ -191,6 +191,17 @@ class GamePlay
     public function getActionOn()
     {
 
+        if(!$this->hand->playerActions->fresh()->whereNotNull('action_id')->first()){
+            return TableSeat::query()
+                ->select('table_seats.*')
+                ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
+                ->where('table_seats.table_id', $this->handTable->fresh()->id)
+                ->where('table_seats.can_continue', 0)
+                ->where('player_actions.active', 1)
+                ->first();
+        }
+
+        
         $playerAfter = TableSeat::query()
             ->select('table_seats.*')
             ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
@@ -226,8 +237,10 @@ class GamePlay
     {
 
         $playerData = [];
-        $actionOn = false;
+        
         foreach($this->hand->playerActions->fresh() as $playerAction){
+
+            $actionOn = false;
 
             if($this->getActionOn() && $this->getActionOn()->player_id === $playerAction->player_id){
                 $actionOn = true;
@@ -385,8 +398,6 @@ class GamePlay
                 ['updated_at', 'desc']
             ], SORT_NUMERIC)
             ->first();
-
-            logger($latestAction);
 
         // Update the table seat status of the latest action accordingly
         switch($latestAction->action_id){

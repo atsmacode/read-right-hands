@@ -2075,6 +2075,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
       game_play: false,
       players: false,
       communityCards: false,
+      winner: false,
       errors: {},
       loading: false
     };
@@ -2089,6 +2090,12 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
     action: function action(_action, player) {
       var _this = this;
 
+      var active = 1;
+
+      if (_action === 1) {
+        active = 0;
+      }
+
       var payload = {
         deck: this.deck,
         game_play: this.game_play,
@@ -2096,7 +2103,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         action_id: _action,
         table_seat_id: player.table_seat_id,
         hand_street_id: player.hand_street_id,
-        active: player.active,
+        active: active,
         bet_amount: null
       };
       console.log(payload);
@@ -2107,6 +2114,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         _this.players = response.data.players;
         _this.communityCards = response.data.communityCards;
         _this.deck = response.data.deck;
+        _this.winner = response.data.winner;
       })["catch"](function (error) {
         console.log(error);
         _this.loading = false;

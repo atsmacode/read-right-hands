@@ -9,6 +9,7 @@ const app = new Vue({
 			game_play: false,
 			players: false,
 			communityCards: false,
+			winner: false,
 			errors: {},
 			loading: false
 		}
@@ -23,6 +24,11 @@ const app = new Vue({
 	methods: {
 		action(action, player){
 
+			let active = 1;
+			if(action === 1){
+				active = 0;
+			}
+
 			let payload = {
 				deck: this.deck,
 				game_play: this.game_play,
@@ -30,7 +36,7 @@ const app = new Vue({
 				action_id: action,
 				table_seat_id: player.table_seat_id,
 				hand_street_id: player.hand_street_id,
-				active: player.active,
+				active: active,
 				bet_amount: null
 			};
 
@@ -45,6 +51,7 @@ const app = new Vue({
 				this.players = response.data.players;
 				this.communityCards = response.data.communityCards;
 				this.deck = response.data.deck;
+				this.winner = response.data.winner;
 
 
 			}).catch(error => {

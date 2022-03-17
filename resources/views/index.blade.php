@@ -19,13 +19,18 @@
                         @{{card.rank}} @{{card.suit}}
                     </div>
                     
-                    <button v-on:click="action(option.id, player)" class="btn btn-primary" v-for="option in player.availableOptions" :key="option.name" v-bind:data-action-id="option.id">
+                    <button v-if="player.action_on" v-on:click="action(option.id, player)" class="btn btn-primary" v-for="option in player.availableOptions" :key="option.name" v-bind:data-action-id="option.id">
                         @{{option.name}}
                     </button>
                 </div>
 
                 <div v-for="card in communityCards" class="card">
                     @{{card.rank}} @{{card.suit}}   
+                </div>
+
+                <div v-if="winner">
+                    <h2>Winner</h2>
+                    <p>Player @{{winner.player.id}} with @{{winner.handType.name}}
                 </div>
 
             </div>
