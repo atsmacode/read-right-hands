@@ -27,6 +27,7 @@ class CreatePlayerActionsTable extends Migration
             $table->foreign('table_seat_id')->references('id')->on('table_seats');
             $table->float('bet_amount')->nullable();
             $table->boolean('active')->default(0);
+            $table->boolean('big_blind')->default(0);
             $table->timestamps();
         });
     }

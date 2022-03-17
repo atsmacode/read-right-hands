@@ -17,7 +17,8 @@ class PlayerAction extends Model
         'action_id',
         'bet_amount',
         'hand_id',
-        'active'
+        'active',
+        'big_blind'
     ];
 
     public function hand()

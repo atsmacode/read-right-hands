@@ -15,6 +15,11 @@ class GamePlay
     public $game;
     public $dealer;
     protected $actionOn;
+    protected $fold;
+    protected $check;
+    protected $call;
+    protected $bet;
+    protected $raise;
 
     public function __construct(Hand $hand)
     {
@@ -23,6 +28,11 @@ class GamePlay
         $this->hand = $hand;
         $this->handTable = Table::first();
         $this->street = null;
+        $this->fold = Action::where('name', 'Fold')->first();
+        $this->check = Action::where('name', 'Check')->first();
+        $this->call = Action::where('name', 'Call')->first();
+        $this->bet = Action::where('name', 'Bet')->first();
+        $this->raise = Action::where('name', 'Raise')->first();
     }
 
     public function play()
@@ -57,6 +67,23 @@ class GamePlay
     public function continue()
     {
 
+        /*
+         * Reset can_continue & BB status once pre-flop action and/or previous street is finished.
+         */
+        TableSeat::query()
+            ->where('table_id', $this->handTable->fresh()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        if($this->hand->fresh()->streets->count() === 1){
+            PlayerAction::query()
+                ->where('big_blind', 1)
+                ->update([
+                    'big_blind' => 0
+                ]);
+        }
+
         // Not keen on the way I'm adding/subtracting from the handStreets->count() to match array starting with 0
         $this->street = HandStreet::create([
             'street_id' => Street::where('name', $this->game->streets[$this->hand->fresh()->streets->count()]['name'])->first()->id,
@@ -68,12 +95,6 @@ class GamePlay
             $this->dealer->dealStreetCard($this->street);
             $dealtCards++;
         }
-
-        TableSeat::query()
-            ->where('table_id', $this->handTable->fresh()->id)
-            ->update([
-                'can_continue' => 0
-            ]);
 
         return [
             'gamePlay' => $this,
@@ -208,7 +229,8 @@ class GamePlay
                 'active' => $playerAction->active,
                 'can_continue' => $playerAction->tableSeat->can_continue,
                 'whole_cards' => $this->getWholeCards($playerAction->player),
-                'action_on' => $actionOn
+                'action_on' => $actionOn,
+                'availableOptions' => $this->getAvailableOptionsBasedOnLatestAction($playerAction)
             ];
         }
 
@@ -260,6 +282,53 @@ class GamePlay
         return $cards;
     }
 
+    public function getAvailableOptionsBasedOnLatestAction($playerAction)
+    {
+
+        $options = [];
+
+        /*
+         * We only need to update the available actions if a player did something other than fold.
+         */
+        $latestAction = $this->hand->playerActions
+            ->fresh()
+            ->whereNotIn('action_id', [
+                $this->fold->id
+            ])
+            ->sortBy([
+                ['updated_at', 'desc']
+            ], SORT_NUMERIC)
+            ->first();
+
+        if($playerAction->active === 1){
+
+            $options = [
+                $this->fold
+            ];
+
+            switch($latestAction->action_id){
+                case $this->check->id:
+                    array_push($options, $this->check, $this->bet, $this->raise);
+                    break;
+                case $this->call->id:
+                    if($playerAction->big_blind === 1){
+                        array_push($options, $this->check, $this->raise);
+                    } else {
+                        array_push($options, $this->call, $this->raise);
+                    }
+                    break;
+                case $this->bet->id:
+                    array_push($options, $this->call, $this->raise);
+                case $this->raise->id:
+                    array_push($options, $this->call, $this->raise);
+                    break;
+            }
+
+        }
+
+        return collect($options);
+    }
+
     public function updateAllOtherSeatsBasedOnLatestAction()
     {
 
@@ -272,8 +341,8 @@ class GamePlay
 
         // Update the other table seat statuses accordingly
         switch($latestAction->action_id){
-            case Action::where('name', 'Bet')->first()->id:
-            case Action::where('name', 'Raise')->first()->id:
+            case $this->bet->id:
+            case $this->raise->id:
             $canContinue = 0;
                 break;
             default:
@@ -303,10 +372,10 @@ class GamePlay
 
         // Update the table seat status of the latest action accordingly
         switch($latestAction->action_id){
-            case Action::where('name', 'Check')->first()->id:
-            case Action::where('name', 'Call')->first()->id:
-            case Action::where('name', 'Bet')->first()->id:
-            case Action::where('name', 'Raise')->first()->id:
+            case $this->check->id:
+            case $this->call->id:
+            case $this->bet->id:
+            case $this->raise->id:
                 $canContinue = 1;
                 break;
             default:
@@ -393,6 +462,7 @@ class GamePlay
             'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 50,
             'active' => 1,
+            'big_blind' => 1,
             'updated_at' => date('Y-m-d H:i:s', strtotime('- 5 seconds')) // For testing so I can get the latest action, otherwise they are all the same
         ]);
 

@@ -31,6 +31,7 @@ class PlayerActionController extends Controller
             'streets' => $gameData['streets'],
             'communityCards' => $gameData['communityCards'],
             'wholeCards' => $gameData['wholeCards'],
+            'players' => $gameData['players'],
             'winner' => $gameData['winner']
         ]);
     }
