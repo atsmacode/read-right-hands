@@ -336,7 +336,13 @@ class GamePlay
 
             switch($latestAction->action_id){
                 case $this->call->id:
-                    if($playerAction->big_blind === 1){
+                    /*
+                     * BB can only check if there were no raises before the latest call action.
+                     */
+                    if(
+                        $playerAction->big_blind === 1 &&
+                        !$this->hand->playerActions->fresh()->whereIn('action_id', $this->raise->id)->first()
+                    ){
                         array_push($options, $this->check, $this->raise);
                     } else {
                         array_push($options, $this->call, $this->raise);
