@@ -92,7 +92,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response->assertStatus(200);
 
-        //dump($response);
+        $response->assertJsonCount(2, 'streets');
         $this->assertCount(2, $response['streets']);
         $this->assertCount(3, $response['communityCards']);
 

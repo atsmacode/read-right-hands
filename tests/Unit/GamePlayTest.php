@@ -67,6 +67,9 @@ class GamePlayTest extends TestEnvironment
             $this->assertCount(2, $player->wholeCards->where('hand_id', $response['hand']->id));
         }
 
+        // the_action_will_be_on_the_player_after_the_big_blind_once_a_hand_is_started
+        $this->assertEquals($response['handTable']->tableSeats->slice(2, 1)->first()->id, $response['actionOn']->id);
+
     }
 
     /**

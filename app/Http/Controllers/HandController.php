@@ -8,13 +8,13 @@ use Illuminate\Http\Request;
 
 class HandController extends Controller
 {
-    public function new(Request $request)
+    public function new()
     {
         $hand = Hand::create();
 
         $gameData = (new GamePlay($hand))->start();
 
-        return response([
+        return view('index')->with([
             'game_play' => $gameData['gamePlay'],
             'hand' => $gameData['hand'],
             'handTable' => $gameData['handTable'],

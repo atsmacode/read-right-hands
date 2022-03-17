@@ -23,7 +23,7 @@ class PlayerActionController extends Controller
 
         $gameData = $request['game_play']->play();
 
-        return response([
+        return response()->json([
             'game_play' => $gameData['gamePlay'],
             'hand' => $gameData['hand'],
             'handTable' => $gameData['handTable'],

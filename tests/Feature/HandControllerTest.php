@@ -37,21 +37,13 @@ class HandControllerTest extends TestEnvironment
      * @test
      * @return void
      */
-    public function a_new_hand_can_be_started()
+    public function a_new_hand_can_be_started_and_index_view_returned()
     {
         $response = $this->get('hand');
 
         $response->assertStatus(200);
+        $response->assertViewIs('index');
+        $response->assertViewHas('game_play');
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function the_action_will_be_on_the_player_after_the_big_blind_once_a_hand_is_started()
-    {
-        $response = $this->get('hand');
-
-        $this->assertEquals($this->player3->id, $response['actionOn']['player_id']);
-    }
 }
