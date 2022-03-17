@@ -17,6 +17,14 @@ class PlayerActionController extends Controller
             'hand_street_id' => $request->hand_street_id
         ])->first();
 
+        /*
+         * A hacky way to resolve updated_at not changing if the action_id i the same.
+         * Issue happened when multiple rounds of re-raising takes place.
+         */
+        $playerAction->update([
+            'action_id' => null,
+        ]);
+
         $playerAction->update([
             'action_id' => $request->action_id,
             'bet_amount' => $request->bet_amount,

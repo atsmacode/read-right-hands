@@ -201,7 +201,6 @@ class GamePlay
                 ->first();
         }
 
-        
         $playerAfter = TableSeat::query()
             ->select('table_seats.*')
             ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
@@ -237,7 +236,7 @@ class GamePlay
     {
 
         $playerData = [];
-        
+
         foreach($this->hand->playerActions->fresh() as $playerAction){
 
             $actionOn = false;
@@ -372,7 +371,17 @@ class GamePlay
         switch($latestAction->action_id){
             case $this->bet->id:
             case $this->raise->id:
-            $canContinue = 0;
+                /*
+                 * Always reset action_id after a bet or raise.
+                 */
+                /*$playerActions = PlayerAction::query()
+                    ->where('hand_id', $this->hand->fresh()->id)
+                    ->get();
+                foreach($playerActions as $playerAction){
+                    $playerAction->action_id = null;
+                    $playerAction->save();
+                }*/
+                $canContinue = 0;
                 break;
             default:
                 break;
