@@ -79,11 +79,21 @@ class GamePlay
 
         if($this->hand->fresh()->streets->count() === 1){
             PlayerAction::query()
+                ->where('hand_id', $this->hand->fresh()->id)
                 ->where('big_blind', 1)
                 ->update([
                     'big_blind' => 0
                 ]);
         }
+
+        /*
+         * Always reset action_id.
+         */
+        PlayerAction::query()
+            ->where('hand_id', $this->hand->fresh()->id)
+            ->update([
+                'action_id' => null
+            ]);
 
         // Not keen on the way I'm adding/subtracting from the handStreets->count() to match array starting with 0
         $this->street = HandStreet::create([
@@ -313,9 +323,6 @@ class GamePlay
             ];
 
             switch($latestAction->action_id){
-                case $this->check->id:
-                    array_push($options, $this->check, $this->bet, $this->raise);
-                    break;
                 case $this->call->id:
                     if($playerAction->big_blind === 1){
                         array_push($options, $this->check, $this->raise);
@@ -324,10 +331,12 @@ class GamePlay
                     }
                     break;
                 case $this->bet->id:
-                    array_push($options, $this->call, $this->raise);
-                    break;
                 case $this->raise->id:
                     array_push($options, $this->call, $this->raise);
+                    break;
+                case $this->check->id:
+                default:
+                    array_push($options, $this->check, $this->bet, $this->raise);
                     break;
             }
 

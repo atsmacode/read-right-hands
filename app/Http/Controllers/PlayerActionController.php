@@ -17,16 +17,11 @@ class PlayerActionController extends Controller
             'hand_street_id' => $request->hand_street_id
         ])->first();
 
-    
-        /*
-         * Manually set updated_at in this way because framework will not 
-         * change the value if the action_id is the same as last street.
-        */
-        $playerAction->action_id = $request->action_id;
-        $playerAction->bet_amount = $request->bet_amount;
-        $playerAction->active = $request->active;
-        $playerAction->updated_at = now(); 
-        $playerAction->save();
+        $playerAction->update([
+            'action_id' => $request->action_id,
+            'bet_amount' => $request->bet_amount,
+            'active' => $request->active
+        ]);
 
         $gameData = (new GamePlay(Hand::query()->latest()->first(), $request->deck))->play();
 
