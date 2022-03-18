@@ -57,6 +57,10 @@ const app = new Vue({
 		}
 	},
 	methods: {
+        showOptions(action_on){
+            console.log(action_on === true && this.winner === false);
+            return action_on === true && this.winner === false;
+        },
 		setSuitColour(suit){
 			return this.suitColours.suit;
 		},
@@ -89,7 +93,7 @@ const app = new Vue({
 				this.players = response.data.players;
 				this.communityCards = response.data.communityCards;
 				this.deck = response.data.deck;
-				this.winner = response.data.winner;
+				this.winner = response.data.winner ? response.data.winner : false;
 
 
 			}).catch(error => {
@@ -110,7 +114,7 @@ const app = new Vue({
 				this.communityCards = response.data.communityCards;
 				this.game_play = response.data.game_play;
 				this.deck = response.data.deck;
-				
+
 			});
 		}
 	},

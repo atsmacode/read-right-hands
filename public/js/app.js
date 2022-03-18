@@ -2100,6 +2100,10 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
     }
   },
   methods: {
+    showOptions: function showOptions(action_on) {
+      console.log(action_on === true && this.winner === false);
+      return action_on === true && this.winner === false;
+    },
     setSuitColour: function setSuitColour(suit) {
       return this.suitColours.suit;
     },
@@ -2130,7 +2134,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         _this.players = response.data.players;
         _this.communityCards = response.data.communityCards;
         _this.deck = response.data.deck;
-        _this.winner = response.data.winner;
+        _this.winner = response.data.winner ? response.data.winner : false;
       })["catch"](function (error) {
         console.log(error);
         _this.loading = false;

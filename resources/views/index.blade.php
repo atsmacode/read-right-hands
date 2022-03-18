@@ -63,9 +63,11 @@
                                 </div>
                             </div>
 
-                            <button v-if="player.action_on" v-on:click="action(option.id, player)" class="btn btn-primary me-1" v-for="option in player.availableOptions" :key="option.name" v-bind:data-action-id="option.id">
-                                @{{option.name}}
-                            </button>
+                            <div v-show="showOptions(player.action_on)">
+                                <button v-on:click="action(option.id, player)" class="btn btn-primary me-1" v-for="option in player.availableOptions" :key="option.name" v-bind:data-action-id="option.id">
+                                    @{{option.name}}
+                                </button>
+                            </div>
 
                         </div>
 
