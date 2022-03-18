@@ -56,6 +56,21 @@ class CreatePlayers extends Command
             'player_id' => Player::factory()->create()
         ])->create();
 
+        TableSeat::factory([
+            'table_id' => Table::first()->id,
+            'player_id' => Player::factory()->create()
+        ])->create();
+
+        TableSeat::factory([
+            'table_id' => Table::first()->id,
+            'player_id' => Player::factory()->create()
+        ])->create();
+
+        TableSeat::factory([
+            'table_id' => Table::first()->id,
+            'player_id' => Player::factory()->create()
+        ])->create();
+
         return 0;
     }
 }
