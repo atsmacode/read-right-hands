@@ -39,14 +39,14 @@
                 </div>
             </nav>
 
-            <div class="bg-secondary p-3">
+            <div class="bg-secondary p-3 rounded m-1">
                 <div class="row">
                     <h1>Players</h1>
 
                     <div v-for="player in players" :key="player.table_seat_id" class="col-3 mb-3">
-                        <div class="m-3 p-3 bg-dark rounded">
+                        <div class="m-1 p-3 bg-dark rounded">
                             <p>
-                                Player @{{player.player_id}}: <span v-if="player.action_id" class="alert alert-success rounded-0"><strong>@{{player.action_name}}</strong></span>
+                                Player @{{player.player_id}}: <span v-if="player.action_id" v-bind:class="actionColours[player.action_name]" class="d-inline rounded p-1"><strong>@{{player.action_name}}</strong></span>
                             </p>
                             <div class="row mb-3">
                                 <div v-for="card in player.whole_cards" class="col-6">
@@ -69,7 +69,7 @@
             
             </div>
 
-            <div class="bg-success p-3">
+            <div class="bg-success p-3 rounded m-1">
                 <h2>Community Cards</h2>
                 <div v-if="communityCards.length > 0">
                     <div class="row mb-3">
@@ -86,7 +86,7 @@
 
 
             <div v-if="winner">
-                <div class="bg-info p-3">
+                <div class="bg-info p-3 rounded m-1">
                     <h2>Winner</h2>
                     <p>Player @{{winner.player.id}} with @{{winner.handType.name}}</p>
                     <button v-on:click="gameData" class="btn btn-primary">

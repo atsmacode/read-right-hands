@@ -2083,6 +2083,13 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         "Diamonds": ["text-danger", "border border-2 border-danger"],
         "Hearts": ["text-danger", "border border-2 border-danger"],
         "Spades": ["text-dark", "border border-2 border-dark"]
+      },
+      actionColours: {
+        "Fold": ["bg-info"],
+        "Check": ["bg-info"],
+        "Call": ["bg-success"],
+        "Bet": ["bg-warning"],
+        "Raise": ["bg-danger"]
       }
     };
   },

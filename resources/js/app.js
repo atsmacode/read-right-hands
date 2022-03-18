@@ -29,7 +29,24 @@ const app = new Vue({
 					"text-dark",
 					"border border-2 border-dark"
 				]
-			} 
+			},
+			actionColours: {
+				"Fold": [
+					"bg-info"
+				],
+				"Check": [
+					"bg-info"
+				],
+				"Call": [
+					"bg-success"
+				],
+				"Bet": [
+					"bg-warning"
+				],
+				"Raise": [
+					"bg-danger"
+				]
+			}
 		}
 	},
 	computed: {
