@@ -11,7 +11,25 @@ const app = new Vue({
 			communityCards: false,
 			winner: false,
 			errors: {},
-			loading: false
+			loading: false,
+			suitColours: {
+				"Clubs": [
+					"text-dark",
+					"border border-2 border-dark"
+				],
+				"Diamonds": [
+					"text-danger",
+					"border border-2 border-danger"
+				],
+				"Hearts": [
+					"text-danger",
+					"border border-2 border-danger"
+				],
+				"Spades": [
+					"text-dark",
+					"border border-2 border-dark"
+				]
+			} 
 		}
 	},
 	computed: {
@@ -22,6 +40,9 @@ const app = new Vue({
 		}
 	},
 	methods: {
+		setSuitColour(suit){
+			return this.suitColours.suit;
+		},
 		action(action, player){
 
 			let active = 1;
@@ -67,6 +88,7 @@ const app = new Vue({
 			window.axios.get('hand').then(response => {
 
 				console.log(response.data);
+				this.winner = false;
 				this.players = response.data.players;
 				this.communityCards = response.data.communityCards;
 				this.game_play = response.data.game_play;

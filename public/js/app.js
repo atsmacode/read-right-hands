@@ -2077,7 +2077,13 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
       communityCards: false,
       winner: false,
       errors: {},
-      loading: false
+      loading: false,
+      suitColours: {
+        "Clubs": ["text-dark", "border border-2 border-dark"],
+        "Diamonds": ["text-danger", "border border-2 border-danger"],
+        "Hearts": ["text-danger", "border border-2 border-danger"],
+        "Spades": ["text-dark", "border border-2 border-dark"]
+      }
     };
   },
   computed: {
@@ -2087,6 +2093,9 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
     }
   },
   methods: {
+    setSuitColour: function setSuitColour(suit) {
+      return this.suitColours.suit;
+    },
     action: function action(_action, player) {
       var _this = this;
 
@@ -2126,6 +2135,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
 
       window.axios.get('hand').then(function (response) {
         console.log(response.data);
+        _this2.winner = false;
         _this2.players = response.data.players;
         _this2.communityCards = response.data.communityCards;
         _this2.game_play = response.data.game_play;

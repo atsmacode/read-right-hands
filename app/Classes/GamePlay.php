@@ -275,7 +275,8 @@ class GamePlay
                 $wholeCards[] = [
                     'player_id' => $wholeCard->player_id,
                     'rank' => $wholeCard->card->rank->abbreviation,
-                    'suit' => $wholeCard->card->suit->name
+                    'suit' => $wholeCard->card->suit->name,
+                    'suitAbbreviation' => $wholeCard->card->suit->abbreviation
                 ];
             }
 
@@ -287,7 +288,8 @@ class GamePlay
                 $wholeCards[] = [
                     'player_id' => $tableSeat->player->id,
                     'rank' => $wholeCard->card->rank->abbreviation,
-                    'suit' => $wholeCard->card->suit->name
+                    'suit' => $wholeCard->card->suit->name,
+                    'suitAbbreviation' => $wholeCard->card->suit->abbreviation
                 ];
             }
         }
@@ -302,7 +304,8 @@ class GamePlay
             foreach($street->cards as $streetCard){
                 $cards[] = [
                     'rank' => $streetCard->card->rank->abbreviation,
-                    'suit' => $streetCard->card->suit->name
+                    'suit' => $streetCard->card->suit->name,
+                    'suitAbbreviation' => $streetCard->card->suit->abbreviation
                 ];
             }
         }

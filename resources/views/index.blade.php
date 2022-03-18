@@ -4,40 +4,99 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:ital,wght@0,300;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+
         <title>Read Right Hands</title>
 
     </head>
     
-    <body>
-        <div id="app">
-            <h1>Read Right Hands</h1>
-            <div class="row">
+    <body class="bg-dark text-white">
 
-                <div v-for="player in players" :key="player.table_seat_id" class="col">
-                    Player @{{player.player_id}}: @{{player.action_name}}
-                    <div v-for="card in player.whole_cards" class="card">
-                        @{{card.rank}} @{{card.suit}}
+        <div id="app" class="container-sm">
+
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container-fluid">
+
+                    <a class="navbar-brand" href="#"><strong><span class="text-danger">Read</span></strong> Right Hands</a>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="#">Play</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Hand History</a>
+                            </li>
+                        </ul>
                     </div>
+
+                </div>
+            </nav>
+
+            <div class="bg-secondary p-3">
+                <div class="row">
+                    <h1>Players</h1>
+
+                    <div v-for="player in players" :key="player.table_seat_id" class="col-3 mb-3">
+                        <div class="m-3 p-3 bg-dark rounded">
+                            <p>
+                                Player @{{player.player_id}}: <span v-if="player.action_id" class="alert alert-success rounded-0"><strong>@{{player.action_name}}</strong></span>
+                            </p>
+                            <div class="row mb-3">
+                                <div v-for="card in player.whole_cards" class="col-6">
+                                    <div class="card" v-bind:class="suitColours[card.suit]">
+                                        <div class="card-body">
+                                            <p class="fs-2"><strong>@{{card.rank}}</strong> @{{card.suitAbbreviation}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                     
-                    <button v-if="player.action_on" v-on:click="action(option.id, player)" class="btn btn-primary" v-for="option in player.availableOptions" :key="option.name" v-bind:data-action-id="option.id">
-                        @{{option.name}}
+                        
+                            <button v-if="player.action_on" v-on:click="action(option.id, player)" class="btn btn-primary" v-for="option in player.availableOptions" :key="option.name" v-bind:data-action-id="option.id">
+                                @{{option.name}}
+                            </button>
+                        </div>
+                    
+                    </div>
+                </div>
+            
+            </div>
+
+            <div class="bg-success p-3">
+                <h2>Community Cards</h2>
+                <div v-if="communityCards.length > 0">
+                    <div class="row mb-3">
+                        <div v-for="card in communityCards" class="col-2">
+                            <div class="card" v-bind:class="suitColours[card.suit]">
+                                <div class="card-body">
+                                    <p class="fs-2"><strong>@{{card.rank}}</strong> @{{card.suitAbbreviation}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div v-if="winner">
+                <div class="bg-info p-3">
+                    <h2>Winner</h2>
+                    <p>Player @{{winner.player.id}} with @{{winner.handType.name}}</p>
+                    <button v-on:click="gameData" class="btn btn-primary">
+                        Play Again
                     </button>
                 </div>
-
-                <div v-if="communityCards.length > 0">
-                    <h2>Community Cards</h2>
-                    <div v-for="card in communityCards" class="card">
-                        @{{card.rank}} @{{card.suit}}   
-                    </div>
-                </div>
-
-                <div v-if="winner">
-                    <h2>Winner</h2>
-                    <p>Player @{{winner.player.id}} with @{{winner.handType.name}}
-                </div>
-
             </div>
+
         </div>
+
     
     </body>
     <script src="{{asset('js/app.js')}}"></script>

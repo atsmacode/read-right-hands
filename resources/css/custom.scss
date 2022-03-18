@@ -1,0 +1,24 @@
+@import "bootstrap";
+
+@import "../../node_modules/bootstrap/scss/_functions";
+
+$primary:       $blue #000;
+$secondary:     $gray-600 !default;
+$success:       $green !default;
+$info:          $cyan !default;
+$warning:       $yellow !default;
+$danger:        $red !default;
+$light:         $gray-100 !default;
+$dark:          $gray-900 !default;
+
+
+$container-max-widths: (
+  sm: 500px,
+  md: 600px,
+  lg: 700px,
+  xl: 800px,
+  xxl: 950px
+);
+
+
+@import "../../node_modules/bootstrap/scss/_variables";
