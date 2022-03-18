@@ -192,6 +192,13 @@ class GamePlay
     public function getActionOn()
     {
 
+        $firstSeatStillActive = TableSeat::query()
+            ->select('table_seats.*')
+            ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
+            ->where('table_seats.table_id', $this->handTable->fresh()->id)
+            ->where('table_seats.id', $this->hand->fresh()->playerActions->where('active', 1)->first()->table_seat_id)
+            ->first();
+
         if(!$this->hand->playerActions->fresh()->whereNotNull('action_id')->first()){
             return TableSeat::query()
                 ->select('table_seats.*')
@@ -206,13 +213,12 @@ class GamePlay
             ->sortBy([
                 ['updated_at', 'desc']
             ], SORT_NUMERIC)
-            ->first()->table_seat_id;
+            ->first()
+            ->table_seat_id;
 
-        $playerAfter = $this->hand->playerActions
-            ->fresh()
-            ->where('active', 1)
-            ->where('table_seat_id', '>', $lastToAct)
-            ->first();
+        $playerAfter = $this->hand->playerActions->fresh()->where('active', 1)->where('table_seat_id', '>', $lastToAct)->first()
+            ? $this->hand->playerActions->fresh()->where('active', 1)->where('table_seat_id', '>', $lastToAct)->first()->tableSeat
+            : null;
 
         if(!$playerAfter){
             return TableSeat::query()
