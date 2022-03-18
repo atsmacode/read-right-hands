@@ -105,7 +105,7 @@ const app = new Vue({
 			});
 		},
 		gameData(){
-			window.axios.get('hand').then(response => {
+			window.axios.get('play').then(response => {
 
 				console.log(response.data);
 				this.winner = false;

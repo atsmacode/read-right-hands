@@ -39,7 +39,7 @@ class HandControllerTest extends TestEnvironment
      */
     public function a_new_hand_can_be_started_and_index_view_returned()
     {
-        $response = $this->get('hand');
+        $response = $this->get('play');
 
         $response->assertStatus(200);
         $response->assertViewIs('index');

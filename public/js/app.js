@@ -2101,7 +2101,6 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
   },
   methods: {
     showOptions: function showOptions(action_on) {
-      console.log(action_on === true && this.winner === false);
       return action_on === true && this.winner === false;
     },
     setSuitColour: function setSuitColour(suit) {
@@ -2144,7 +2143,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
     gameData: function gameData() {
       var _this2 = this;
 
-      window.axios.get('hand').then(function (response) {
+      window.axios.get('play').then(function (response) {
         console.log(response.data);
         _this2.winner = false;
         _this2.players = response.data.players;
