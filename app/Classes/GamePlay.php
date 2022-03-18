@@ -61,6 +61,7 @@ class GamePlay
             'communityCards' => $this->getCommunityCards(),
             'wholeCards' => $this->getWholeCards(),
             'players' => $this->getPlayerData(),
+            'actionOn' => $this->getActionOn(),
             'winner' => (new Showdown($this->hand->fresh()))->compileHands()->decideWinner()
         ];
     }
@@ -196,26 +197,21 @@ class GamePlay
                 ->select('table_seats.*')
                 ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
                 ->where('table_seats.table_id', $this->handTable->fresh()->id)
-                ->where('table_seats.can_continue', 0)
-                ->where('player_actions.active', 1)
+                ->where('table_seats.id', $this->hand->fresh()->playerActions->where('active', 1)->first()->table_seat_id)
                 ->first();
         }
 
-        $playerAfter = TableSeat::query()
-            ->select('table_seats.*')
-            ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
-            ->where(function($query){
-                $query->where('table_seats.table_id', $this->handTable->fresh()->id);
-                $query->where('table_seats.id', '>',
-                    $this->hand->playerActions
-                        ->fresh()
-                        ->sortBy([
-                            ['updated_at', 'desc']
-                        ], SORT_NUMERIC)
-                        ->first()->table_seat_id);
-                $query->where('table_seats.can_continue', 0);
-                $query->where('player_actions.active', 1);
-            })
+        $lastToAct = $this->hand->playerActions
+            ->fresh()
+            ->sortBy([
+                ['updated_at', 'desc']
+            ], SORT_NUMERIC)
+            ->first()->table_seat_id;
+
+        $playerAfter = $this->hand->playerActions
+            ->fresh()
+            ->where('active', 1)
+            ->where('table_seat_id', '>', $lastToAct)
             ->first();
 
         if(!$playerAfter){
@@ -223,8 +219,7 @@ class GamePlay
                 ->select('table_seats.*')
                 ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
                 ->where('table_seats.table_id', $this->handTable->fresh()->id)
-                ->where('table_seats.can_continue', 0)
-                ->where('player_actions.active', 1)
+                ->where('table_seats.id', $this->hand->fresh()->playerActions->where('active', 1)->first()->table_seat_id)
                 ->first();
         }
 
@@ -248,6 +243,7 @@ class GamePlay
             $actionName = $playerAction->action ? $playerAction->action->name : null;
 
             $playerData[] = [
+                'name' => $playerAction->player->name,
                 'action_id' => $playerAction->action_id,
                 'action_name' => $actionName ,
                 'player_id' => $playerAction->player_id,
@@ -357,7 +353,7 @@ class GamePlay
                     break;
                 case $this->check->id:
                 default:
-                    array_push($options, $this->check, $this->bet, $this->raise);
+                    array_push($options, $this->check, $this->bet);
                     break;
             }
 

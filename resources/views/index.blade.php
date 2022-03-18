@@ -11,7 +11,7 @@
         <title>Read Right Hands</title>
 
     </head>
-    
+
     <body class="bg-dark text-white">
 
         <div id="app" class="container-sm">
@@ -47,7 +47,7 @@
 
                     <h1>Players</h1>
 
-                    <div v-for="player in players" :key="player.table_seat_id" class="col-3 mb-3">
+                    <div v-for="player in players" :key="player.name" class="col-3 mb-3">
 
                         <div class="m-1 p-3 bg-dark rounded">
 
@@ -62,19 +62,17 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                                
 
                             <button v-if="player.action_on" v-on:click="action(option.id, player)" class="btn btn-primary me-1" v-for="option in player.availableOptions" :key="option.name" v-bind:data-action-id="option.id">
                                 @{{option.name}}
                             </button>
 
                         </div>
-                    
+
                     </div>
 
                 </div>
-            
+
             </div>
 
             <div class="bg-success p-3 rounded m-1">
@@ -107,7 +105,7 @@
 
         </div>
 
-    
+
     </body>
     <script src="{{asset('js/app.js')}}"></script>
     <link rel="stylesheet" href="{{asset('css/app.css')}}">
