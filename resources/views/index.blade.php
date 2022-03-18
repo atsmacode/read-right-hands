@@ -26,6 +26,7 @@
                     </button>
 
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
                         <ul class="navbar-nav">
                             <li class="nav-item">
                                 <a class="nav-link active" aria-current="page" href="#">Play</a>
@@ -34,49 +35,58 @@
                                 <a class="nav-link" href="#">Hand History</a>
                             </li>
                         </ul>
+
                     </div>
 
                 </div>
             </nav>
 
             <div class="bg-secondary p-3 rounded m-1">
+
                 <div class="row">
+
                     <h1>Players</h1>
 
                     <div v-for="player in players" :key="player.table_seat_id" class="col-3 mb-3">
+
                         <div class="m-1 p-3 bg-dark rounded">
+
                             <p>
                                 Player @{{player.player_id}}: <span v-if="player.action_id" v-bind:class="actionColours[player.action_name]" class="d-inline rounded p-1"><strong>@{{player.action_name}}</strong></span>
                             </p>
-                            <div class="row mb-3">
-                                <div v-for="card in player.whole_cards" class="col-6">
-                                    <div class="card" v-bind:class="suitColours[card.suit]">
-                                        <div class="card-body">
-                                            <p class="fs-2"><strong>@{{card.rank}}</strong> @{{card.suitAbbreviation}}</p>
-                                        </div>
+
+                            <div class="row mb-2 m-0 p-0">
+                                <div v-for="card in player.whole_cards" class="m-0 me-1 bg-white" v-bind:class="suitColours[card.suit]" style="width:100px;height:130px;">
+                                    <div class="card-body ps-1 pe-0">
+                                        <p class="fs-2"><strong>@{{card.rank}}</strong> @{{card.suitAbbreviation}}</p>
                                     </div>
                                 </div>
                             </div>
-                    
-                        
-                            <button v-if="player.action_on" v-on:click="action(option.id, player)" class="btn btn-primary" v-for="option in player.availableOptions" :key="option.name" v-bind:data-action-id="option.id">
+                            
+                                
+
+                            <button v-if="player.action_on" v-on:click="action(option.id, player)" class="btn btn-primary me-1" v-for="option in player.availableOptions" :key="option.name" v-bind:data-action-id="option.id">
                                 @{{option.name}}
                             </button>
+
                         </div>
                     
                     </div>
+
                 </div>
             
             </div>
 
             <div class="bg-success p-3 rounded m-1">
-                <h2>Community Cards</h2>
-                <div v-if="communityCards.length > 0">
-                    <div class="row mb-3">
-                        <div v-for="card in communityCards" class="col-2">
-                            <div class="card" v-bind:class="suitColours[card.suit]">
-                                <div class="card-body">
-                                    <p class="fs-2"><strong>@{{card.rank}}</strong> @{{card.suitAbbreviation}}</p>
+                <div class="row">
+                    <div class="col">
+                        <h2>Community Cards</h2>
+                        <div v-if="communityCards.length > 0">
+                            <div class="row mb-2 ms-0">
+                                <div v-for="card in communityCards" class="m-0 bg-white ms-1" v-bind:class="suitColours[card.suit]" style="width:100px;height:130px">
+                                    <div class="card-body ps-1 pe-0">
+                                        <p class="fs-2"><strong>@{{card.rank}}</strong> @{{card.suitAbbreviation}}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
