@@ -58,7 +58,6 @@ const app = new Vue({
 	},
 	methods: {
         showOptions(action_on){
-            console.log(action_on === true && this.winner === false);
             return action_on === true && this.winner === false;
         },
 		setSuitColour(suit){
