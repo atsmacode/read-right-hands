@@ -69,32 +69,7 @@ class GamePlay
     public function continue()
     {
 
-        /*
-         * Reset can_continue & BB status once pre-flop action and/or previous street is finished.
-         */
-        TableSeat::query()
-            ->where('table_id', $this->handTable->fresh()->id)
-            ->update([
-                'can_continue' => 0
-            ]);
-
-        if($this->hand->fresh()->streets->count() === 1){
-            PlayerAction::query()
-                ->where('hand_id', $this->hand->fresh()->id)
-                ->where('big_blind', 1)
-                ->update([
-                    'big_blind' => 0
-                ]);
-        }
-
-        /*
-         * Always reset action_id.
-         */
-        PlayerAction::query()
-            ->where('hand_id', $this->hand->fresh()->id)
-            ->update([
-                'action_id' => null
-            ]);
+        $this->updatePlayerStatusesOnNewStreet();
 
         // Not keen on the way I'm adding/subtracting from the handStreets->count() to match array starting with 0
         $this->street = HandStreet::create([
@@ -183,6 +158,36 @@ class GamePlay
             'players' => $this->getPlayerData(),
             'winner' => null
         ];
+    }
+
+    protected function updatePlayerStatusesOnNewStreet()
+    {
+        /*
+         * Reset can_continue & BB status once pre-flop action and/or previous street is finished.
+         */
+        TableSeat::query()
+            ->where('table_id', $this->handTable->fresh()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        if($this->hand->fresh()->streets->count() === 1){
+            PlayerAction::query()
+                ->where('hand_id', $this->hand->fresh()->id)
+                ->where('big_blind', 1)
+                ->update([
+                    'big_blind' => 0
+                ]);
+        }
+
+        /*
+         * Always reset action_id.
+         */
+        PlayerAction::query()
+            ->where('hand_id', $this->hand->fresh()->id)
+            ->update([
+                'action_id' => null
+            ]);
     }
 
     protected function readyForShowdown()
