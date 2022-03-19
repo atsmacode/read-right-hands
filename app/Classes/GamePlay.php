@@ -164,6 +164,14 @@ class GamePlay
             return $this->showdown();
         }
 
+        // If only 1 player remains that can_continue that player wins the hand
+        if($this->hand->fresh()->playerActions->where('active', 1)->count()
+            === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()
+            && $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count() === 1
+        ){
+            return $this->showdown();
+        }
+
         // If all active players can_continue
         if($this->hand->fresh()->playerActions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
             return $this->continue();
