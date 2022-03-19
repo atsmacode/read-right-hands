@@ -31,7 +31,6 @@ class HandController extends Controller
                 'actions' => $gameData['actions'],
                 'streets' => $gameData['streets'],
                 'communityCards' => $gameData['communityCards'],
-                'actionOn' => $gameData['actionOn'],
                 'players' => $gameData['players'],
                 'winner' => $gameData['winner']
             ]);

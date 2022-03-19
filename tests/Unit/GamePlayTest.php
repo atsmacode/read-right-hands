@@ -68,9 +68,9 @@ class GamePlayTest extends TestEnvironment
         }
 
         dump($response['handTable']->tableSeats->slice(2, 1)->first());
-        dump($response['actionOn']);
+
         // the_action_will_be_on_the_player_after_the_big_blind_once_a_hand_is_started
-        $this->assertEquals($response['handTable']->tableSeats->slice(2, 1)->first()->id, $response['actionOn']->id);
+        $this->assertTrue($response['players'][2]['action_on']);
 
     }
 
@@ -224,7 +224,7 @@ class GamePlayTest extends TestEnvironment
         $response = $this->gamePlay->play();
 
         $this->assertCount(1, $response['hand']->streets->fresh());
-        $this->assertEquals($response['handTable']->tableSeats->slice(1, 1)->first()->id, $response['actionOn']->id);
+        $this->assertTrue($response['players'][1]['action_on']);
 
     }
 
@@ -276,7 +276,7 @@ class GamePlayTest extends TestEnvironment
         $response = $this->gamePlay->play();
 
         $this->assertCount(1, $response['hand']->streets->fresh());
-        $this->assertEquals($response['handTable']->tableSeats->slice(2, 1)->first()->id, $response['actionOn']->id);
+        $this->assertTrue($response['players'][2]['action_on']);
 
     }
 

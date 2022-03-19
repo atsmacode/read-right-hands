@@ -77,7 +77,7 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
 
         $this->assertCount(3, $response['hand']->streets);
         $this->assertCount(1, $response['hand']->streets->slice(2, 1)->first()->cards);
-        $this->assertEquals($response['handTable']->tableSeats->slice(1, 1)->first()->id, $response['actionOn']->id);
+        $this->assertTrue($response['players'][1]['action_on']);
 
     }
 
@@ -99,7 +99,7 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
 
         $this->assertCount(4, $response['hand']->streets);
         $this->assertCount(1, $response['hand']->streets->slice(3, 1)->first()->cards);
-        $this->assertEquals($response['handTable']->tableSeats->slice(1, 1)->first()->id, $response['actionOn']->id);
+        $this->assertTrue($response['players'][1]['action_on']);
 
     }
 

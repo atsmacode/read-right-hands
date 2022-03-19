@@ -196,7 +196,6 @@ class PlayerActionControllerTest extends TestEnvironment
         $response->assertStatus(200);
 
         dump($response['communityCards']);
-        dump($response['wholeCards']);
         dump('Winner: ' . $response['winner']['player']['id']);
         dump($response['winner']['handType']);
 
