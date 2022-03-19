@@ -45,7 +45,7 @@ class Showdown
 
             $this->playerHands[] = [
                 'player' => $tableSeat->player,
-                'handType' => $this->handIdentifier->identify($wholeCards, $this->communityCards)->identifiedHandType
+                'handType' => $this->handIdentifier->identify($wholeCards, $this->communityCards)->identifiedHandType['handType']
             ];
         }
 

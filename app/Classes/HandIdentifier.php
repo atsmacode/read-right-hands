@@ -9,7 +9,11 @@ use App\Models\Suit;
 class HandIdentifier
 {
     protected $handTypes;
-    public $identifiedHandType;
+    public $identifiedHandType = [
+        'handType' => null,
+        'activeCards' => null,
+        'kicker' => null
+    ];
     public $allCards;
     public $highCard;
     public $pairs = [];
@@ -52,16 +56,29 @@ class HandIdentifier
 
     }
 
+    protected function checkForAceKicker($allCards, $forHandCheck, $activeCards = null)
+    {
+        if(($activeCards && $allCards->contains('ranking', 1) && !in_array(1, $activeCards)) ||
+            (in_array(1, $activeCards) && $forHandCheck === 'hasFlush')
+        ){
+            return 14;
+        }
+
+        return false;
+    }
+
     public function highestCard()
     {
 
         if($this->allCards->pluck('ranking')->min() === 1){
-            $this->highCard = 1;
+            $this->highCard = 14;
         } else {
             $this->highCard = $this->allCards->pluck('ranking')->max();
         }
 
-        $this->identifiedHandType = $this->handTypes->where('name', 'High Card')->first();
+        $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'High Card')->first();
+        $this->identifiedHandType['activeCards'][] = $this->highCard;
+        $this->identifiedHandType['kicker'] = $this->allCards->pluck('ranking')->where('ranking', '<', $this->highCard)->sortByDesc('ranking')->first();
 
         return $this;
     }
@@ -72,11 +89,14 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 2){
                 $this->pairs[] = $rank;
+                $this->identifiedHandType['activeCards'][] = $rank->ranking;
+                $this->identifiedHandType['kicker'] = $this->checkForAceKicker($this->allCards, __FUNCTION__, $this->identifiedHandType['activeCards'])
+                    ?: $this->allCards->where('ranking', '!=', $rank->ranking)->sortByDesc('ranking')->first()->ranking;
             }
         }
 
         if(count($this->pairs) === 1){
-            $this->identifiedHandType = $this->handTypes->where('name', 'Pair')->first();
+            $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Pair')->first();
             return true;
         }
 
@@ -89,11 +109,14 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 2){
                 $this->pairs[] = $rank;
+                $this->identifiedHandType['activeCards'][] = $rank->ranking;
+                $this->identifiedHandType['kicker'] = $this->checkForAceKicker($this->allCards, __FUNCTION__,  $this->identifiedHandType['activeCards'])
+                    ?: $this->allCards->where('ranking', '!=', $rank->ranking)->sortByDesc('ranking')->first()->ranking;
             }
         }
 
         if(count($this->pairs) >= 2){
-            $this->identifiedHandType = $this->handTypes->where('name', 'Two Pair')->first();
+            $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Two Pair')->first();
             return true;
         }
 
@@ -110,7 +133,10 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 3){
                 $this->threeOfAKind = $rank;
-                $this->identifiedHandType = $this->handTypes->where('name', 'Three of a Kind')->first();
+                $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Three of a Kind')->first();
+                $this->identifiedHandType['activeCards'][] = $rank->ranking;
+                $this->identifiedHandType['kicker'] = $this->checkForAceKicker($this->allCards, __FUNCTION__, $this->identifiedHandType['activeCards'])
+                    ?: $this->allCards->where('ranking', '!=', $rank->ranking)->sortByDesc('ranking')->first()->ranking;
                 return true;
             }
         }
@@ -183,7 +209,9 @@ class HandIdentifier
 
         if($straight && count($straight) === 5){
             $this->straight = $straight;
-            $this->identifiedHandType = $this->handTypes->where('name', 'Straight')->first();
+
+            $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Straight')->first();
+            $this->identifiedHandType['kicker'] = $straight->first()->ranking;
             return true;
         }
 
@@ -218,7 +246,8 @@ class HandIdentifier
 
         if($straight && count($straight) === 5){
             $this->straight = $straight;
-            $this->identifiedHandType = $this->handTypes->where('name', 'Straight')->first();
+            $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Straight')->first();
+            $this->identifiedHandType['kicker'] = $straight->first()->ranking;
             return true;
         }
 
@@ -253,7 +282,8 @@ class HandIdentifier
 
         if($straight && count($straight) === 5){
             $this->straight = $straight;
-            $this->identifiedHandType = $this->handTypes->where('name', 'Straight')->first();
+            $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Straight')->first();
+            $this->identifiedHandType['kicker'] = 14;
             return true;
         }
 
@@ -261,10 +291,16 @@ class HandIdentifier
 
     public function hasFlush()
     {
+
         foreach(Suit::all() as $suit){
             if($this->allCards->where('suit_id', $suit->id)->count() >= 5){
                 $this->flush = $suit;
-                $this->identifiedHandType = $this->handTypes->where('name', 'Flush')->first();
+
+                $flushCards = $this->allCards->where('suit_id', $suit->id)->pluck('ranking')->toArray();
+
+                $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Flush')->first();
+                $this->identifiedHandType['kicker'] = $this->checkForAceKicker($this->allCards,__FUNCTION__, $flushCards)
+                    ?: $flushCards[0];
                 return true;
             }
         }
@@ -297,7 +333,7 @@ class HandIdentifier
          */
         if($this->threeOfAKind && count($this->pairs) === 1){
             $this->fullHouse = true;
-            $this->identifiedHandType = $this->handTypes->where('name', 'Full House')->first();
+            $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Full House')->first();
             return true;
         }
 
@@ -310,9 +346,16 @@ class HandIdentifier
     {
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 4){
+
                 $this->fourOfAKind = $rank;
-                $this->identifiedHandType = $this->handTypes->where('name', 'Four of a Kind')->first();
+
+                $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Four of a Kind')->first();
+                $this->identifiedHandType['activeCards'][] = $rank->ranking;
+                $this->identifiedHandType['kicker'] = $this->checkForAceKicker($this->allCards, __FUNCTION__, $this->identifiedHandType['activeCards'])
+                    ?: $this->allCards->where('ranking', '!=', $rank->ranking)->sortByDesc('ranking')->first()->ranking;
+
                 return true;
+
             }
         }
 
@@ -368,7 +411,8 @@ class HandIdentifier
 
             if($straightFlush && count($straightFlush) === 5){
                 $this->straightFlush = true;
-                $this->identifiedHandType = $this->handTypes->where('name', 'Straight Flush')->first();
+                $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Straight Flush')->first();
+                $this->identifiedHandType['kicker'] = $straightFlush->first()->ranking;
                 return true;
             }
         }
@@ -390,7 +434,7 @@ class HandIdentifier
 
             if($royalFlush && count($royalFlush) === 5){
                 $this->royalFlush = $royalFlush;
-                $this->identifiedHandType = $this->handTypes->where('name', 'Royal Flush')->first();
+                $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Royal Flush')->first();
                 return true;
             }
         }
