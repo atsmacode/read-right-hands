@@ -51,16 +51,16 @@ class GamePlayTest extends TestEnvironment
         $this->assertCount(3, $response['actions']);
 
         // The small blind was posted
-        $this->assertEquals(25.0, $response['actions']->slice(0, 1)->first()->bet_amount);
-        $this->assertEquals('Bet', $response['actions']->slice(0, 1)->first()->action->name);
-
-        // The big blind was posted
-        $this->assertEquals(50.0, $response['actions']->slice(1, 1)->first()->bet_amount);
+        $this->assertEquals(25.0, $response['actions']->slice(1, 1)->first()->bet_amount);
         $this->assertEquals('Bet', $response['actions']->slice(1, 1)->first()->action->name);
 
+        // The big blind was posted
+        $this->assertEquals(50.0, $response['actions']->slice(2, 1)->first()->bet_amount);
+        $this->assertEquals('Bet', $response['actions']->slice(2, 1)->first()->action->name);
+
         // The last player at the table has not acted yet
-        $this->assertEquals(null, $response['actions']->slice(2, 1)->first()->bet_amount);
-        $this->assertEquals(null, $response['actions']->slice(2, 1)->first()->action_id);
+        $this->assertEquals(null, $response['actions']->slice(0, 1)->first()->bet_amount);
+        $this->assertEquals(null, $response['actions']->slice(0, 1)->first()->action_id);
 
         // Each player in the hand has 2 whole cards
         foreach($response['handTable']->players as $player){
@@ -137,8 +137,8 @@ class GamePlayTest extends TestEnvironment
 
         $this->assertCount(0, $response['handTable']->tableSeats->where('can_continue', 1));
 
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+        // Player 1 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
@@ -148,7 +148,7 @@ class GamePlayTest extends TestEnvironment
         $response = $this->gamePlay->play();
 
         $this->assertCount(1, $response['handTable']->tableSeats->where('can_continue', 1));
-        $this->assertEquals(1, $response['handTable']->tableSeats->fresh()->slice(2, 1)->first()->can_continue);
+        $this->assertEquals(1, $response['handTable']->tableSeats->fresh()->slice(0, 1)->first()->can_continue);
 
     }
 

@@ -99,7 +99,7 @@ class GamePlay
 
         $this->initiateStreetActions();
 
-        $this->postBlinds();
+        $this->setDealerAndBlindSeats();
 
         $this->dealer->setDeck()->shuffle();
 
@@ -452,15 +452,12 @@ class GamePlay
                 'active' => 1
             ]);
 
-            /*
-             * For testing so I can get the latest action, otherwise they are all the same
-             */
             PlayerAction::where([
                 'hand_street_id' => $this->street->id,
                 'table_seat_id' => $seat->id,
                 'hand_id' => $this->hand->id,
             ])->update([
-                'updated_at' => date('Y-m-d H:i:s', strtotime('-15 seconds'))
+                'updated_at' => date('Y-m-d H:i:s', strtotime('-15 seconds')) // For testing so I can get the latest action, otherwise they are all the same
             ]);
 
         }
@@ -475,38 +472,98 @@ class GamePlay
         return $this;
     }
 
-    public function postBlinds()
+    public function setDealer()
     {
 
-        // Small Blind
-        PlayerAction::where([
-            'player_id' =>  $this->handTable->tableSeats->slice(0, 1)->first()->player->id,
-            'table_seat_id' =>  $this->handTable->tableSeats->slice(0, 1)->first()->id,
+        if($this->handTable->tableSeats->where('is_dealer', 1)->count() === 0){
+            $dealer = $this->handTable->tableSeats->fresh()->slice(2, 1)->first()->id;
+        } else {
+            $dealer = $this->handTable->tableSeats->fresh()->where('is_dealer', 1)->first()->id + 1;
+        }
+
+        TableSeat::query()
+            ->where('table_id', $this->handTable->id)
+            ->where('id', '=',  $dealer)
+            ->update([
+                'is_dealer' => 1,
+                'updated_at' => date('Y-m-d H:i:s', strtotime('- 20 seconds'))
+            ]);
+    }
+
+    public function setDealerAndBlindSeats()
+    {
+
+        $currentDealer = $this->handTable->tableSeats->where('is_dealer', 1)->first();
+
+        if(!$currentDealer || !$this->handTable->tableSeats->fresh()->where('id', $currentDealer->id + 1)->first()){
+
+            $dealer = $this->handTable->tableSeats->fresh()->slice(0, 1)->first();
+            $smallBlindSeat = $this->handTable->tableSeats->fresh()->where('id', $dealer->id + 1)->first();
+            $bigBlindSeat = $this->handTable->tableSeats->fresh()->where('id', $dealer->id + 2)->first();
+
+        } else if($this->handTable->tableSeats->fresh()->where('id', $currentDealer->id + 2)->first()) {
+
+            $dealer = $this->handTable->tableSeats->fresh()->where('id', $currentDealer->id + 1)->first();
+            $smallBlindSeat = $this->handTable->tableSeats->fresh()->where('id', $dealer + 1)->first();
+            $bigBlindSeat = $this->handTable->tableSeats->fresh()->where('id', $dealer + 2)->first();
+
+        } else if($this->handTable->tableSeats->fresh()->where('id', $currentDealer->id + 1)->first()
+            && !$this->handTable->tableSeats->fresh()->where('id', $currentDealer->id + 2)->first()) {
+
+            $dealer = $this->handTable->tableSeats->fresh()->where('id', $currentDealer->id + 1)->first();
+            $smallBlindSeat = $this->handTable->tableSeats->fresh()->where('id', $dealer + 1)->first();
+            $bigBlindSeat = $this->handTable->tableSeats->fresh()->slice(0, 1)->first();
+
+        }
+
+        TableSeat::query()
+            ->where('table_id', $this->handTable->id)
+            ->where('id', '=',  $dealer)
+            ->update([
+                'is_dealer' => 1,
+                'updated_at' => date('Y-m-d H:i:s', strtotime('- 20 seconds'))
+            ]);
+
+        $smallBlind = PlayerAction::where([
+            'player_id' =>  $smallBlindSeat->player->id,
+            'table_seat_id' =>  $smallBlindSeat->id,
             'hand_street_id' => HandStreet::where([
                 'street_id' => Street::where('name', $this->game->streets[0]['name'])->first()->id,
                 'hand_id' => $this->hand->id
             ])->first()->id
-        ])->update([
+        ])->first();
+
+        $bigBlind = PlayerAction::where([
+            'player_id' =>  $bigBlindSeat->player->id,
+            'table_seat_id' =>  $bigBlindSeat->id,
+            'hand_street_id' => HandStreet::where([
+                'street_id' => Street::where('name', $this->game->streets[0]['name'])->first()->id,
+                'hand_id' => $this->hand->id
+            ])->first()->id
+        ])->first();
+
+
+        return $this->postBlinds($smallBlind, $bigBlind);
+
+    }
+
+
+    public function postBlinds($smallBlind, $bigBlind)
+    {
+
+        $smallBlind->update([
             'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 25,
             'active' => 1,
             'updated_at' => date('Y-m-d H:i:s', strtotime('- 10 seconds')) // For testing so I can get the latest action, otherwise they are all the same
         ]);
 
-        TableSeat::where('id', $this->handTable->tableSeats->slice(0, 1)->first()->id)
+        TableSeat::where('id', $smallBlind->table_seat_id)
             ->update([
                 'can_continue' => 0
             ]);
 
-        // Big Blind
-        PlayerAction::where([
-            'player_id' =>  $this->handTable->tableSeats->slice(1, 1)->first()->player->id,
-            'table_seat_id' =>  $this->handTable->tableSeats->slice(1, 1)->first()->id,
-            'hand_street_id' => HandStreet::where([
-                'street_id' => Street::where('name', $this->game->streets[0]['name'])->first()->id,
-                'hand_id' => $this->hand->id
-            ])->first()->id
-        ])->update([
+        $bigBlind->update([
             'action_id' => Action::where('name', 'Bet')->first()->id, // Bet
             'bet_amount' => 50,
             'active' => 1,
@@ -514,7 +571,7 @@ class GamePlay
             'updated_at' => date('Y-m-d H:i:s', strtotime('- 5 seconds')) // For testing so I can get the latest action, otherwise they are all the same
         ]);
 
-        TableSeat::where('id', $this->handTable->tableSeats->slice(1, 1)->first()->id)
+        TableSeat::where('id', $bigBlind->table_seat_id)
             ->update([
                 'can_continue' => 0
             ]);

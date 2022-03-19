@@ -58,7 +58,7 @@ class ShowdownTest extends TestEnvironment
     public function a_royal_flush_beats_a_straight_flush()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -72,12 +72,12 @@ class ShowdownTest extends TestEnvironment
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Eight',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Nine',
                 'suit' => 'Spades'
             ],
@@ -135,7 +135,7 @@ class ShowdownTest extends TestEnvironment
     public function a_straight_flush_beats_four_of_a_kind()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -149,12 +149,12 @@ class ShowdownTest extends TestEnvironment
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Eight',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Nine',
                 'suit' => 'Spades'
             ],
@@ -200,7 +200,7 @@ class ShowdownTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
-        $this->assertEquals($this->player2->id, $response['winner']['player']->id);
+        $this->assertEquals($this->player1->id, $response['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'Straight Flush')->first()->id, $response['winner']['handType']->id);
 
     }
@@ -212,7 +212,7 @@ class ShowdownTest extends TestEnvironment
     public function four_of_a_kind_beats_a_full_house()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -226,12 +226,12 @@ class ShowdownTest extends TestEnvironment
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Eight',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Nine',
                 'suit' => 'Spades'
             ],
@@ -289,7 +289,7 @@ class ShowdownTest extends TestEnvironment
     public function a_full_house_beats_a_flush()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -303,12 +303,12 @@ class ShowdownTest extends TestEnvironment
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Eight',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Nine',
                 'suit' => 'Spades'
             ],
@@ -366,26 +366,26 @@ class ShowdownTest extends TestEnvironment
     public function a_flush_beats_a_straight()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'Ace',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'King',
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player3,
                 'rank' => 'Eight',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player3,
                 'rank' => 'Nine',
                 'suit' => 'Spades'
             ],
@@ -431,7 +431,7 @@ class ShowdownTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
-        $this->assertEquals($this->player2->id, $response['winner']['player']->id);
+        $this->assertEquals($this->player3->id, $response['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'Flush')->first()->id, $response['winner']['handType']->id);
 
     }
@@ -443,7 +443,7 @@ class ShowdownTest extends TestEnvironment
     public function a_straight_beats_three_of_a_kind()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -457,12 +457,12 @@ class ShowdownTest extends TestEnvironment
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Seven',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Seven',
                 'suit' => 'Diamonds'
             ],
@@ -520,7 +520,7 @@ class ShowdownTest extends TestEnvironment
     public function three_of_a_kind_beats_two_pair()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -534,12 +534,12 @@ class ShowdownTest extends TestEnvironment
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Seven',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Seven',
                 'suit' => 'Diamonds'
             ],
@@ -585,7 +585,7 @@ class ShowdownTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
-        $this->assertEquals($this->player2->id, $response['winner']['player']->id);
+        $this->assertEquals($this->player1->id, $response['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'Three of a Kind')->first()->id, $response['winner']['handType']->id);
 
     }
@@ -597,7 +597,7 @@ class ShowdownTest extends TestEnvironment
     public function two_pair_beats_a_pair()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -611,12 +611,12 @@ class ShowdownTest extends TestEnvironment
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'King',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player1,
                 'rank' => 'Seven',
                 'suit' => 'Diamonds'
             ],
@@ -674,26 +674,26 @@ class ShowdownTest extends TestEnvironment
     public function a_pair_beats_high_card()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'King',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'Queen',
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player3,
                 'rank' => 'Ace',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player3,
                 'rank' => 'Seven',
                 'suit' => 'Diamonds'
             ],
@@ -739,7 +739,7 @@ class ShowdownTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
-        $this->assertEquals($this->player3->id, $response['winner']['player']->id);
+        $this->assertEquals($this->player1->id, $response['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'Pair')->first()->id, $response['winner']['handType']->id);
 
     }
@@ -753,7 +753,7 @@ class ShowdownTest extends TestEnvironment
     public function if_player_one_has_trips_and_player_two_has_pair_these_are_cleared_before_player_three_is_evaluated_so_player_three_doesnt_have_a_full_house()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -899,24 +899,11 @@ class ShowdownTest extends TestEnvironment
 
     protected function executeActions($response)
     {
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Call')->first()->id,
-                'bet_amount' => 50.0,
-                'active' => 1
-            ]);
-
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
-            ->update([
-                'can_continue' => 1
-            ]);
-
-        // Player 1 Folds
+        // Player 1 Calls BB
         PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
-                'bet_amount' => 25.0,
+                'bet_amount' => 50.0,
                 'active' => 1
             ]);
 
@@ -925,15 +912,28 @@ class ShowdownTest extends TestEnvironment
                 'can_continue' => 1
             ]);
 
-        // Player 2 Checks
+        // Player 2 Folds
         PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Fold')->first()->id,
+                'bet_amount' => null,
+                'active' => 0
+            ]);
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        // Player 3 Checks
+        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Check')->first()->id,
                 'bet_amount' => null,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);

@@ -92,7 +92,7 @@ class Showdown
                 $wholeCards[] = $wholeCard->card;
             }
 
-            $compileInfo = $this->handIdentifier->identify($wholeCards, $this->communityCards)->identifiedHandType;
+            $compileInfo = (new HandIdentifier())->identify($wholeCards, $this->communityCards)->identifiedHandType;
             $compileInfo['player'] = $tableSeat->player;
 
             $this->playerHands[] = $compileInfo;

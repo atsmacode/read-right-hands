@@ -143,21 +143,21 @@ class ActionOptionsTest extends TestEnvironment
     {
         $response = $this->gamePlay->start();
 
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+        // Player 1 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1,
             ]);
 
-        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
 
-        // Player 1 Folds
-        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
+        // Player 2 Folds
+        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Fold')->first()->id,
                 'bet_amount' => null,
@@ -166,11 +166,12 @@ class ActionOptionsTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
-        $this->assertTrue($response['players'][1]['action_on']);
+        dump($response['players']);
+        $this->assertTrue($response['players'][2]['action_on']);
 
-        $this->assertTrue($response['players'][1]['availableOptions']->contains('name', 'Fold'));
-        $this->assertTrue($response['players'][1]['availableOptions']->contains('name', 'Check'));
-        $this->assertTrue($response['players'][1]['availableOptions']->contains('name', 'Raise'));
+        $this->assertTrue($response['players'][2]['availableOptions']->contains('name', 'Fold'));
+        $this->assertTrue($response['players'][2]['availableOptions']->contains('name', 'Check'));
+        $this->assertTrue($response['players'][2]['availableOptions']->contains('name', 'Raise'));
 
     }
 
@@ -182,8 +183,8 @@ class ActionOptionsTest extends TestEnvironment
     {
         $response = $this->gamePlay->start();
 
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+        // Player 1 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
@@ -193,11 +194,11 @@ class ActionOptionsTest extends TestEnvironment
         $response = $this->gamePlay->play();
 
         // Action on SB
-        $this->assertTrue($response['players'][0]['action_on']);
+        $this->assertTrue($response['players'][1]['action_on']);
 
-        $this->assertTrue($response['players'][0]['availableOptions']->contains('name', 'Fold'));
-        $this->assertTrue($response['players'][0]['availableOptions']->contains('name', 'Call'));
-        $this->assertTrue($response['players'][0]['availableOptions']->contains('name', 'Raise'));
+        $this->assertTrue($response['players'][1]['availableOptions']->contains('name', 'Fold'));
+        $this->assertTrue($response['players'][1]['availableOptions']->contains('name', 'Call'));
+        $this->assertTrue($response['players'][1]['availableOptions']->contains('name', 'Raise'));
 
     }
 

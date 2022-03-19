@@ -58,26 +58,26 @@ class ShowdownKickerTest extends TestEnvironment
     public function high_card_king_beats_high_card_queen()
     {
 
-        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+        $response = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'King',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'Three',
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player3,
                 'rank' => 'Queen',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player2,
+                'player' => $this->player3,
                 'rank' => 'Seven',
                 'suit' => 'Diamonds'
             ],
@@ -123,7 +123,7 @@ class ShowdownKickerTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
-        $this->assertEquals($this->player3->id, $response['winner']['player']->id);
+        $this->assertEquals($this->player1->id, $response['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'High Card')->first()->id, $response['winner']['handType']->id);
 
     }
@@ -194,24 +194,11 @@ class ShowdownKickerTest extends TestEnvironment
 
     protected function executeActions($response)
     {
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Call')->first()->id,
-                'bet_amount' => 50.0,
-                'active' => 1
-            ]);
-
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
-            ->update([
-                'can_continue' => 1
-            ]);
-
-        // Player 1 Folds
+        // Player 1 Calls BB
         PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
-                'bet_amount' => 25.0,
+                'bet_amount' => 50.0,
                 'active' => 1
             ]);
 
@@ -220,15 +207,28 @@ class ShowdownKickerTest extends TestEnvironment
                 'can_continue' => 1
             ]);
 
-        // Player 2 Checks
+        // Player 2 Folds
         PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Fold')->first()->id,
+                'bet_amount' => 25.0,
+                'active' => 0
+            ]);
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        // Player 3 Checks
+        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Check')->first()->id,
                 'bet_amount' => null,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
