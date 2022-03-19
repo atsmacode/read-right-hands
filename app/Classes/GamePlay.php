@@ -158,27 +158,15 @@ class GamePlay
     public function nextStep()
     {
 
-        // Showdown
-        if($this->hand->fresh()->streets->count() === count($this->game->streets) &&
-            $this->hand->fresh()->playerActions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
+        if($this->readyForShowdown() || $this->onePlayerRemainsThatCanContinue()){
             return $this->showdown();
         }
 
-        // If only 1 player remains that can_continue that player wins the hand
-        if($this->hand->fresh()->playerActions->where('active', 1)->count()
-            === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()
-            && $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count() === 1
-        ){
-            return $this->showdown();
-        }
-
-        // If all active players can_continue
-        if($this->hand->fresh()->playerActions->where('active', 1)->count() === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()){
+        if($this->ifAllActivePlayersCanContinue()){
             return $this->continue();
         }
 
-        // If the hand is completed start a new one...
-        if($this->hand->fresh()->completed_on){
+        if($this->ifTheLastHandWasCompleted()){
             return $this->start();
         }
 
@@ -195,6 +183,31 @@ class GamePlay
             'players' => $this->getPlayerData(),
             'winner' => null
         ];
+    }
+
+    protected function readyForShowdown()
+    {
+        return $this->hand->fresh()->streets->count() === count($this->game->streets) &&
+            $this->hand->fresh()->playerActions->where('active', 1)->count() ===
+            $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count();
+    }
+
+    protected function onePlayerRemainsThatCanContinue()
+    {
+        return $this->hand->fresh()->playerActions->where('active', 1)->count()
+            === $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count()
+            && $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count() === 1;
+    }
+
+    protected function ifAllActivePlayersCanContinue()
+    {
+        return $this->hand->fresh()->playerActions->where('active', 1)->count() ===
+            $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count();
+    }
+
+    protected function ifTheLastHandWasCompleted()
+    {
+        return $this->hand->fresh()->completed_on;
     }
 
     public function getActionOn()
