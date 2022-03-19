@@ -744,6 +744,97 @@ class ShowdownTest extends TestEnvironment
 
     }
 
+    /**
+     * This test replicates a situation that came up during front-end testing.
+     *
+     * @test
+     * @return void
+     */
+    public function if_player_one_has_trips_and_player_two_has_pair_these_are_cleared_before_player_three_is_evaluated_so_player_three_doesnt_have_a_full_house()
+    {
+
+        $response = $this->gamePlay->initiateStreetActions()->postBlinds();
+
+        $wholeCards = [
+            [
+                'player' => $this->player1,
+                'rank' => 'Ace',
+                'suit' => 'Clubs'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Ace',
+                'suit' => 'Hearts'
+            ],
+            [
+                'player' => $this->player2,
+                'rank' => 'Three',
+                'suit' => 'Hearts'
+            ],
+            [
+                'player' => $this->player2,
+                'rank' => 'Five',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Seven',
+                'suit' => 'Diamonds'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Six',
+                'suit' => 'Spades'
+            ],
+        ];
+
+        $this->setWholeCards($wholeCards);
+
+        $flopCards = [
+            [
+                'rank' => 'Ten',
+                'suit' => 'Spades'
+            ],
+            [
+                'rank' => 'Deuce',
+                'suit' => 'Spades'
+            ],
+            [
+                'rank' => 'Queen',
+                'suit' => 'Spades'
+            ]
+        ];
+
+        $this->setFlop($flopCards);
+
+        $turnCard = [
+            'rank' => 'Ace',
+            'suit' => 'Diamonds'
+        ];
+
+        $this->setTurn($turnCard);
+
+        $riverCard = [
+            'rank' => 'Five',
+            'suit' => 'Clubs'
+        ];
+
+        $this->setRiver($riverCard);
+
+        $this->executeActions([
+            'actions' => $response->hand->playerActions->fresh(),
+            'handTable' => $response->handTable->fresh()
+        ]);
+
+        $response = $this->gamePlay->play();
+
+        dump($response['winner']);
+
+        $this->assertEquals($this->player1->id, $response['winner']['player']->id);
+        $this->assertEquals($this->handTypes->where('name', 'Three of a Kind')->first()->id, $response['winner']['handType']->id);
+
+    }
+
     protected function setWholeCards($wholeCards)
     {
         foreach($wholeCards as $wholeCard){
@@ -826,14 +917,14 @@ class ShowdownTest extends TestEnvironment
         // Player 1 Folds
         PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
-                'action_id' => Action::where('name', 'Fold')->first()->id,
-                'bet_amount' => null,
-                'active' => 0
+                'action_id' => Action::where('name', 'Call')->first()->id,
+                'bet_amount' => 25.0,
+                'active' => 1
             ]);
 
         TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
             ->update([
-                'can_continue' => 0
+                'can_continue' => 1
             ]);
 
         // Player 2 Checks
