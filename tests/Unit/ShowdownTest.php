@@ -828,8 +828,6 @@ class ShowdownTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
-        dump($response['winner']);
-
         $this->assertEquals($this->player1->id, $response['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'Three of a Kind')->first()->id, $response['winner']['handType']->id);
 

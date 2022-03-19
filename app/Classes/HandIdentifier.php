@@ -8,7 +8,7 @@ use App\Models\Suit;
 
 class HandIdentifier
 {
-    protected $handTypes;
+    public $handTypes;
     public $identifiedHandType = [
         'handType' => null,
         'activeCards' => null,
