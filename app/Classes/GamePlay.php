@@ -162,11 +162,11 @@ class GamePlay
             return $this->showdown();
         }
 
-        if($this->ifAllActivePlayersCanContinue()){
+        if($this->allActivePlayersCanContinue()){
             return $this->continue();
         }
 
-        if($this->ifTheLastHandWasCompleted()){
+        if($this->theLastHandWasCompleted()){
             return $this->start();
         }
 
@@ -199,13 +199,13 @@ class GamePlay
             && $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count() === 1;
     }
 
-    protected function ifAllActivePlayersCanContinue()
+    protected function allActivePlayersCanContinue()
     {
         return $this->hand->fresh()->playerActions->where('active', 1)->count() ===
             $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count();
     }
 
-    protected function ifTheLastHandWasCompleted()
+    protected function theLastHandWasCompleted()
     {
         return $this->hand->fresh()->completed_on;
     }
