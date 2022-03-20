@@ -52,7 +52,11 @@
                         <div class="m-1 p-3 bg-dark rounded">
 
                             <p>
-                                Player @{{player.player_id}}: <span v-if="player.action_id" v-bind:class="actionColours[player.action_name]" class="d-inline rounded p-1"><strong>@{{player.action_name}}</strong></span>
+                                Player @{{player.player_id}}:
+                                <span v-if="player.is_dealer" v-bind:class="'bg-primary'" class="d-inline rounded p-1"><strong>D</strong></span>
+                                <span v-else-if="player.big_blind" v-bind:class="'bg-primary'" class="d-inline rounded p-1"><strong>BB</strong></span>
+                                <span v-else-if="player.small_blind" v-bind:class="'bg-primary'" class="d-inline rounded p-1"><strong>SB</strong></span>
+                                <span v-if="player.action_id" v-bind:class="actionColours[player.action_name]" class="d-inline rounded p-1"><strong>@{{player.action_name}}</strong></span>
                             </p>
 
                             <div class="row mb-2 m-0 p-0">

@@ -305,6 +305,8 @@ class GamePlay
                 'active' => $playerAction->active,
                 'can_continue' => $playerAction->tableSeat->can_continue,
                 'is_dealer' => $playerAction->tableSeat->is_dealer,
+                'big_blind' => $playerAction->big_blind,
+                'small_blind' => $playerAction->small_blind,
                 'whole_cards' => $this->getWholeCards($playerAction->player),
                 'action_on' => $actionOn,
                 'availableOptions' => $this->getAvailableOptionsBasedOnLatestAction($playerAction)
@@ -600,6 +602,7 @@ class GamePlay
         $smallBlind->action_id = Action::where('name', 'Bet')->first()->id; // Bet
         $smallBlind->bet_amount = 25.0;
         $smallBlind->active = 1;
+        $smallBlind->small_blind = 1;
         $smallBlind->updated_at = date('Y-m-d H:i:s', strtotime('- 10 seconds'));
         $smallBlind->save();
 

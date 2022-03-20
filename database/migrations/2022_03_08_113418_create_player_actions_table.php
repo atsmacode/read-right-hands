@@ -28,6 +28,7 @@ class CreatePlayerActionsTable extends Migration
             $table->float('bet_amount')->nullable();
             $table->boolean('active')->default(0);
             $table->boolean('big_blind')->default(0);
+            $table->boolean('small_blind')->default(0);
             $table->timestamps();
         });
     }
