@@ -21,6 +21,7 @@ class GamePlayTest extends TestEnvironment
         $this->player1 = Player::factory()->create();
         $this->player2 = Player::factory()->create();
         $this->player3 = Player::factory()->create();
+        $this->player4 = Player::factory()->create();
 
         TableSeat::factory([
             'table_id' => $this->gamePlay->handTable->id,
@@ -37,6 +38,11 @@ class GamePlayTest extends TestEnvironment
             'player_id' => $this->player3->id
         ])->create();
 
+        TableSeat::factory([
+            'table_id' => $this->gamePlay->handTable->id,
+            'player_id' => $this->player4->id
+        ])->create();
+
     }
 
     /**
@@ -47,8 +53,8 @@ class GamePlayTest extends TestEnvironment
     {
         $response = $this->gamePlay->start();
 
-        // There are 3 players at the table
-        $this->assertCount(3, $response['actions']);
+        // There are 4 players at the table
+        $this->assertCount(4, $response['actions']);
 
         // The small blind was posted
         $this->assertEquals(25.0, $response['actions']->slice(1, 1)->first()->bet_amount);
@@ -59,18 +65,16 @@ class GamePlayTest extends TestEnvironment
         $this->assertEquals('Bet', $response['actions']->slice(2, 1)->first()->action->name);
 
         // The last player at the table has not acted yet
-        $this->assertEquals(null, $response['actions']->slice(0, 1)->first()->bet_amount);
-        $this->assertEquals(null, $response['actions']->slice(0, 1)->first()->action_id);
+        $this->assertEquals(null, $response['actions']->slice(3, 1)->first()->bet_amount);
+        $this->assertEquals(null, $response['actions']->slice(3, 1)->first()->action_id);
 
         // Each player in the hand has 2 whole cards
         foreach($response['handTable']->players as $player){
             $this->assertCount(2, $player->wholeCards->where('hand_id', $response['hand']->id));
         }
 
-        dump($response['handTable']->tableSeats->slice(2, 1)->first());
-
         // the_action_will_be_on_the_player_after_the_big_blind_once_a_hand_is_started
-        $this->assertTrue($response['players'][2]['action_on']);
+        $this->assertTrue($response['players'][3]['action_on']);
 
     }
 
@@ -82,15 +86,15 @@ class GamePlayTest extends TestEnvironment
     {
         $response = $this->gamePlay->start();
 
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+        // Player 4 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(3, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
@@ -108,15 +112,28 @@ class GamePlayTest extends TestEnvironment
                 'can_continue' => 0
             ]);
 
-        // Player 2 Checks
+        // Player 2 Folds
         PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Fold')->first()->id,
+                'bet_amount' => null,
+                'active' => 0
+            ]);
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        // Player 3 Checks
+        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Check')->first()->id,
                 'bet_amount' => null,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
@@ -137,8 +154,8 @@ class GamePlayTest extends TestEnvironment
 
         $this->assertCount(0, $response['handTable']->tableSeats->where('can_continue', 1));
 
-        // Player 1 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
+        // Player 4 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
@@ -148,7 +165,7 @@ class GamePlayTest extends TestEnvironment
         $response = $this->gamePlay->play();
 
         $this->assertCount(1, $response['handTable']->tableSeats->where('can_continue', 1));
-        $this->assertEquals(1, $response['handTable']->tableSeats->fresh()->slice(0, 1)->first()->can_continue);
+        $this->assertEquals(1, $response['handTable']->tableSeats->fresh()->slice(3, 1)->first()->can_continue);
 
     }
 
@@ -162,15 +179,15 @@ class GamePlayTest extends TestEnvironment
 
         $this->assertCount(0, $response['handTable']->tableSeats->where('can_continue', 1));
 
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+        // Player 4 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1,
             ]);
 
-        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(3, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
@@ -194,37 +211,39 @@ class GamePlayTest extends TestEnvironment
      * @test
      * @return void
      */
-    public function the_pre_flop_action_will_be_on_the_big_blind_after_all_other_players_act()
+    public function the_pre_flop_action_will_initially_be_on_the_player_after_big_blind()
     {
         $response = $this->gamePlay->start();
 
-        $this->assertCount(1, $response['hand']->streets->fresh());
+        $this->assertTrue($response['players'][3]['action_on']);
 
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Call')->first()->id,
-                'bet_amount' => 50.0,
-                'active' => 1,
-            ]);
+        $this->assertTrue($response['players'][3]['availableOptions']->contains('name', 'Fold'));
+        $this->assertTrue($response['players'][3]['availableOptions']->contains('name', 'Call'));
+        $this->assertTrue($response['players'][3]['availableOptions']->contains('name', 'Raise'));
 
-        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
-            ->update([
-                'can_continue' => 1
-            ]);
+    }
 
-        // Player 1 Folds
-        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Fold')->first()->id,
-                'bet_amount' => null,
-                'active' => 0
-            ]);
+    /**
+     * @test
+     * @return void
+     */
+    public function with_three_players_the_pre_flop_action_will_initially_be_on_player_one()
+    {
 
-        $response = $this->gamePlay->play();
+        TableSeat::where([
+            'table_id' => $this->gamePlay->handTable->id,
+            'player_id' => $this->player4->id
+        ])->delete();
 
-        $this->assertCount(1, $response['hand']->streets->fresh());
-        $this->assertTrue($response['players'][1]['action_on']);
+        $this->player4 = null;
+
+        $response = $this->gamePlay->start();
+
+        $this->assertTrue($response['players'][0]['action_on']);
+
+        $this->assertTrue($response['players'][0]['availableOptions']->contains('name', 'Fold'));
+        $this->assertTrue($response['players'][0]['availableOptions']->contains('name', 'Call'));
+        $this->assertTrue($response['players'][0]['availableOptions']->contains('name', 'Raise'));
 
     }
 
@@ -238,15 +257,15 @@ class GamePlayTest extends TestEnvironment
 
         $this->assertCount(1, $response['hand']->streets->fresh());
 
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+        // Player 4 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1,
             ]);
 
-        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(3, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
@@ -264,8 +283,21 @@ class GamePlayTest extends TestEnvironment
                 'can_continue' => 0
             ]);
 
-        // BB Raises
+        // Player 2 Folds
         PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Fold')->first()->id,
+                'bet_amount' => null,
+                'active' => 0
+            ]);
+
+        TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        // BB Raises
+        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Raise')->first()->id,
                 'bet_amount' => 100.0,
@@ -276,7 +308,7 @@ class GamePlayTest extends TestEnvironment
         $response = $this->gamePlay->play();
 
         $this->assertCount(1, $response['hand']->streets->fresh());
-        $this->assertTrue($response['players'][2]['action_on']);
+        $this->assertTrue($response['players'][3]['action_on']);
 
     }
 
