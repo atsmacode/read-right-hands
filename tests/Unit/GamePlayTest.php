@@ -86,46 +86,42 @@ class GamePlayTest extends TestEnvironment
     {
         $response = $this->gamePlay->start();
 
-        // Player 4 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Call')->first()->id,
-                'bet_amount' => 50.0,
-                'active' => 1
-            ]);
+        $player4 = PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)->first();
+        $player4->action_id = Action::where('name', 'Call')->first()->id;
+        $player4->bet_amount = 50.0;
+        $player4->active = 1;
+        $player4->updated_at = date('Y-m-d H:i:s', strtotime('- 8 seconds'));
+        $player4->save();
 
         TableSeat::where('id', $response['handTable']->tableSeats->slice(3, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
 
-        // Player 1 Folds
-        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Fold')->first()->id,
-                'bet_amount' => null,
-                'active' => 0
-            ]);
+        $player1 = PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)->first();
+        $player1->action_id = Action::where('name', 'Call')->first()->id;
+        $player1->bet_amount = 50.0;
+        $player1->active = 1;
+        $player1->updated_at = date('Y-m-d H:i:s', strtotime('- 8 seconds'));
+        $player1->save();
 
         TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
             ->update([
-                'can_continue' => 0
+                'can_continue' => 1
             ]);
 
-        // Player 2 Folds
-        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Fold')->first()->id,
-                'bet_amount' => null,
-                'active' => 0
-            ]);
+        $player2 = PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)->first();
+        $player2->action_id = Action::where('name', 'Fold')->first()->id;
+        $player2->bet_amount = null;
+        $player2->active = 0;
+        $player2->updated_at = date('Y-m-d H:i:s', strtotime('- 8 seconds'));
+        $player2->save();
 
         TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
             ->update([
                 'can_continue' => 0
             ]);
 
-        // Player 3 Checks
         PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Check')->first()->id,
@@ -133,14 +129,126 @@ class GamePlayTest extends TestEnvironment
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+        $response = $this->gamePlay->play();
+
+        $this->assertCount(2, $response['hand']->streets->fresh());
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function if_the_dealer_is_seat_two_and_the_first_active_seat_on_a_new_street_the_first_active_seat_after_them_will_be_first_to_act()
+    {
+        $response = $this->gamePlay->start(1);
+
+        $player1 = PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)->first()->fresh();
+        $player1->action_id = Action::where('name', 'Call')->first()->id;
+        $player1->bet_amount = 50.0;
+        $player1->active = 1;
+        $player1->updated_at = date('Y-m-d H:i:s', strtotime('- 8 seconds'));
+        $player1->save();
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
             ->update([
                 'can_continue' => 1
+            ]);
+
+        $player2 = PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)->first()->fresh();
+        $player2->action_id = Action::where('name', 'Call')->first()->id;
+        $player2->bet_amount = 50.0;
+        $player2->active = 1;
+        $player2->updated_at = date('Y-m-d H:i:s', strtotime('- 8 seconds'));
+        $player2->save();
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+            ->update([
+                'can_continue' => 1
+            ]);
+
+        $player3 = PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)->first()->fresh();
+        $player3->action_id = Action::where('name', 'Fold')->first()->id;
+        $player3->bet_amount = null;
+        $player3->active = 0;
+        $player3->updated_at = date('Y-m-d H:i:s', strtotime('- 8 seconds'));
+        $player3->save();
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Check')->first()->id,
+                'bet_amount' => null,
+                'active' => 1
+            ]);
+
+        $response = $this->gamePlay->play();
+
+        $this->assertTrue($response['players'][3]['action_on']);
+        $this->assertCount(2, $response['hand']->streets->fresh());
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function with_three_players_if_the_dealer_is_the_first_active_seat_on_a_new_street_the_first_active_seat_after_them_will_be_first_to_act()
+    {
+
+        TableSeat::where([
+            'table_id' => $this->gamePlay->handTable->id,
+            'player_id' => $this->player4->id
+        ])->delete();
+
+        $this->player4 = null;
+
+        $response = $this->gamePlay->start();
+
+        // Player 1 Raises BB
+        $player1 = PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)->first();
+
+        $player1->action_id = Action::where('name', 'Raise')->first()->id;
+        $player1->bet_amount = 100.0;
+        $player1->active = 1;
+        $player1->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player1->save();
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
+            ->update([
+                'can_continue' => 1
+            ]);
+
+        // Player 2 Folds
+        $player2 = PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)->first();
+
+        $player2->action_id = Action::where('name', 'Fold')->first()->id;
+        $player2->bet_amount = null;
+        $player2->active = 0;
+        $player2->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player2->save();
+
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        // Player 3 Calls
+        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Call')->first()->id,
+                'bet_amount' => 50.0,
+                'active' => 1
             ]);
 
         $response = $this->gamePlay->play();
 
         $this->assertCount(2, $response['hand']->streets->fresh());
+        $this->assertTrue($response['players'][2]['action_on']);
 
     }
 
@@ -180,12 +288,12 @@ class GamePlayTest extends TestEnvironment
         $this->assertCount(0, $response['handTable']->tableSeats->where('can_continue', 1));
 
         // Player 4 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Call')->first()->id,
-                'bet_amount' => 50.0,
-                'active' => 1,
-            ]);
+        $player4 = PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)->first();
+        $player4->action_id = Action::where('name', 'Call')->first()->id;
+        $player4->bet_amount = 50.0;
+        $player4->active = 1;
+        $player4->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player4->save();
 
         TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(3, 1)->first()->id)
             ->update([
@@ -257,26 +365,24 @@ class GamePlayTest extends TestEnvironment
 
         $this->assertCount(1, $response['hand']->streets->fresh());
 
-        // Player 4 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Call')->first()->id,
-                'bet_amount' => 50.0,
-                'active' => 1,
-            ]);
+        $player4 = PlayerAction::where('id', $response['actions']->slice(3, 1)->first()->id)->first();
+        $player4->action_id = Action::where('name', 'Call')->first()->id;
+        $player4->bet_amount = 50.0;
+        $player4->active = 1;
+        $player4->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player4->save();
 
         TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(3, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
 
-        // Player 1 Folds
-        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Fold')->first()->id,
-                'bet_amount' => null,
-                'active' => 0
-            ]);
+        $player1 = PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)->first();
+        $player1->action_id = Action::where('name', 'Call')->first()->id;
+        $player1->bet_amount = null;
+        $player1->active = 0;
+        $player1->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player1->save();
 
         TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
             ->update([
@@ -284,12 +390,12 @@ class GamePlayTest extends TestEnvironment
             ]);
 
         // Player 2 Folds
-        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
-            ->update([
-                'action_id' => Action::where('name', 'Fold')->first()->id,
-                'bet_amount' => null,
-                'active' => 0
-            ]);
+        $player2 = PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)->first();
+        $player2->action_id = Action::where('name', 'Fold')->first()->id;
+        $player2->bet_amount = null;
+        $player2->active = 0;
+        $player2->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player2->save();
 
         TableSeat::query()->where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
             ->update([

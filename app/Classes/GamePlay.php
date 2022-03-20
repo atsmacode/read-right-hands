@@ -94,12 +94,12 @@ class GamePlay
         ];
     }
 
-    public function start()
+    public function start($dealerSeat = null)
     {
 
         $this->initiateStreetActions();
 
-        $this->setDealerAndBlindSeats();
+        $this->setDealerAndBlindSeats($dealerSeat);
 
         $this->dealer->setDeck()->shuffle();
 
@@ -199,8 +199,8 @@ class GamePlay
 
     protected function allActivePlayersCanContinue()
     {
-        return $this->hand->fresh()->playerActions->where('active', 1)->count() ===
-            $this->handTable->fresh()->tableSeats->where('can_continue', 1)->count();
+        return $this->hand->fresh()->playerActions->fresh()->where('active', 1)->count() ===
+            $this->handTable->fresh()->tableSeats->fresh()->where('can_continue', 1)->count();
     }
 
     protected function theLastHandWasCompleted()
@@ -211,26 +211,28 @@ class GamePlay
     public function getActionOn()
     {
 
-        $newStreetSoDealerIsNotFirst =
-            $this->hand->fresh()->playerActions->where('active', 1)->first()->tableSeat->fresh()->is_dealer &&
-            !$this->hand->playerActions->whereNotNull('action_id')->first()->fresh();
+        /*
+         * Part of code that was in progress to solve dealer action issues.
+         */
+        /*$playerAfterDealer = $this->hand->fresh()
+            ->playerActions
+            ->where('table_seat_id', '>', TableSeat::where('is_dealer', 1)->first()->fresh()->id)
+            ->where('active', 1)
+            ->first();
+
+        $firstActivePlayer = $playerAfterDealer ?: $this->hand->fresh()
+            ->playerActions
+            ->where('active', 1)
+            ->first();*/
 
         $firstActivePlayer = TableSeat::query()
             ->select('table_seats.*')
             ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
             ->where('table_seats.table_id', $this->handTable->fresh()->id)
-            ->when($newStreetSoDealerIsNotFirst, function($query){
-                $query->where('table_seats.id',
-                    $this->hand->fresh()->playerActions
-                        ->where('id', '!=', TableSeat::where('is_dealer', 1)->first()->fresh()->id)
-                        ->where('active', 1)
-                        ->first()->table_seat_id);
-            }, function($query){
-                $query->where('table_seats.id', $this->hand->fresh()->playerActions->where('active', 1)->first()->table_seat_id);
-            })
+            ->where('table_seats.id', $this->hand->fresh()->playerActions->where('active', 1)->first()->table_seat_id)
             ->first();
 
-        if(!$this->hand->playerActions->whereNotNull('action_id')->first()->fresh()){
+        if(!$this->hand->playerActions->fresh()->whereNotNull('action_id')->first()){
             return $firstActivePlayer;
         }
 
@@ -241,10 +243,6 @@ class GamePlay
             ], SORT_NUMERIC)
             ->first()
             ->table_seat_id;
-
-/*        dump($lastToAct);
-
-        dump($this->hand->playerActions->fresh()->where('active', 1)->where('table_seat_id', '>', $lastToAct)->first());*/
 
         $playerAfterLastToAct = $this->hand->playerActions->fresh()->where('active', 1)->where('table_seat_id', '>', $lastToAct)->first()
             ? $this->hand->playerActions->fresh()->where('active', 1)->where('table_seat_id', '>', $lastToAct)->first()->tableSeat
@@ -283,6 +281,7 @@ class GamePlay
                 'bet_amount' => $playerAction->bet_amount,
                 'active' => $playerAction->active,
                 'can_continue' => $playerAction->tableSeat->can_continue,
+                'is_dealer' => $playerAction->tableSeat->is_dealer,
                 'whole_cards' => $this->getWholeCards($playerAction->player),
                 'action_on' => $actionOn,
                 'availableOptions' => $this->getAvailableOptionsBasedOnLatestAction($playerAction)
@@ -488,10 +487,14 @@ class GamePlay
         return $this;
     }
 
-    public function setDealerAndBlindSeats()
+    public function setDealerAndBlindSeats($dealerSeat)
     {
 
-        $currentDealer = $this->handTable->tableSeats->where('is_dealer', 1)->first();
+        if($dealerSeat){
+            $currentDealer = $this->handTable->tableSeats->where('id', $dealerSeat)->first();
+        } else {
+            $currentDealer = $this->handTable->tableSeats->where('is_dealer', 1)->first();
+        }
 
         if(!$currentDealer || !$this->handTable->tableSeats->fresh()->where('id', $currentDealer->id + 1)->first()){
 
