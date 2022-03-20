@@ -208,6 +208,11 @@ class GamePlay
         return $this->hand->fresh()->completed_on;
     }
 
+    protected function allPlayerActionsAreNullSoANewSreetHasBeenSet()
+    {
+        return !$this->hand->playerActions->fresh()->whereNotNull('action_id')->first();
+    }
+
     public function getActionOn()
     {
 
@@ -228,7 +233,7 @@ class GamePlay
             ->first()
             ->fresh();
 
-        if(!$this->hand->playerActions->fresh()->whereNotNull('action_id')->first()){
+        if($this->allPlayerActionsAreNullSoANewSreetHasBeenSet()){
 
             if($dealerIsActive){
 
