@@ -233,6 +233,14 @@ class GamePlay
             ->first();
 
         if(!$this->hand->playerActions->fresh()->whereNotNull('action_id')->first()){
+            /*
+             * Part of code that was in progress to solve dealer action issues.
+             */
+            /*if($firstActivePlayer->is_dealer){
+                return $this->hand->playerActions->fresh()->sortBy([
+                    ['table_seat_id', 'desc']
+                ], SORT_NUMERIC)->where('active', 1)->where('table_seat_id', '>', $firstActivePlayer->table_seat_id)->first();
+            }*/
             return $firstActivePlayer;
         }
 
@@ -487,7 +495,7 @@ class GamePlay
         return $this;
     }
 
-    public function setDealerAndBlindSeats($dealerSeat)
+    public function setDealerAndBlindSeats($dealerSeat = null)
     {
 
         if($dealerSeat){
