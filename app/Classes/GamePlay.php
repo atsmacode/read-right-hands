@@ -211,14 +211,26 @@ class GamePlay
     public function getActionOn()
     {
 
+        $newStreetSoDealerIsNotFirst =
+            $this->hand->fresh()->playerActions->where('active', 1)->first()->tableSeat->fresh()->is_dealer &&
+            !$this->hand->playerActions->whereNotNull('action_id')->first()->fresh();
+
         $firstActivePlayer = TableSeat::query()
             ->select('table_seats.*')
             ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
             ->where('table_seats.table_id', $this->handTable->fresh()->id)
-            ->where('table_seats.id', $this->hand->fresh()->playerActions->where('active', 1)->first()->table_seat_id)
+            ->when($newStreetSoDealerIsNotFirst, function($query){
+                $query->where('table_seats.id',
+                    $this->hand->fresh()->playerActions
+                        ->where('id', '!=', TableSeat::where('is_dealer', 1)->first()->fresh()->id)
+                        ->where('active', 1)
+                        ->first()->table_seat_id);
+            }, function($query){
+                $query->where('table_seats.id', $this->hand->fresh()->playerActions->where('active', 1)->first()->table_seat_id);
+            })
             ->first();
 
-        if(!$this->hand->playerActions->fresh()->whereNotNull('action_id')->first()){
+        if(!$this->hand->playerActions->whereNotNull('action_id')->first()->fresh()){
             return $firstActivePlayer;
         }
 
@@ -509,13 +521,15 @@ class GamePlay
 
         }
 
-        TableSeat::query()
-            ->where('table_id', $this->handTable->id)
-            ->where('id', '=',  $currentDealer->id)
-            ->update([
-                'is_dealer' => 0,
-                'updated_at' => date('Y-m-d H:i:s', strtotime('- 20 seconds'))
-            ]);
+        if($currentDealer){
+            TableSeat::query()
+                ->where('table_id', $this->handTable->id)
+                ->where('id', '=',  $currentDealer->id)
+                ->update([
+                    'is_dealer' => 0,
+                    'updated_at' => date('Y-m-d H:i:s', strtotime('- 20 seconds'))
+                ]);
+        }
 
         TableSeat::query()
             ->where('table_id', $this->handTable->id)
@@ -571,6 +585,7 @@ class GamePlay
         $bigBlind->action_id = Action::where('name', 'Bet')->first()->id; // Bet
         $bigBlind->bet_amount = 50.0;
         $bigBlind->active = 1;
+        $bigBlind->big_blind = 1;
         $bigBlind->updated_at = date('Y-m-d H:i:s', strtotime('- 5 seconds'));
         $bigBlind->save();
 

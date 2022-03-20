@@ -75,9 +75,11 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
+        dump($response['players']);
+
         $this->assertCount(3, $response['hand']->streets);
         $this->assertCount(1, $response['hand']->streets->slice(2, 1)->first()->cards);
-        $this->assertTrue($response['players'][1]['action_on']);
+        $this->assertTrue($response['players'][2]['action_on']);
 
     }
 
@@ -99,7 +101,7 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
 
         $this->assertCount(4, $response['hand']->streets);
         $this->assertCount(1, $response['hand']->streets->slice(3, 1)->first()->cards);
-        $this->assertTrue($response['players'][1]['action_on']);
+        $this->assertTrue($response['players'][2]['action_on']);
 
     }
 
@@ -172,41 +174,41 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
 
     protected function executeActions($response)
     {
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+        // Player 1 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
 
-        // Player 1 Folds
-        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
+        // Player 2 Folds
+        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Fold')->first()->id,
                 'bet_amount' => null,
                 'active' => 0
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
             ->update([
                 'can_continue' => 0
             ]);
 
-        // Player 2 Checks
-        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
+        // Player 3 Checks
+        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Check')->first()->id,
                 'bet_amount' => null,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);

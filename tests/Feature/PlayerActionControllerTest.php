@@ -82,9 +82,9 @@ class PlayerActionControllerTest extends TestEnvironment
         $response = $this->post('action', [
             'game_play' => $gameData['gamePlay'],
             'hand_id' => $gameData['hand']->id,
-            'player_id' =>  $gameData['actions'][1]->player_id,
-            'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
-            'hand_street_id' => $gameData['actions'][1]->hand_street_id,
+            'player_id' =>  $gameData['actions'][2]->player_id,
+            'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
+            'hand_street_id' => $gameData['actions'][2]->hand_street_id,
             'action_id' => Action::where('name', 'Check')->first()->id,
             'bet_amount' => null,
             'active' => 1
@@ -116,9 +116,9 @@ class PlayerActionControllerTest extends TestEnvironment
         $response = $this->post('action', [
             'game_play' => $gameData['gamePlay'],
             'hand_id' => $gameData['hand']->id,
-            'player_id' =>  $gameData['actions'][1]->player_id,
-            'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
-            'hand_street_id' => $gameData['actions'][1]->hand_street_id,
+            'player_id' =>  $gameData['actions'][2]->player_id,
+            'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
+            'hand_street_id' => $gameData['actions'][2]->hand_street_id,
             'action_id' => Action::where('name', 'Check')->first()->id,
             'bet_amount' => null,
             'active' => 1
@@ -150,9 +150,9 @@ class PlayerActionControllerTest extends TestEnvironment
         $response = $this->post('action', [
             'game_play' => $gameData['gamePlay'],
             'hand_id' => $gameData['hand']->id,
-            'player_id' =>  $gameData['actions'][1]->player_id,
-            'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
-            'hand_street_id' => $gameData['actions'][1]->hand_street_id,
+            'player_id' =>  $gameData['actions'][2]->player_id,
+            'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
+            'hand_street_id' => $gameData['actions'][2]->hand_street_id,
             'action_id' => Action::where('name', 'Check')->first()->id,
             'bet_amount' => null,
             'active' => 1
@@ -185,9 +185,9 @@ class PlayerActionControllerTest extends TestEnvironment
         $response = $this->post('action', [
             'game_play' => $gameData['gamePlay'],
             'hand_id' => $gameData['hand']->id,
-            'player_id' =>  $gameData['actions'][1]->player_id,
-            'table_seat_id' =>  $gameData['actions'][1]->table_seat_id,
-            'hand_street_id' => $gameData['actions'][1]->hand_street_id,
+            'player_id' =>  $gameData['actions'][2]->player_id,
+            'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
+            'hand_street_id' => $gameData['actions'][2]->hand_street_id,
             'action_id' => Action::where('name', 'Check')->first()->id,
             'bet_amount' => null,
             'active' => 1
@@ -257,8 +257,8 @@ class PlayerActionControllerTest extends TestEnvironment
 
     protected function executeActions($response)
     {
-        // Player 3 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+        // Player 1 Calls BB
+        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
@@ -266,13 +266,13 @@ class PlayerActionControllerTest extends TestEnvironment
                 'updated_at' => date('Y-m-d H:i:s', strtotime('- 10 seconds'))
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
 
-        // Player 1 Folds
-        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
+        // Player 2 Folds
+        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Fold')->first()->id,
                 'bet_amount' => null,
@@ -280,7 +280,7 @@ class PlayerActionControllerTest extends TestEnvironment
                 'updated_at' => date('Y-m-d H:i:s', strtotime('- 5 seconds'))
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
+        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
             ->update([
                 'can_continue' => 0
             ]);
