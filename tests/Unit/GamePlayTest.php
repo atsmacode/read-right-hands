@@ -188,8 +188,8 @@ class GamePlayTest extends TestEnvironment
 
         $response = $this->gamePlay->play();
 
-        $this->assertTrue($response['players'][3]['action_on']);
         $this->assertCount(2, $response['hand']->streets->fresh());
+        $this->assertTrue($response['players'][3]['action_on']);
 
     }
 
