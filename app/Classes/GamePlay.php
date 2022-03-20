@@ -211,49 +211,67 @@ class GamePlay
     public function getActionOn()
     {
 
-        /*
-         * Part of code that was in progress to solve dealer action issues.
-         */
-        /*$playerAfterDealer = $this->hand->fresh()
+        $dealer = $this->hand->fresh()
             ->playerActions
-            ->where('table_seat_id', '>', TableSeat::where('is_dealer', 1)->first()->fresh()->id)
-            ->where('active', 1)
-            ->first();
+            ->where('table_seat_id', TableSeat::where('is_dealer', 1)->first()->fresh()->id)
+            ->first()
+            ->fresh()
+            ->tableSeat->fresh();
 
-        $firstActivePlayer = $playerAfterDealer ?: $this->hand->fresh()
-            ->playerActions
-            ->where('active', 1)
-            ->first();*/
+        $dealerIsActive = $dealer->active ? $dealer : false;
 
         $firstActivePlayer = TableSeat::query()
             ->select('table_seats.*')
             ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
             ->where('table_seats.table_id', $this->handTable->fresh()->id)
             ->where('table_seats.id', $this->hand->fresh()->playerActions->where('active', 1)->first()->table_seat_id)
-            ->first();
+            ->first()
+            ->fresh();
 
         if(!$this->hand->playerActions->fresh()->whereNotNull('action_id')->first()){
 
-            /*
-             * Part of code that was in progress to solve dealer action issues.
-             */
-            /*if($firstActivePlayer->is_dealer){
+            if($dealerIsActive){
+
+                if($firstActivePlayer->is_dealer){
+
+                    $playerAfterDealer = $this->hand->playerActions
+                        ->fresh()
+                        ->where('active', 1)
+                        ->where('table_seat_id', '>', $firstActivePlayer->id)
+                        ->first()
+                        ->tableSeat;
+
+                    $firstActivePlayer = $playerAfterDealer ?: $this->hand->playerActions
+                        ->fresh()
+                        ->where('active', 1)
+                        ->where('table_seat_id', '!=', $firstActivePlayer->table_seat_id)
+                        ->first()
+                        ->tableSeat;
+
+                } else if($firstActivePlayer->id < $dealerIsActive->id){
+
+                    $playerAfterDealer = $this->hand->playerActions
+                        ->fresh()
+                        ->where('active', 1)
+                        ->where('table_seat_id', '>', $dealerIsActive->id)
+                        ->first()
+                        ->tableSeat;
+
+                    $firstActivePlayer = $playerAfterDealer ?: $firstActivePlayer;
+
+                }
+
+            } else {
 
                 $playerAfterDealer = $this->hand->playerActions
                     ->fresh()
                     ->where('active', 1)
-                    ->where('table_seat_id', '>', $firstActivePlayer->table_seat_id)
-                    ->first()
-                    ->tableSeat;
+                    ->where('table_seat_id', '>', $dealer->id)
+                    ->first();
 
-                $firstActivePlayer = $playerAfterDealer ?: $this->hand->playerActions
-                    ->fresh()
-                    ->where('active', 1)
-                    ->where('table_seat_id', '!=', $firstActivePlayer->table_seat_id)
-                    ->first()
-                    ->tableSeat;
+                $firstActivePlayer = $playerAfterDealer ? $playerAfterDealer->tableSeat : $firstActivePlayer;
 
-            }*/
+            }
 
             return $firstActivePlayer;
 
