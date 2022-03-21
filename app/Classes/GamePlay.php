@@ -52,12 +52,7 @@ class GamePlay
         $this->hand->save();
 
         return [
-            'gamePlay' => $this,
             'deck' => $this->dealer->getDeck(),
-            'hand' => $this->hand->fresh(),
-            'handTable' => $this->handTable->fresh(),
-            'actions' => $this->hand->playerActions->fresh(),
-            'streets' => $this->hand->fresh()->streets,
             'communityCards' => $this->getCommunityCards(),
             'players' => $this->getPlayerData(),
             'winner' => (new Showdown($this->hand->fresh()))->compileHands()->decideWinner()
@@ -82,12 +77,7 @@ class GamePlay
         }
 
         return [
-            'gamePlay' => $this,
             'deck' => $this->dealer->getDeck(),
-            'hand' => $this->hand->fresh(),
-            'handTable' => $this->handTable->fresh(),
-            'actions' => $this->hand->playerActions->fresh(),
-            'streets' => $this->hand->fresh()->streets,
             'communityCards' => $this->getCommunityCards(),
             'players' => $this->getPlayerData(),
             'winner' => null
@@ -112,12 +102,7 @@ class GamePlay
         }
 
         return [
-            'gamePlay' => $this,
             'deck' => $this->dealer->getDeck(),
-            'hand' => $this->hand->fresh(),
-            'handTable' => $this->handTable->fresh(),
-            'actions' => $this->hand->playerActions->fresh(),
-            'streets' => $this->hand->streets->fresh(),
             'communityCards' => $this->getCommunityCards(),
             'players' => $this->getPlayerData(),
             'winner' => null
@@ -141,12 +126,7 @@ class GamePlay
         }
 
         return [
-            'gamePlay' => $this,
             'deck' => $this->dealer->getDeck(),
-            'hand' => $this->hand->fresh(),
-            'handTable' => $this->handTable->fresh(),
-            'actions' => $this->hand->playerActions->fresh(),
-            'streets' => $this->hand->fresh()->streets,
             'communityCards' => $this->getCommunityCards(),
             'players' => $this->getPlayerData(),
             'winner' => null
@@ -306,7 +286,7 @@ class GamePlay
 
     }
 
-    public function getPlayerData()
+    protected function getPlayerData()
     {
 
         $playerData = [];

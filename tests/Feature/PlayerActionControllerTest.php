@@ -49,14 +49,13 @@ class PlayerActionControllerTest extends TestEnvironment
     public function an_action_can_be_taken()
     {
 
-        $gameData = $this->gamePlay->start();
+        $this->gamePlay->start();
 
         $response = $this->post('action', [
-            'game_play' => $gameData['gamePlay'],
-            'hand_id' => $gameData['hand']->id,
-            'player_id' =>  $gameData['actions'][2]->player_id,
-            'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
-            'hand_street_id' => $gameData['actions'][2]->hand_street_id,
+            'hand_id' => $this->gamePlay->hand->fresh()->id,
+            'player_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->player_id,
+            'table_seat_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->table_seat_id,
+            'hand_street_id' => $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->hand_street_id,
             'action_id' => Action::where('name', 'Call')->first()->id,
             'bet_amount' => 50.0,
             'active' => 1
@@ -73,18 +72,17 @@ class PlayerActionControllerTest extends TestEnvironment
     public function a_flop_will_be_dealt_once_all_active_players_can_continue()
     {
 
-        $gameData = $this->gamePlay->start();
+        $this->gamePlay->start();
 
-        $this->assertCount(1, $gameData['streets']);
+        $this->assertCount(1, $this->gamePlay->hand->fresh()->streets);
 
-        $this->executeActions($gameData);
+        $this->executeActions();
 
         $response = $this->post('action', [
-            'game_play' => $gameData['gamePlay'],
-            'hand_id' => $gameData['hand']->id,
-            'player_id' =>  $gameData['actions'][2]->player_id,
-            'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
-            'hand_street_id' => $gameData['actions'][2]->hand_street_id,
+            'hand_id' => $this->gamePlay->hand->fresh()->id,
+            'player_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->player_id,
+            'table_seat_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->table_seat_id,
+            'hand_street_id' => $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->hand_street_id,
             'action_id' => Action::where('name', 'Check')->first()->id,
             'bet_amount' => null,
             'active' => 1
@@ -92,8 +90,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response->assertStatus(200);
 
-        $response->assertJsonCount(2, 'streets');
-        $this->assertCount(2, $response['streets']);
+        $this->assertCount(2, $this->gamePlay->hand->fresh()->streets);
         $this->assertCount(3, $response['communityCards']);
 
     }
@@ -105,20 +102,19 @@ class PlayerActionControllerTest extends TestEnvironment
     public function a_turn_will_be_dealt_once_all_active_players_can_continue()
     {
 
-        $gameData = $this->gamePlay->start();
+        $this->gamePlay->start();
 
-        $gameData = $this->setFlop($gameData);
+        $this->setFlop();
 
-        $this->assertCount(2, $gameData['gamePlay']->hand->fresh()->streets);
+        $this->assertCount(2, $this->gamePlay->hand->fresh()->fresh()->streets);
 
-        $this->executeActions($gameData);
+        $this->executeActions();
 
         $response = $this->post('action', [
-            'game_play' => $gameData['gamePlay'],
-            'hand_id' => $gameData['hand']->id,
-            'player_id' =>  $gameData['actions'][2]->player_id,
-            'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
-            'hand_street_id' => $gameData['actions'][2]->hand_street_id,
+            'hand_id' => $this->gamePlay->hand->fresh()->id,
+            'player_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->player_id,
+            'table_seat_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->table_seat_id,
+            'hand_street_id' => $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->hand_street_id,
             'action_id' => Action::where('name', 'Check')->first()->id,
             'bet_amount' => null,
             'active' => 1
@@ -126,7 +122,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response->assertStatus(200);
 
-        $this->assertCount(3, $response['streets']);
+        $this->assertCount(3, $this->gamePlay->hand->fresh()->streets);
         $this->assertCount(4, $response['communityCards']);
 
     }
@@ -138,21 +134,20 @@ class PlayerActionControllerTest extends TestEnvironment
     public function a_river_will_be_dealt_once_all_active_players_can_continue()
     {
 
-        $gameData = $this->gamePlay->start();
+        $this->gamePlay->start();
 
-        $gameData = $this->setFlop($gameData);
-        $gameData = $this->setTurn($gameData);
+        $this->setFlop();
+        $this->setTurn();
 
-        $this->assertCount(3, $gameData['gamePlay']->hand->fresh()->streets);
+        $this->assertCount(3, $this->gamePlay->hand->fresh()->fresh()->streets);
 
-        $this->executeActions($gameData);
+        $this->executeActions();
 
         $response = $this->post('action', [
-            'game_play' => $gameData['gamePlay'],
-            'hand_id' => $gameData['hand']->id,
-            'player_id' =>  $gameData['actions'][2]->player_id,
-            'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
-            'hand_street_id' => $gameData['actions'][2]->hand_street_id,
+            'hand_id' => $this->gamePlay->hand->fresh()->id,
+            'player_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->player_id,
+            'table_seat_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->table_seat_id,
+            'hand_street_id' => $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->hand_street_id,
             'action_id' => Action::where('name', 'Check')->first()->id,
             'bet_amount' => null,
             'active' => 1
@@ -160,7 +155,7 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response->assertStatus(200);
 
-        $this->assertCount(4, $response['streets']);
+        $this->assertCount(4, $this->gamePlay->hand->fresh()->streets);
         $this->assertCount(5, $response['communityCards']);
 
     }
@@ -172,22 +167,21 @@ class PlayerActionControllerTest extends TestEnvironment
     public function a_winner_will_be_decided_and_hand_set_to_completed_once_all_active_players_can_continue_on_the_river()
     {
 
-        $gameData = $this->gamePlay->start();
+        $this->gamePlay->start();
 
-        $gameData = $this->setFlop($gameData);
-        $gameData = $this->setTurn($gameData);
-        $gameData = $this->setRiver($gameData);
+        $this->setFlop();
+        $this->setTurn();
+        $this->setRiver();
 
-        $this->assertCount(4, $gameData['gamePlay']->hand->fresh()->streets);
+        $this->assertCount(4, $this->gamePlay->hand->fresh()->fresh()->streets);
 
-        $this->executeActions($gameData);
+        $this->executeActions();
 
         $response = $this->post('action', [
-            'game_play' => $gameData['gamePlay'],
-            'hand_id' => $gameData['hand']->id,
-            'player_id' =>  $gameData['actions'][2]->player_id,
-            'table_seat_id' =>  $gameData['actions'][2]->table_seat_id,
-            'hand_street_id' => $gameData['actions'][2]->hand_street_id,
+            'hand_id' => $this->gamePlay->hand->fresh()->id,
+            'player_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->player_id,
+            'table_seat_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->table_seat_id,
+            'hand_street_id' => $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->hand_street_id,
             'action_id' => Action::where('name', 'Check')->first()->id,
             'bet_amount' => null,
             'active' => 1
@@ -195,70 +189,63 @@ class PlayerActionControllerTest extends TestEnvironment
 
         $response->assertStatus(200);
 
-        dump($response['communityCards']);
-        dump('Winner: ' . $response['winner']['player']['id']);
-        dump($response['winner']['handType']);
-
-        $this->assertNotNull($response['hand']['completed_on']);
+        $this->assertNotNull($this->gamePlay->hand->fresh()->completed_on);
         $this->assertNotNull($response['winner']);
 
     }
 
-    protected function setFlop($gameData)
+    protected function setFlop()
     {
         // Manually set the flop
         $flop = HandStreet::create([
             'street_id' => Street::where('name', 'Flop')->first()->id,
-            'hand_id' => $gameData['hand']->id
+            'hand_id' => $this->gamePlay->hand->fresh()->id
         ]);
 
         $dealtCards = 0;
-        while($dealtCards < $gameData['gamePlay']->game->streets[1]['community_cards']){
-            $gameData['gamePlay']->dealer->dealStreetCard($flop);
+        while($dealtCards < $this->gamePlay->game->streets[1]['community_cards']){
+            $this->gamePlay->dealer->dealStreetCard($flop);
             $dealtCards++;
         }
 
-        return $gameData;
     }
 
-    protected function setTurn($gameData)
+    protected function setTurn()
     {
         // Manually set the turn
         $turn = HandStreet::create([
             'street_id' => Street::where('name', 'Turn')->first()->id,
-            'hand_id' => $gameData['hand']->id
+            'hand_id' => $this->gamePlay->hand->fresh()->id
         ]);
 
         $dealtCards = 0;
-        while($dealtCards < $gameData['gamePlay']->game->streets[2]['community_cards']){
-            $gameData['gamePlay']->dealer->dealStreetCard($turn);
+        while($dealtCards < $this->gamePlay->game->streets[2]['community_cards']){
+            $this->gamePlay->dealer->dealStreetCard($turn);
             $dealtCards++;
         }
 
-        return $gameData;
     }
 
-    protected function setRiver($gameData)
+    protected function setRiver()
     {
         // Manually set the river
         $river = HandStreet::create([
             'street_id' => Street::where('name', 'River')->first()->id,
-            'hand_id' => $gameData['hand']->id
+            'hand_id' => $this->gamePlay->hand->fresh()->id
         ]);
 
         $dealtCards = 0;
-        while($dealtCards < $gameData['gamePlay']->game->streets[3]['community_cards']){
-            $gameData['gamePlay']->dealer->dealStreetCard($river);
+        while($dealtCards < $this->gamePlay->game->streets[3]['community_cards']){
+            $this->gamePlay->dealer->dealStreetCard($river);
             $dealtCards++;
         }
 
-        return $gameData;
     }
 
-    protected function executeActions($response)
+    protected function executeActions()
     {
         // Player 1 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
+        PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
@@ -266,13 +253,13 @@ class PlayerActionControllerTest extends TestEnvironment
                 'updated_at' => date('Y-m-d H:i:s', strtotime('- 10 seconds'))
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
+        TableSeat::where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(0, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
 
         // Player 2 Folds
-        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
+        PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Fold')->first()->id,
                 'bet_amount' => null,
@@ -280,7 +267,7 @@ class PlayerActionControllerTest extends TestEnvironment
                 'updated_at' => date('Y-m-d H:i:s', strtotime('- 5 seconds'))
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+        TableSeat::where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(1, 1)->first()->id)
             ->update([
                 'can_continue' => 0
             ]);

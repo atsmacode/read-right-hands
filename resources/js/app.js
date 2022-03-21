@@ -6,7 +6,6 @@ const app = new Vue({
     data() {
 		return {
 			deck: false,
-			game_play: false,
 			players: false,
 			communityCards: false,
 			winner: false,
@@ -72,7 +71,6 @@ const app = new Vue({
 
 			let payload = {
 				deck: this.deck,
-				game_play: this.game_play,
 				player_id: player.player_id,
 				action_id: action,
 				table_seat_id: player.table_seat_id,
@@ -111,7 +109,6 @@ const app = new Vue({
 				this.winner = false;
 				this.players = response.data.players;
 				this.communityCards = response.data.communityCards;
-				this.game_play = response.data.game_play;
 				this.deck = response.data.deck;
 
 			});

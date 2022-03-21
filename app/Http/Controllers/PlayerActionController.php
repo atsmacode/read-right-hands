@@ -31,18 +31,13 @@ class PlayerActionController extends Controller
             'active' => $request->active
         ]);
 
-        $gameData = (new GamePlay(Hand::query()->latest()->first(), $request->deck))->play();
+        $gamePlay = (new GamePlay(Hand::query()->latest()->first(), $request->deck))->play();
 
         return response()->json([
-            'deck' => $gameData['deck'],
-            'game_play' => $gameData['gamePlay'],
-            'hand' => $gameData['hand'],
-            'handTable' => $gameData['handTable'],
-            'actions' => $gameData['actions'],
-            'streets' => $gameData['streets'],
-            'communityCards' => $gameData['communityCards'],
-            'players' => $gameData['players'],
-            'winner' => $gameData['winner']
+            'deck' => $gamePlay['deck'],
+            'communityCards' => $gamePlay['communityCards'],
+            'players' => $gamePlay['players'],
+            'winner' => $gamePlay['winner']
         ]);
     }
 }

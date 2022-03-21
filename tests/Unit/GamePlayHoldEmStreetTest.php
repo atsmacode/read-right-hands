@@ -50,14 +50,14 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
      */
     public function it_can_deal_3_cards_to_a_flop()
     {
-        $response = $this->gamePlay->start();
+        $this->gamePlay->start();
 
-        $this->executeActions($response);
+        $this->executeActions();
 
-        $response = $this->gamePlay->play();
+        $this->gamePlay->play();
 
-        $this->assertCount(2, $response['hand']->streets);
-        $this->assertCount(3, $response['hand']->streets->slice(1, 1)->first()->cards);
+        $this->assertCount(2, $this->gamePlay->hand->fresh()->streets);
+        $this->assertCount(3, $this->gamePlay->hand->fresh()->streets->slice(1, 1)->first()->cards);
 
     }
 
@@ -67,18 +67,16 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
      */
     public function it_can_deal_1_card_to_a_turn()
     {
-        $response = $this->gamePlay->start();
+        $this->gamePlay->start();
 
-        $this->setFlop($response);
+        $this->setFlop();
 
-        $this->executeActions($response);
+        $this->executeActions();
 
         $response = $this->gamePlay->play();
 
-        dump($response['players']);
-
-        $this->assertCount(3, $response['hand']->streets);
-        $this->assertCount(1, $response['hand']->streets->slice(2, 1)->first()->cards);
+        $this->assertCount(3, $this->gamePlay->hand->fresh()->streets);
+        $this->assertCount(1, $this->gamePlay->hand->fresh()->streets->slice(2, 1)->first()->cards);
         $this->assertTrue($response['players'][2]['action_on']);
 
     }
@@ -89,18 +87,18 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
      */
     public function it_can_deal_1_card_to_a_river()
     {
-        $response = $this->gamePlay->start();
+        $this->gamePlay->start();
 
-        $this->setFlop($response);
+        $this->setFlop();
 
-        $this->setTurn($response);
+        $this->setTurn();
 
-        $this->executeActions($response);
+        $this->executeActions();
 
         $response = $this->gamePlay->play();
 
-        $this->assertCount(4, $response['hand']->streets);
-        $this->assertCount(1, $response['hand']->streets->slice(3, 1)->first()->cards);
+        $this->assertCount(4, $this->gamePlay->hand->fresh()->streets);
+        $this->assertCount(1, $this->gamePlay->hand->fresh()->streets->slice(3, 1)->first()->cards);
         $this->assertTrue($response['players'][2]['action_on']);
 
     }
@@ -111,15 +109,15 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
      */
     public function it_can_reach_showdown_when_all_active_players_can_continue_on_the_river()
     {
-        $response = $this->gamePlay->start();
+        $this->gamePlay->start();
 
-        $this->setFlop($response);
+        $this->setFlop();
 
-        $this->setTurn($response);
+        $this->setTurn();
 
-        $this->setRiver($response);
+        $this->setRiver();
 
-        $this->executeActions($response);
+        $this->executeActions();
 
         $response = $this->gamePlay->play();
 
@@ -127,12 +125,12 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
 
     }
 
-    protected function setFlop($response)
+    protected function setFlop()
     {
         // Manually set the flop
         $flop = HandStreet::create([
             'street_id' => Street::where('name', 'Flop')->first()->id,
-            'hand_id' => $response['hand']->id
+            'hand_id' => $this->gamePlay->hand->fresh()->id
         ]);
 
         $dealtCards = 0;
@@ -142,12 +140,12 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
         }
     }
 
-    protected function setTurn($response)
+    protected function setTurn()
     {
         // Manually set the turn
         $turn = HandStreet::create([
             'street_id' => Street::where('name', 'Turn')->first()->id,
-            'hand_id' => $response['hand']->id
+            'hand_id' => $this->gamePlay->hand->fresh()->id
         ]);
 
         $dealtCards = 0;
@@ -157,12 +155,12 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
         }
     }
 
-    protected function setRiver($response)
+    protected function setRiver()
     {
         // Manually set the river
         $river = HandStreet::create([
             'street_id' => Street::where('name', 'River')->first()->id,
-            'hand_id' => $response['hand']->id
+            'hand_id' => $this->gamePlay->hand->fresh()->id
         ]);
 
         $dealtCards = 0;
@@ -172,43 +170,43 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
         }
     }
 
-    protected function executeActions($response)
+    protected function executeActions()
     {
         // Player 1 Calls BB
-        PlayerAction::where('id', $response['actions']->slice(0, 1)->first()->id)
+        PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(0, 1)->first()->id)
+        TableSeat::where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(0, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
 
         // Player 2 Folds
-        PlayerAction::where('id', $response['actions']->slice(1, 1)->first()->id)
+        PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Fold')->first()->id,
                 'bet_amount' => null,
                 'active' => 0
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(1, 1)->first()->id)
+        TableSeat::where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(1, 1)->first()->id)
             ->update([
                 'can_continue' => 0
             ]);
 
         // Player 3 Checks
-        PlayerAction::where('id', $response['actions']->slice(2, 1)->first()->id)
+        PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Check')->first()->id,
                 'bet_amount' => null,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $response['handTable']->tableSeats->slice(2, 1)->first()->id)
+        TableSeat::where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(2, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);

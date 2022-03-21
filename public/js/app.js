@@ -2072,7 +2072,6 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
   data: function data() {
     return {
       deck: false,
-      game_play: false,
       players: false,
       communityCards: false,
       winner: false,
@@ -2117,7 +2116,6 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
 
       var payload = {
         deck: this.deck,
-        game_play: this.game_play,
         player_id: player.player_id,
         action_id: _action,
         table_seat_id: player.table_seat_id,
@@ -2148,7 +2146,6 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         _this2.winner = false;
         _this2.players = response.data.players;
         _this2.communityCards = response.data.communityCards;
-        _this2.game_play = response.data.game_play;
         _this2.deck = response.data.deck;
       });
     }
