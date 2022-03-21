@@ -528,9 +528,8 @@ class GamePlay
         return $this;
     }
 
-    public function setDealerAndBlindSeats($dealerSeat = null)
+    protected function identifyTheNextDealerAndBlindSeats($dealerSeat = null)
     {
-
         if($dealerSeat){
             $currentDealer = $this->handTable->tableSeats->where('id', $dealerSeat)->first();
         } else {
@@ -564,6 +563,24 @@ class GamePlay
             $bigBlindSeat = $this->handTable->tableSeats->fresh()->slice(1, 1)->first();
 
         }
+
+        return [
+            'currentDealer' => $currentDealer,
+            'dealer' => $dealer,
+            'smallBlindSeat' => $smallBlindSeat,
+            'bigBlindSeat' => $bigBlindSeat
+        ];
+    }
+
+    public function setDealerAndBlindSeats($dealerSeat = null)
+    {
+
+        [
+            'currentDealer' => $currentDealer,
+            'dealer' => $dealer,
+            'smallBlindSeat' => $smallBlindSeat,
+            'bigBlindSeat' => $bigBlindSeat
+        ] = $this->identifyTheNextDealerAndBlindSeats($dealerSeat);
 
         if($currentDealer){
             TableSeat::query()
