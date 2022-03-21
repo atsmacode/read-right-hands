@@ -800,7 +800,7 @@ class ShowdownTest extends TestEnvironment
                 'suit' => 'Spades'
             ],
             [
-                'rank' => 'Queen',
+                'rank' => 'Three',
                 'suit' => 'Spades'
             ]
         ];
@@ -821,10 +821,44 @@ class ShowdownTest extends TestEnvironment
 
         $this->setRiver($riverCard);
 
-        $this->executeActions([
-            'actions' => $response->hand->playerActions->fresh(),
-            'handTable' => $response->handTable->fresh()
-        ]);
+        // Player 1 Calls BB
+        PlayerAction::where('id', $response->hand->playerActions->fresh()->slice(0, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Call')->first()->id,
+                'bet_amount' => 50.0,
+                'active' => 1
+            ]);
+
+        TableSeat::where('id', $response->handTable->fresh()->tableSeats->slice(0, 1)->first()->id)
+            ->update([
+                'can_continue' => 1
+            ]);
+
+        // Player 2 Calls
+        PlayerAction::where('id', $response->hand->playerActions->slice(1, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Call')->first()->id,
+                'bet_amount' => 50.0,
+                'active' => 1
+            ]);
+
+        TableSeat::where('id', $response->handTable->fresh()->tableSeats->slice(1, 1)->first()->id)
+            ->update([
+                'can_continue' => 1
+            ]);
+
+        // Player 3 Checks
+        PlayerAction::where('id', $response->hand->playerActions->slice(2, 1)->first()->id)
+            ->update([
+                'action_id' => Action::where('name', 'Check')->first()->id,
+                'bet_amount' => null,
+                'active' => 1
+            ]);
+
+        TableSeat::where('id', $response->handTable->fresh()->tableSeats->slice(2, 1)->first()->id)
+            ->update([
+                'can_continue' => 1
+            ]);
 
         $response = $this->gamePlay->play();
 
