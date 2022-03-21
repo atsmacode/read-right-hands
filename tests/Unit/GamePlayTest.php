@@ -141,7 +141,7 @@ class GamePlayTest extends TestEnvironment
      */
     public function if_the_dealer_is_seat_two_and_the_first_active_seat_on_a_new_street_the_first_active_seat_after_them_will_be_first_to_act()
     {
-        $this->gamePlay->start(1);
+        $this->gamePlay->start();
 
         $player1 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id)->first()->fresh();
         $player1->action_id = Action::where('name', 'Call')->first()->id;
