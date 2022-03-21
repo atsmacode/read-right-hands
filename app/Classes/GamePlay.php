@@ -528,13 +528,6 @@ class GamePlay
         return $this;
     }
 
-    public function setStreet($street)
-    {
-        $this->street = $street;
-
-        return $this;
-    }
-
     public function setDealerAndBlindSeats($dealerSeat = null)
     {
 
