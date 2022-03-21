@@ -141,9 +141,16 @@ class GamePlayTest extends TestEnvironment
      */
     public function if_the_dealer_is_seat_two_and_the_first_active_seat_on_a_new_street_the_first_active_seat_after_them_will_be_first_to_act()
     {
-        $this->gamePlay->start();
+        $this->gamePlay->start(TableSeat::where(
+            'id',
+            $this->gamePlay->handTable->fresh()->tableSeats->slice(0, 1)->first()->id)->first()->id
+        );
 
-        $player1 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id)->first()->fresh();
+        $player1 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id
+        )->first()->fresh();
+
         $player1->action_id = Action::where('name', 'Call')->first()->id;
         $player1->bet_amount = 50.0;
         $player1->active = 1;
@@ -155,7 +162,11 @@ class GamePlayTest extends TestEnvironment
                 'can_continue' => 1
             ]);
 
-        $player2 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id)->first()->fresh();
+        $player2 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id
+        )->first()->fresh();
+
         $player2->action_id = Action::where('name', 'Call')->first()->id;
         $player2->bet_amount = 50.0;
         $player2->active = 1;
@@ -167,7 +178,11 @@ class GamePlayTest extends TestEnvironment
                 'can_continue' => 1
             ]);
 
-        $player3 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->id)->first()->fresh();
+        $player3 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->id
+        )->first()->fresh();
+
         $player3->action_id = Action::where('name', 'Fold')->first()->id;
         $player3->bet_amount = null;
         $player3->active = 0;
@@ -210,7 +225,10 @@ class GamePlayTest extends TestEnvironment
         $this->gamePlay->start();
 
         // Player 1 Raises BB
-        $player1 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id)->first();
+        $player1 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id
+        )->first();
 
         $player1->action_id = Action::where('name', 'Raise')->first()->id;
         $player1->bet_amount = 100.0;
@@ -224,7 +242,10 @@ class GamePlayTest extends TestEnvironment
             ]);
 
         // Player 2 Folds
-        $player2 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id)->first();
+        $player2 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id
+        )->first();
 
         $player2->action_id = Action::where('name', 'Fold')->first()->id;
         $player2->bet_amount = null;
@@ -288,7 +309,11 @@ class GamePlayTest extends TestEnvironment
         $this->assertCount(0, $this->gamePlay->handTable->fresh()->tableSeats->where('can_continue', 1));
 
         // Player 4 Calls BB
-        $player4 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(3, 1)->first()->id)->first();
+        $player4 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(3, 1)->first()->id
+        )->first();
+
         $player4->action_id = Action::where('name', 'Call')->first()->id;
         $player4->bet_amount = 50.0;
         $player4->active = 1;
@@ -365,7 +390,11 @@ class GamePlayTest extends TestEnvironment
 
         $this->assertCount(1, $this->gamePlay->hand->fresh()->streets->fresh());
 
-        $player4 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(3, 1)->first()->id)->first();
+        $player4 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(3, 1)->first()->id
+        )->first();
+
         $player4->action_id = Action::where('name', 'Call')->first()->id;
         $player4->bet_amount = 50.0;
         $player4->active = 1;
@@ -377,7 +406,11 @@ class GamePlayTest extends TestEnvironment
                 'can_continue' => 1
             ]);
 
-        $player1 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id)->first();
+        $player1 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id
+        )->first();
+
         $player1->action_id = Action::where('name', 'Call')->first()->id;
         $player1->bet_amount = null;
         $player1->active = 0;
@@ -390,7 +423,11 @@ class GamePlayTest extends TestEnvironment
             ]);
 
         // Player 2 Folds
-        $player2 = PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id)->first();
+        $player2 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id
+        )->first();
+
         $player2->action_id = Action::where('name', 'Fold')->first()->id;
         $player2->bet_amount = null;
         $player2->active = 0;

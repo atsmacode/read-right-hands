@@ -84,12 +84,12 @@ class GamePlay
         ];
     }
 
-    public function start()
+    public function start($currentDealer = null)
     {
 
         $this->initiateStreetActions();
 
-        $this->setDealerAndBlindSeats();
+        $this->setDealerAndBlindSeats($currentDealer);
 
         $this->dealer->setDeck()->shuffle();
 
@@ -534,10 +534,14 @@ class GamePlay
             && !$this->handTable->tableSeats->fresh()->where('id', $currentDealer->id + 2)->first();
     }
 
-    protected function identifyTheNextDealerAndBlindSeats()
+    protected function identifyTheNextDealerAndBlindSeats($currentDealer)
     {
 
-        $currentDealer = $this->handTable->tableSeats->where('is_dealer', 1)->first();
+        if($currentDealer){
+            $currentDealer = $this->handTable->tableSeats->where('id', $currentDealer)->first();
+        } else {
+            $currentDealer = $this->handTable->tableSeats->where('is_dealer', 1)->first();
+        }
 
         if($this->noDealerIsSetOrThereIsNoSeatAfterTheCurrentDealer($currentDealer)){
 
@@ -573,7 +577,7 @@ class GamePlay
         ];
     }
 
-    public function setDealerAndBlindSeats()
+    public function setDealerAndBlindSeats($currentDealer = null)
     {
 
         [
@@ -581,7 +585,7 @@ class GamePlay
             'dealer' => $dealer,
             'smallBlindSeat' => $smallBlindSeat,
             'bigBlindSeat' => $bigBlindSeat
-        ] = $this->identifyTheNextDealerAndBlindSeats();
+        ] = $this->identifyTheNextDealerAndBlindSeats($currentDealer);
 
         if($currentDealer){
             TableSeat::query()
