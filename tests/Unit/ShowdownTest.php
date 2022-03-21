@@ -773,7 +773,7 @@ class ShowdownTest extends TestEnvironment
                 'suit' => 'Spades'
             ],
             [
-                'rank' => 'Three',
+                'rank' => 'Queen',
                 'suit' => 'Spades'
             ]
         ];
