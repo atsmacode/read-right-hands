@@ -128,8 +128,6 @@ class HandIdentifier
     public function hasThreeOfAKind()
     {
 
-        $this->threeOfAKind = false;
-
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 3){
                 $this->threeOfAKind = $rank;
@@ -310,9 +308,6 @@ class HandIdentifier
 
     public function hasFullHouse()
     {
-
-        $this->fullHouse = false;
-        $this->threeOfAKind = false;
 
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 3){
