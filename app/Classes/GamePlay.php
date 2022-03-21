@@ -213,7 +213,7 @@ class GamePlay
         return !$this->hand->playerActions->fresh()->whereNotNull('action_id')->first();
     }
 
-    public function getActionOn()
+    protected function getThePlayerActionShouldBeOnForANewStreet($firstActivePlayer)
     {
 
         $dealer = $this->hand->fresh()
@@ -225,6 +225,55 @@ class GamePlay
 
         $dealerIsActive = $dealer->active ? $dealer : false;
 
+        if($dealerIsActive){
+
+            if($firstActivePlayer->is_dealer){
+
+                $playerAfterDealer = $this->hand->playerActions
+                    ->fresh()
+                    ->where('active', 1)
+                    ->where('table_seat_id', '>', $firstActivePlayer->id)
+                    ->first()
+                    ->tableSeat;
+
+                $firstActivePlayer = $playerAfterDealer ?: $this->hand->playerActions
+                    ->fresh()
+                    ->where('active', 1)
+                    ->where('table_seat_id', '!=', $firstActivePlayer->table_seat_id)
+                    ->first()
+                    ->tableSeat;
+
+            } else if($firstActivePlayer->id < $dealerIsActive->id){
+
+                $playerAfterDealer = $this->hand->playerActions
+                    ->fresh()
+                    ->where('active', 1)
+                    ->where('table_seat_id', '>', $dealerIsActive->id)
+                    ->first()
+                    ->tableSeat;
+
+                $firstActivePlayer = $playerAfterDealer ?: $firstActivePlayer;
+
+            }
+
+        } else {
+
+            $playerAfterDealer = $this->hand->playerActions
+                ->fresh()
+                ->where('active', 1)
+                ->where('table_seat_id', '>', $dealer->id)
+                ->first();
+
+            $firstActivePlayer = $playerAfterDealer ? $playerAfterDealer->tableSeat : $firstActivePlayer;
+
+        }
+
+        return $firstActivePlayer;
+    }
+
+    public function getActionOn()
+    {
+
         $firstActivePlayer = TableSeat::query()
             ->select('table_seats.*')
             ->leftJoin('player_actions', 'table_seats.id', '=', 'player_actions.table_seat_id')
@@ -234,52 +283,7 @@ class GamePlay
             ->fresh();
 
         if($this->allPlayerActionsAreNullSoANewSreetHasBeenSet()){
-
-            if($dealerIsActive){
-
-                if($firstActivePlayer->is_dealer){
-
-                    $playerAfterDealer = $this->hand->playerActions
-                        ->fresh()
-                        ->where('active', 1)
-                        ->where('table_seat_id', '>', $firstActivePlayer->id)
-                        ->first()
-                        ->tableSeat;
-
-                    $firstActivePlayer = $playerAfterDealer ?: $this->hand->playerActions
-                        ->fresh()
-                        ->where('active', 1)
-                        ->where('table_seat_id', '!=', $firstActivePlayer->table_seat_id)
-                        ->first()
-                        ->tableSeat;
-
-                } else if($firstActivePlayer->id < $dealerIsActive->id){
-
-                    $playerAfterDealer = $this->hand->playerActions
-                        ->fresh()
-                        ->where('active', 1)
-                        ->where('table_seat_id', '>', $dealerIsActive->id)
-                        ->first()
-                        ->tableSeat;
-
-                    $firstActivePlayer = $playerAfterDealer ?: $firstActivePlayer;
-
-                }
-
-            } else {
-
-                $playerAfterDealer = $this->hand->playerActions
-                    ->fresh()
-                    ->where('active', 1)
-                    ->where('table_seat_id', '>', $dealer->id)
-                    ->first();
-
-                $firstActivePlayer = $playerAfterDealer ? $playerAfterDealer->tableSeat : $firstActivePlayer;
-
-            }
-
-            return $firstActivePlayer;
-
+            return $this->getThePlayerActionShouldBeOnForANewStreet($firstActivePlayer);
         }
 
         $lastToAct = $this->hand->playerActions
