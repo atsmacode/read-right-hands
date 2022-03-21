@@ -47,7 +47,6 @@ class GamePlay
 
     public function showdown()
     {
-
         $this->hand->completed_on = now();
         $this->hand->save();
 
@@ -112,6 +111,19 @@ class GamePlay
 
     public function nextStep()
     {
+
+        if($this->theBigBlindIsTheOnlyActivePlayerRemainingPreFlop()){
+
+            TableSeat::query()
+                ->where(
+                    'id',
+                    $this->hand->fresh()->playerActions->fresh()->where('active', 1)->where('big_blind', 1)->first()->table_seat_id
+                )->update([
+                    'can_continue' => 1
+                ]);
+
+            return $this->showdown();
+        }
 
         if($this->readyForShowdown() || $this->onePlayerRemainsThatCanContinue()){
             return $this->showdown();
@@ -181,6 +193,12 @@ class GamePlay
     {
         return $this->hand->fresh()->playerActions->fresh()->where('active', 1)->count() ===
             $this->handTable->fresh()->tableSeats->fresh()->where('can_continue', 1)->count();
+    }
+
+    protected function theBigBlindIsTheOnlyActivePlayerRemainingPreFlop()
+    {
+        return $this->hand->fresh()->playerActions->fresh()->where('active', 1)->where('big_blind', 1)->count() === 1
+            && !$this->hand->fresh()->playerActions->fresh()->where('active', 1)->where('big_blind', 0)->first();
     }
 
     protected function theLastHandWasCompleted()

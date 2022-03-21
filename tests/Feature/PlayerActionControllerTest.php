@@ -194,6 +194,50 @@ class PlayerActionControllerTest extends TestEnvironment
 
     }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function the_big_blind_will_win_the_pot_if_all_other_players_fold_pre_flop()
+    {
+        $this->gamePlay->start();
+
+        $this->assertCount(1, $this->gamePlay->hand->fresh()->streets->fresh());
+
+        $player1 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id
+        )->first();
+
+        $player1->action_id = Action::where('name', 'Fold')->first()->id;
+        $player1->bet_amount = null;
+        $player1->active = 0;
+        $player1->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player1->save();
+
+        TableSeat::query()->where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(0, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        $response = $this->post('action', [
+            'hand_id' => $this->gamePlay->hand->fresh()->id,
+            'player_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->player_id,
+            'table_seat_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->table_seat_id,
+            'hand_street_id' => $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->hand_street_id,
+            'action_id' => Action::where('name', 'Fold')->first()->id,
+            'bet_amount' => null,
+            'active' => 0
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertCount(1, $this->gamePlay->hand->fresh()->streets->fresh());
+        $this->assertEquals(1, $response['players'][2]['can_continue']);
+        $this->assertEquals($this->player3->id, $response['winner']['player']['id']);
+
+    }
+
     protected function setFlop()
     {
         // Manually set the flop

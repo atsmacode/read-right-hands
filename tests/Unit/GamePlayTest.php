@@ -455,4 +455,65 @@ class GamePlayTest extends TestEnvironment
 
     }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function the_big_blind_will_win_the_pot_if_all_other_players_fold_pre_flop()
+    {
+        $this->gamePlay->start();
+
+        $this->assertCount(1, $this->gamePlay->hand->fresh()->streets->fresh());
+
+        $player4 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(3, 1)->first()->id
+        )->first();
+
+        $player4->action_id = Action::where('name', 'Fold')->first()->id;
+        $player4->bet_amount = null;
+        $player4->active = 0;
+        $player4->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player4->save();
+
+        TableSeat::query()->where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(3, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        $player1 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id
+        )->first();
+
+        $player1->action_id = Action::where('name', 'Fold')->first()->id;
+        $player1->bet_amount = null;
+        $player1->active = 0;
+        $player1->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player1->save();
+
+        TableSeat::query()->where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(0, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        $player2 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id
+        )->first();
+
+        $player2->action_id = Action::where('name', 'Fold')->first()->id;
+        $player2->bet_amount = null;
+        $player2->active = 0;
+        $player2->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player2->save();
+
+        $gamePlay = $this->gamePlay->play();
+
+        $this->assertCount(1, $this->gamePlay->hand->fresh()->streets->fresh());
+        $this->assertEquals(1, $gamePlay['players'][2]['can_continue']);
+        $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
+
+    }
+
 }
