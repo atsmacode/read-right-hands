@@ -552,10 +552,12 @@ class GamePlay
     {
 
         foreach($this->handTable->tableSeats as $tableSeat){
-            $tableSeat->player->stacks()->create([
-                'amount' => 1000,
-                'table_id' => $this->handTable->id
-            ]);
+            if($tableSeat->player->stacks->count() === 0){
+                $tableSeat->player->stacks()->create([
+                    'amount' => 1000,
+                    'table_id' => $this->handTable->id
+                ]);
+            }
         }
 
         return $this;
