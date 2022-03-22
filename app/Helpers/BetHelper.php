@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Models\Hand;
 use App\Models\Player;
+use App\Models\Table;
 
 class BetHelper
 {
@@ -12,8 +13,8 @@ class BetHelper
         if($betAmount){
 
             $hand->pot->increment('amount', $betAmount);
-            $player->stacks
-                ->where('table_id', $hand->handTable->id)
+            $player->fresh()->stacks
+                ->where('table_id', Table::first()->id)
                 ->first()
                 ->decrement('amount', $betAmount);
 

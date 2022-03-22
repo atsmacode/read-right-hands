@@ -551,8 +551,8 @@ class GamePlay
     public function initiatePlayerStacks()
     {
 
-        foreach($this->handTable->players as $player){
-            $player->stacks()->create([
+        foreach($this->handTable->tableSeats as $tableSeat){
+            $tableSeat->player->stacks()->create([
                 'amount' => 1000,
                 'table_id' => $this->handTable->id
             ]);

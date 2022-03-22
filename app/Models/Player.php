@@ -54,6 +54,6 @@ class Player extends Authenticatable
 
     public function stacks()
     {
-        return $this->hasMany(Stack::class);
+        return $this->hasMany(Stack::class, 'player_id', 'id');
     }
 }

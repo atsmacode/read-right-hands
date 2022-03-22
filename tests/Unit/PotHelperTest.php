@@ -11,7 +11,7 @@ use App\Models\Table;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class PotHelperTest extends TestCase
+class PotHelperTest extends TestEnvironment
 {
 
     use RefreshDatabase;
@@ -23,10 +23,7 @@ class PotHelperTest extends TestCase
     public function a_pot_can_be_awarded_to_a_player()
     {
 
-        $table = Table::factory()->create([
-            'name' => 'Table 1',
-            'seats' => 2
-        ]);
+        $table = Table::first();
         $player = Player::factory()->create();
         $stack = Stack::factory()->create([
             'amount' => 1000,

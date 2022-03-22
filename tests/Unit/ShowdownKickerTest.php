@@ -58,7 +58,9 @@ class ShowdownKickerTest extends TestEnvironment
     public function high_card_king_beats_high_card_queen()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -117,8 +119,8 @@ class ShowdownKickerTest extends TestEnvironment
         $this->setRiver($riverCard);
 
         $this->executeActions([
-            'actions' => $gamePlay->hand->playerActions->fresh(),
-            'handTable' => $gamePlay->handTable->fresh()
+            'actions' => $this->gamePlay->hand->playerActions->fresh(),
+            'handTable' => $this->gamePlay->handTable->fresh()
         ]);
 
         $gamePlay = $this->gamePlay->play();

@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Classes\GamePlay;
+use App\Helpers\BetHelper;
 use App\Models\Action;
 use App\Models\Card;
 use App\Models\Hand;
@@ -58,7 +59,9 @@ class ShowdownTest extends TestEnvironment
     public function a_royal_flush_beats_a_straight_flush()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -132,7 +135,9 @@ class ShowdownTest extends TestEnvironment
     public function a_straight_flush_beats_four_of_a_kind()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -206,7 +211,9 @@ class ShowdownTest extends TestEnvironment
     public function four_of_a_kind_beats_a_full_house()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -280,7 +287,9 @@ class ShowdownTest extends TestEnvironment
     public function a_full_house_beats_a_flush()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -354,7 +363,9 @@ class ShowdownTest extends TestEnvironment
     public function a_flush_beats_a_straight()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -428,7 +439,9 @@ class ShowdownTest extends TestEnvironment
     public function a_straight_beats_three_of_a_kind()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -502,7 +515,9 @@ class ShowdownTest extends TestEnvironment
     public function three_of_a_kind_beats_two_pair()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -576,7 +591,9 @@ class ShowdownTest extends TestEnvironment
     public function two_pair_beats_a_pair()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -652,7 +669,9 @@ class ShowdownTest extends TestEnvironment
     public function if_player_one_has_trips_and_player_two_has_pair_these_are_cleared_before_player_three_is_evaluated_so_player_three_doesnt_have_a_full_house()
     {
 
-        $gamePlay = $this->gamePlay->initiateStreetActions()->setDealerAndBlindSeats();
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
 
         $wholeCards = [
             [
@@ -721,40 +740,40 @@ class ShowdownTest extends TestEnvironment
         $this->setRiver($riverCard);
 
         // Player 1 Calls BB
-        PlayerAction::where('id', $gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id)
+        PlayerAction::where('id', $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $gamePlay->handTable->fresh()->tableSeats->slice(0, 1)->first()->id)
+        TableSeat::where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(0, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
 
         // Player 2 Calls
-        PlayerAction::where('id', $gamePlay->hand->playerActions->slice(1, 1)->first()->id)
+        PlayerAction::where('id', $this->gamePlay->hand->playerActions->slice(1, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Call')->first()->id,
                 'bet_amount' => 50.0,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $gamePlay->handTable->fresh()->tableSeats->slice(1, 1)->first()->id)
+        TableSeat::where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(1, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
 
         // Player 3 Checks
-        PlayerAction::where('id', $gamePlay->hand->playerActions->slice(2, 1)->first()->id)
+        PlayerAction::where('id', $this->gamePlay->hand->playerActions->slice(2, 1)->first()->id)
             ->update([
                 'action_id' => Action::where('name', 'Check')->first()->id,
                 'bet_amount' => null,
                 'active' => 1
             ]);
 
-        TableSeat::where('id', $gamePlay->handTable->fresh()->tableSeats->slice(2, 1)->first()->id)
+        TableSeat::where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(2, 1)->first()->id)
             ->update([
                 'can_continue' => 1
             ]);
@@ -870,6 +889,7 @@ class ShowdownTest extends TestEnvironment
             ->update([
                 'can_continue' => 1
             ]);
+
     }
 
 }
