@@ -10,12 +10,13 @@ class Hand extends Model
     use HasFactory;
 
     protected $fillable = [
+        'table_id',
         'game_type_id'
     ];
 
     public function handTable()
     {
-        return $this->belongsTo(Table::class, '');
+        return $this->belongsTo(Table::class, 'table_id', 'id');
     }
 
     public function playerActions()

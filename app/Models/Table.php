@@ -28,4 +28,9 @@ class Table extends Model
             'id'
         );
     }
+
+    public function hands()
+    {
+        return $this->hasMany(Hand::class);
+    }
 }

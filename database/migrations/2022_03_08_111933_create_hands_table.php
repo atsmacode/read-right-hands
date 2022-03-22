@@ -16,6 +16,9 @@ class CreateHandsTable extends Migration
         Schema::create('hands', function (Blueprint $table) {
             $table->increments('id');
             $table->dateTime('completed_on')->nullable();
+            $table->integer('table_id')->unsigned();
+            $table->foreign('table_id')->references('id')->on('tables');
+
             $table->integer('game_type_id')->unsigned()->nullable();
             $table->foreign('game_type_id')->references('id')->on('game_types');
             $table->timestamps();

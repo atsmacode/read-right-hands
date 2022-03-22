@@ -2,13 +2,16 @@
 
 namespace App\Helpers;
 
+use App\Models\Player;
 use App\Models\Pot;
-use App\Models\Stack;
 
 class PotHelper
 {
-    public static function awardPot(Pot $pot, Stack $stack)
+    public static function awardPot(Pot $pot, Player $player)
     {
-        $stack->increment('amount', $pot->amount);
+        $player->stacks
+            ->where('table_id', $pot->handTable->id)
+            ->first()
+            ->increment('amount', $pot->amount);
     }
 }

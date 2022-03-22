@@ -18,4 +18,14 @@ class Pot extends Model
     {
         return $this->belongsTo(Hand::class);
     }
+
+    public function handTable()
+    {
+        return $this->hasOneThrough(
+            Table::class,
+            Hand::class,
+            'table_id',
+            'id'
+        );
+    }
 }
