@@ -15,6 +15,8 @@ class PlayerActionController extends Controller
 
         $hand = Hand::query()->latest()->first();
 
+        logger($hand->id);
+
         $playerAction = PlayerAction::where([
             'player_id' =>  $request->player_id,
             'table_seat_id' =>  $request->table_seat_id,
@@ -39,6 +41,7 @@ class PlayerActionController extends Controller
 
         return response()->json([
             'deck' => $gamePlay['deck'],
+            'pot' => $gamePlay['pot'],
             'communityCards' => $gamePlay['communityCards'],
             'players' => $gamePlay['players'],
             'winner' => $gamePlay['winner']

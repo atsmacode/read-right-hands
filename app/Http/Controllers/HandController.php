@@ -25,6 +25,7 @@ class HandController extends Controller
 
             return response()->json([
                 'deck' => $gamePlay['deck'],
+                'pot' => $gamePlay['pot'],
                 'communityCards' => $gamePlay['communityCards'],
                 'players' => $gamePlay['players'],
                 'winner' => $gamePlay['winner']

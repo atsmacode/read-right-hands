@@ -11,7 +11,6 @@ use App\Models\Player;
 use App\Models\PlayerAction;
 use App\Models\Stack;
 use App\Models\Street;
-use App\Models\Table;
 use App\Models\TableSeat;
 use Tests\Unit\TestEnvironment;
 
@@ -21,7 +20,7 @@ class PlayerActionControllerTest extends TestEnvironment
     {
         parent::setUp();
 
-        $this->gamePlay = new GamePlay(Hand::create(), Table::create(['name' => 'Table 1', 'seats' => 3]));
+        $this->gamePlay = new GamePlay(Hand::create());
 
         $this->player1 = Player::factory()->create();
         $this->player2 = Player::factory()->create();

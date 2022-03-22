@@ -6,6 +6,7 @@ const app = new Vue({
     data() {
 		return {
 			deck: false,
+			pot: 0,
 			players: false,
 			communityCards: false,
 			winner: false,
@@ -45,6 +46,13 @@ const app = new Vue({
 				"Raise": [
 					"bg-danger"
 				]
+			},
+            actionBetAmounts: {
+				"Fold": null,
+				"Check": null,
+				"Call": 50.0,
+				"Bet": 50.0,
+				"Raise": 50.0
 			}
 		}
 	},
@@ -59,27 +67,22 @@ const app = new Vue({
         showOptions(action_on){
             return action_on === true && this.winner === false;
         },
-		setSuitColour(suit){
-			return this.suitColours.suit;
-		},
 		action(action, player){
 
 			let active = 1;
-			if(action === 1){
+			if(action.id === 1){
 				active = 0;
 			}
 
 			let payload = {
 				deck: this.deck,
 				player_id: player.player_id,
-				action_id: action,
+				action_id: action.id,
 				table_seat_id: player.table_seat_id,
 				hand_street_id: player.hand_street_id,
 				active: active,
-				bet_amount: null
+				bet_amount: this.actionBetAmounts[action.name]
 			};
-
-			console.log(payload);
 
 			this.loading = true
 			window.axios.post('action', payload).then(response => {
@@ -91,6 +94,7 @@ const app = new Vue({
 				this.communityCards = response.data.communityCards;
 				this.deck = response.data.deck;
 				this.winner = response.data.winner ? response.data.winner : false;
+                this.pot = response.data.pot;
 
 
 			}).catch(error => {
@@ -110,6 +114,7 @@ const app = new Vue({
 				this.players = response.data.players;
 				this.communityCards = response.data.communityCards;
 				this.deck = response.data.deck;
+				this.pot = response.data.pot;
 
 			});
 		}

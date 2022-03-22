@@ -2072,6 +2072,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
   data: function data() {
     return {
       deck: false,
+      pot: 0,
       players: false,
       communityCards: false,
       winner: false,
@@ -2089,6 +2090,13 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         "Call": ["bg-success"],
         "Bet": ["bg-warning"],
         "Raise": ["bg-danger"]
+      },
+      actionBetAmounts: {
+        "Fold": null,
+        "Check": null,
+        "Call": 50.0,
+        "Bet": 50.0,
+        "Raise": 50.0
       }
     };
   },
@@ -2110,18 +2118,19 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
 
       var active = 1;
 
-      if (_action === 1) {
+      if (_action.id === 1) {
         active = 0;
       }
 
+      console.log(this.actionBetAmounts[_action.name]);
       var payload = {
         deck: this.deck,
         player_id: player.player_id,
-        action_id: _action,
+        action_id: _action.id,
         table_seat_id: player.table_seat_id,
         hand_street_id: player.hand_street_id,
         active: active,
-        bet_amount: null
+        bet_amount: this.actionBetAmounts[_action.name]
       };
       console.log(payload);
       this.loading = true;
@@ -2132,6 +2141,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         _this.communityCards = response.data.communityCards;
         _this.deck = response.data.deck;
         _this.winner = response.data.winner ? response.data.winner : false;
+        _this.pot = response.data.pot;
       })["catch"](function (error) {
         console.log(error);
         _this.loading = false;
@@ -2147,6 +2157,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         _this2.players = response.data.players;
         _this2.communityCards = response.data.communityCards;
         _this2.deck = response.data.deck;
+        _this2.pot = response.data.pot;
       });
     }
   },

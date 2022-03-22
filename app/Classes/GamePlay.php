@@ -54,13 +54,14 @@ class GamePlay
 
         $winner = (new Showdown($this->hand->fresh()))->compileHands()->decideWinner();
 
+        PotHelper::awardPot($this->hand->fresh()->pot, $winner['player']);
+
         $this->hand->completed_on = now();
         $this->hand->save();
 
-        PotHelper::awardPot($this->hand->pot, $winner['player']);
-
         return [
             'deck' => $this->dealer->getDeck(),
+            'pot' => $this->hand->fresh()->pot->amount,
             'communityCards' => $this->getCommunityCards(),
             'players' => $this->getPlayerData(),
             'winner' => $winner
@@ -86,6 +87,7 @@ class GamePlay
 
         return [
             'deck' => $this->dealer->getDeck(),
+            'pot' => $this->hand->fresh()->pot->amount,
             'communityCards' => $this->getCommunityCards(),
             'players' => $this->getPlayerData(),
             'winner' => null
@@ -111,6 +113,7 @@ class GamePlay
 
         return [
             'deck' => $this->dealer->getDeck(),
+            'pot' => $this->hand->fresh()->pot->amount,
             'communityCards' => $this->getCommunityCards(),
             'players' => $this->getPlayerData(),
             'winner' => null
@@ -148,6 +151,7 @@ class GamePlay
 
         return [
             'deck' => $this->dealer->getDeck(),
+            'pot' => $this->hand->fresh()->pot->fresh()->amount,
             'communityCards' => $this->getCommunityCards(),
             'players' => $this->getPlayerData(),
             'winner' => null
@@ -328,7 +332,12 @@ class GamePlay
 
             $actionName = $playerAction->action ? $playerAction->action->name : null;
 
+            $stack = $playerAction->player->fresh()->stacks->where('table_id', $this->handTable->id)->first()
+                ? $playerAction->player->fresh()->stacks->where('table_id', $this->handTable->id)->first()->amount
+                : null;
+
             $playerData[] = [
+                'stack' => $stack,
                 'name' => $playerAction->player->name,
                 'action_id' => $playerAction->action_id,
                 'action_name' => $actionName ,
