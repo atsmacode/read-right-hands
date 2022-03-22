@@ -5,7 +5,6 @@ namespace App\Helpers;
 use App\Models\Hand;
 use App\Models\Player;
 use App\Models\Pot;
-use App\Models\Table;
 
 class PotHelper
 {
@@ -17,7 +16,7 @@ class PotHelper
     public static function awardPot(Pot $pot, Player $player)
     {
         $player->stacks
-            ->where('table_id', Table::first()->id)
+            ->where('table_id', $pot->hand->handTable->id)
             ->first()
             ->increment('amount', $pot->amount);
     }
