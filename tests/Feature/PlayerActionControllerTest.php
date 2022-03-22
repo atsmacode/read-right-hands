@@ -238,6 +238,36 @@ class PlayerActionControllerTest extends TestEnvironment
 
     }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function a_bet_after_the_blinds_will_be_added_to_the_pot_and_deducted_from_the_stack()
+    {
+        $this->gamePlay->start();
+
+        $this->assertEquals(75, $this->gamePlay->hand->pot->amount);
+
+        $player1 = $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first();
+
+        $response = $this->post('action', [
+            'hand_id' => $this->gamePlay->hand->fresh()->id,
+            'player_id' =>  $player1->player_id,
+            'table_seat_id' =>  $player1->table_seat_id,
+            'hand_street_id' => $player1->hand_street_id,
+            'action_id' => Action::where('name', 'Call')->first()->id,
+            'bet_amount' => 50.0,
+            'active' => 1
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertEquals(125, $this->gamePlay->hand->fresh()->pot->amount);
+
+        $this->assertEquals(950, $player1->fresh()->player->stacks->where('table_id', $this->gamePlay->handTable->id)->first()->amount);
+
+    }
+
     protected function setFlop()
     {
         // Manually set the flop

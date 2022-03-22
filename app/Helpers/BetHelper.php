@@ -11,7 +11,6 @@ class BetHelper
     {
         if($betAmount){
 
-            $hand->pot->increment('amount', $betAmount);
             $player->stacks
                 ->where('table_id', $hand->handTable->id)
                 ->first()

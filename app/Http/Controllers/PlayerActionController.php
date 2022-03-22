@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\BetHelper;
 use App\Models\PlayerAction;
 use App\Models\Hand;
 use Illuminate\Http\Request;
@@ -11,6 +12,9 @@ class PlayerActionController extends Controller
 {
     public function action(Request $request)
     {
+
+        $hand = Hand::query()->latest()->first();
+
         $playerAction = PlayerAction::where([
             'player_id' =>  $request->player_id,
             'table_seat_id' =>  $request->table_seat_id,
@@ -27,11 +31,11 @@ class PlayerActionController extends Controller
 
         $playerAction->update([
             'action_id' => $request->action_id,
-            'bet_amount' => $request->bet_amount,
+            'bet_amount' => BetHelper::handle($hand, $playerAction->player, $request->bet_amount),
             'active' => $request->active
         ]);
 
-        $gamePlay = (new GamePlay(Hand::query()->latest()->first(), $request->deck))->play();
+        $gamePlay = (new GamePlay($hand, $request->deck))->play();
 
         return response()->json([
             'deck' => $gamePlay['deck'],
