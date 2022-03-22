@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Classes\GamePlay;
+use App\Helpers\BetHelper;
 use App\Models\Action;
 use App\Models\Hand;
 use App\Models\HandStreet;
 use App\Models\Player;
 use App\Models\PlayerAction;
+use App\Models\Stack;
 use App\Models\Street;
 use App\Models\Table;
 use App\Models\TableSeat;
@@ -265,6 +267,81 @@ class PlayerActionControllerTest extends TestEnvironment
         $this->assertEquals(125, $this->gamePlay->hand->fresh()->pot->amount);
 
         $this->assertEquals(950, $player1->fresh()->player->stacks->where('table_id', $this->gamePlay->handTable->id)->first()->amount);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function the_pot_will_be_awarded_to_the_winner_of_the_hand()
+    {
+        $this->gamePlay->start();
+
+        $this->assertEquals(75, $this->gamePlay->hand->pot->amount);
+
+        $this->setFlop();
+        $this->setTurn();
+        $this->setRiver();
+
+        $player1 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(0, 1)->first()->id
+        )->first();
+
+        $player1->action_id = Action::where('name', 'Call')->first()->id;
+        $player1->bet_amount = 50.0;
+        $player1->active = 1;
+        $player1->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player1->save();
+
+        TableSeat::query()->where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(0, 1)->first()->id)
+            ->update([
+                'can_continue' => 1
+            ]);
+
+        BetHelper::handle($this->gamePlay->hand, $player1->player, $player1->bet_amount);
+
+        $this->assertEquals(125, $this->gamePlay->hand->pot->amount);
+
+        $player2 = PlayerAction::where(
+            'id',
+            $this->gamePlay->hand->playerActions->fresh()->slice(1, 1)->first()->id
+        )->first();
+
+        $player2->action_id = Action::where('name', 'Fold')->first()->id;
+        $player2->bet_amount = null;
+        $player2->active = 0;
+        $player2->updated_at = date('Y-m-d H:i:s', strtotime('- 2 seconds'));
+        $player2->save();
+
+        TableSeat::query()->where('id', $this->gamePlay->handTable->fresh()->tableSeats->slice(1, 1)->first()->id)
+            ->update([
+                'can_continue' => 0
+            ]);
+
+        BetHelper::handle($this->gamePlay->hand, $player2->player, $player2->bet_amount);
+
+        $this->assertEquals(125, $this->gamePlay->hand->pot->amount);
+
+        $response = $this->post('action', [
+            'hand_id' => $this->gamePlay->hand->fresh()->id,
+            'player_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->player_id,
+            'table_seat_id' =>  $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->table_seat_id,
+            'hand_street_id' => $this->gamePlay->hand->playerActions->fresh()->slice(2, 1)->first()->hand_street_id,
+            'action_id' => Action::where('name', 'Check')->first()->id,
+            'bet_amount' => null,
+            'active' => 1
+        ]);
+
+        $response->assertStatus(200);
+
+        $winnerId = $response['winner']['player']['id'];
+
+        $this->assertEquals(1075, Stack::where([
+            'player_id' => $winnerId,
+            'table_id' => $this->gamePlay->handTable->id
+        ])->first()->amount);
 
     }
 
