@@ -20,7 +20,7 @@ class PotHelperTest extends TestCase
      * @test
      * @return void
      */
-    public function a_hand_can_have_a_pot()
+    public function a_pot_can_be_awarded_to_a_player()
     {
 
         $table = Table::factory()->create([
