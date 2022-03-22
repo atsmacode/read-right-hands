@@ -9,6 +9,11 @@ class Pot extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'amount',
+        'hand_id'
+    ];
+
     public function hand()
     {
         return $this->belongsTo(Hand::class);

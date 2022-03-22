@@ -9,6 +9,12 @@ class Stack extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'amount',
+        'player_id',
+        'table_id'
+    ];
+
     public function player()
     {
         return $this->belongsTo(Player::class);

@@ -51,4 +51,9 @@ class Player extends Authenticatable
     {
         return $this->hasMany(PlayerAction::class, 'player_id', 'id');
     }
+
+    public function stacks()
+    {
+        return $this->hasMany(Stack::class);
+    }
 }

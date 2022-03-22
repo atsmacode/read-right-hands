@@ -38,4 +38,9 @@ class Hand extends Model
     {
         return $this->hasMany(WholeCard::class, 'hand_id', 'id');
     }
+
+    public function pot()
+    {
+        return $this->hasOne(Pot::class);
+    }
 }
