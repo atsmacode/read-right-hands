@@ -2,6 +2,8 @@
 
 namespace App\Classes;
 
+use App\Helpers\BetHelper;
+use App\Helpers\PotHelper;
 use App\Models\Action;
 use App\Models\HandStreet;
 use App\Models\PlayerAction;
@@ -33,6 +35,8 @@ class GamePlay
         $this->call = Action::where('name', 'Call')->first();
         $this->bet = Action::where('name', 'Bet')->first();
         $this->raise = Action::where('name', 'Raise')->first();
+
+        $this->handTable->hands()->save($this->hand);
     }
 
     public function play()
@@ -87,7 +91,7 @@ class GamePlay
     {
 
         $this->initiateStreetActions();
-
+        $this->initiatePlayerStacks();
         $this->setDealerAndBlindSeats($currentDealer);
 
         $this->dealer->setDeck()->shuffle();
@@ -530,6 +534,19 @@ class GamePlay
         return $this;
     }
 
+    public function initiatePlayerStacks()
+    {
+
+        foreach($this->handTable->players as $player){
+            $player->stacks()->create([
+                'amount' => 1000,
+                'table_id' => $this->handTable->id
+            ]);
+        }
+
+        return $this;
+    }
+
     protected function noDealerIsSetOrThereIsNoSeatAfterTheCurrentDealer($currentDealer)
     {
         return !$currentDealer || !$this->handTable->tableSeats->fresh()->where('id', $currentDealer->id + 1)->first();
@@ -650,6 +667,8 @@ class GamePlay
     public function postBlinds($smallBlind, $bigBlind)
     {
 
+        PotHelper::initiatePot($this->hand);
+
         /*
          * Using ->save rather than ->update so the updated_at
          * value can be checked against and set the action_on
@@ -667,6 +686,8 @@ class GamePlay
                 'can_continue' => 0
             ]);
 
+        BetHelper::handle($this->hand->fresh(), $smallBlind->player->fresh(), $smallBlind->bet_amount);
+
         $bigBlind->action_id = Action::where('name', 'Bet')->first()->id; // Bet
         $bigBlind->bet_amount = 50.0;
         $bigBlind->active = 1;
@@ -678,6 +699,8 @@ class GamePlay
             ->update([
                 'can_continue' => 0
             ]);
+
+        BetHelper::handle($this->hand->fresh(), $bigBlind->player->fresh(), $bigBlind->bet_amount);
 
         return $this;
 
