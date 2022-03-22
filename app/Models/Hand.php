@@ -19,6 +19,10 @@ class Hand extends Model
         return $this->belongsTo(Table::class, 'table_id', 'id');
     }
 
+    /*
+     * Through relations not working well when running full test suite
+     * and possibly when using the app in browser.
+     */
     public function playerActions()
     {
         // This hasManyThrough returns empty collection, I've added hand_id directly to player_actions for now

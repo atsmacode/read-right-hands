@@ -19,6 +19,10 @@ class Table extends Model
         return $this->hasMany(TableSeat::class, 'table_id', 'id');
     }
 
+    /*
+     * Through relations not working well when running full test suite
+     * and possibly when using the app in browser.
+     */
     public function players()
     {
         return $this->hasManyThrough(
