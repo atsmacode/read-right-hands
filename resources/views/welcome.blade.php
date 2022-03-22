@@ -17,7 +17,7 @@
         <div id="app" class="container-sm">
 
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <div class="container-fluid">
+                <div class="container-fluid ps-0">
 
                     <a class="navbar-brand" href="#"><strong><span class="text-danger">Read</span></strong> Right Hands</a>
 
@@ -47,6 +47,16 @@
 
             <div class="ms-1 mb-3">
                 <a class="btn btn-primary" href="/play">Play Now!</a>
+            </div>
+
+            <div class="bg-primary p-3 rounded m-1">
+
+                <div class="row">
+
+                    <p class="m-0">Game and hand info will be displayed here.</p>
+
+                </div>
+
             </div>
 
             <div class="bg-secondary p-3 rounded m-1">

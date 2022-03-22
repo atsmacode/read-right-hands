@@ -2110,9 +2110,6 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
     showOptions: function showOptions(action_on) {
       return action_on === true && this.winner === false;
     },
-    setSuitColour: function setSuitColour(suit) {
-      return this.suitColours.suit;
-    },
     action: function action(_action, player) {
       var _this = this;
 
@@ -2122,7 +2119,6 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         active = 0;
       }
 
-      console.log(this.actionBetAmounts[_action.name]);
       var payload = {
         deck: this.deck,
         player_id: player.player_id,
@@ -2132,7 +2128,6 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
         active: active,
         bet_amount: this.actionBetAmounts[_action.name]
       };
-      console.log(payload);
       this.loading = true;
       window.axios.post('action', payload).then(function (response) {
         console.log(response);

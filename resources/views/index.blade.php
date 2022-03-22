@@ -17,7 +17,7 @@
         <div id="app" class="container-sm">
 
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <div class="container-fluid">
+                <div class="container-fluid ps-0">
 
                     <a class="navbar-brand" href="/"><strong><span class="text-danger">Read</span></strong> Right Hands</a>
 
@@ -41,11 +41,11 @@
                 </div>
             </nav>
 
-            <div class="bg-secondary p-3 rounded m-1">
+            <div class="bg-primary p-3 rounded m-1">
 
                 <div class="row">
 
-                    <p>Pot: @{{ pot }}</p>
+                    <p class="m-0"><strong>Hand Info</strong> Pot: @{{ pot }}</p>
 
                 </div>
 
