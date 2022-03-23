@@ -111,15 +111,23 @@ class Dealer
      * @param HandStreet $handStreet
      * @return $this
      */
-    public function dealStreetCard($handStreet)
+    public function dealStreetCards($handStreet, $cardCount)
     {
 
-        $cardId = is_object($this->pickCard()->getCard()) ? $this->pickCard()->getCard()->id : $this->pickCard()->getCard()['id'];
+        $dealtCards = 0;
 
-        HandStreetCard::create([
-            'card_id' => $cardId,
-            'hand_street_id' => $handStreet->id
-        ]);
+        while($dealtCards < $cardCount){
+
+            $cardId = is_object($this->pickCard()->getCard()) ? $this->pickCard()->getCard()->id : $this->pickCard()->getCard()['id'];
+
+            HandStreetCard::create([
+                'card_id' => $cardId,
+                'hand_street_id' => $handStreet->id
+            ]);
+
+            $dealtCards++;
+
+        }
 
         return $this;
 

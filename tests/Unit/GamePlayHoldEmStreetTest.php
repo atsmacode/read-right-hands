@@ -134,11 +134,10 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
             'hand_id' => $this->gamePlay->hand->fresh()->id
         ]);
 
-        $dealtCards = 0;
-        while($dealtCards < $this->gamePlay->game->streets[1]['community_cards']){
-            $this->gamePlay->dealer->dealStreetCard($flop);
-            $dealtCards++;
-        }
+        $this->gamePlay->dealer->dealStreetCards(
+            $flop,
+            $this->gamePlay->game->streets[1]['community_cards']
+        );
     }
 
     protected function setTurn()
@@ -149,11 +148,10 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
             'hand_id' => $this->gamePlay->hand->fresh()->id
         ]);
 
-        $dealtCards = 0;
-        while($dealtCards < $this->gamePlay->game->streets[2]['community_cards']){
-            $this->gamePlay->dealer->dealStreetCard($turn);
-            $dealtCards++;
-        }
+        $this->gamePlay->dealer->dealStreetCards(
+            $turn,
+            $this->gamePlay->game->streets[2]['community_cards']
+        );
     }
 
     protected function setRiver()
@@ -164,11 +162,10 @@ class GamePlayHoldEmStreetTest extends TestEnvironment
             'hand_id' => $this->gamePlay->hand->fresh()->id
         ]);
 
-        $dealtCards = 0;
-        while($dealtCards < $this->gamePlay->game->streets[3]['community_cards']){
-            $this->gamePlay->dealer->dealStreetCard($river);
-            $dealtCards++;
-        }
+        $this->gamePlay->dealer->dealStreetCards(
+            $river,
+            $this->gamePlay->game->streets[3]['community_cards']
+        );
     }
 
     protected function executeActions()

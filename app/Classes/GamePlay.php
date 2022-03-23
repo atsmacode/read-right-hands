@@ -79,11 +79,11 @@ class GamePlay
             'hand_id' => $this->hand->id
         ]);
 
-        $dealtCards = 0;
-        while($dealtCards < $this->game->streets[$this->hand->fresh()->streets->count() - 1]['community_cards']){
-            $this->dealer->dealStreetCard($this->street);
-            $dealtCards++;
-        }
+        $this->dealer->dealStreetCards(
+            $this->street,
+            $this->game->streets[$this->hand->fresh()->streets->count() - 1]['community_cards']
+        );
+
 
         return [
             'deck' => $this->dealer->getDeck(),

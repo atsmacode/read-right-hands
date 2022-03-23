@@ -135,7 +135,10 @@ class DealerTest extends TestEnvironment
             'hand_id' => Hand::factory()->create()
         ]);
 
-        $this->dealer->setDeck()->dealStreetCard($handStreet);
+        $this->dealer->setDeck()->dealStreetCards(
+            $handStreet,
+            1
+        );
 
         $this->assertCount(1, $handStreet->cards);
     }
