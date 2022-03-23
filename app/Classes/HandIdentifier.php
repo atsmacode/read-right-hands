@@ -67,6 +67,15 @@ class HandIdentifier
         return false;
     }
 
+    protected function checkForHighAceActiveCardRanking($rank)
+    {
+        if($rank->ranking === 1){
+            return 14;
+        }
+
+        return false;
+    }
+
     public function highestCard()
     {
 
@@ -89,7 +98,7 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 2){
                 $this->pairs[] = $rank;
-                $this->identifiedHandType['activeCards'][] = $rank->ranking;
+                $this->identifiedHandType['activeCards'][] = $this->checkForHighAceActiveCardRanking($rank) ?: $rank->ranking;
                 /*
                  * The showdown may be called pre-flop when the pot is checked down to BB.
                  * In which case they may have a pair and no other kicker rank.
@@ -119,7 +128,7 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 2){
                 $this->pairs[] = $rank;
-                $this->identifiedHandType['activeCards'][] = $rank->ranking;
+                $this->identifiedHandType['activeCards'][] = $this->checkForHighAceActiveCardRanking($rank) ?: $rank->ranking;
                 /*
                  * The showdown may be called pre-flop when the pot is checked down to BB.
                  * In which case they may have a pair and no other kicker rank.
@@ -151,7 +160,7 @@ class HandIdentifier
             if($this->allCards->where('rank_id', $rank->id)->count() === 3){
                 $this->threeOfAKind = $rank;
                 $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Three of a Kind')->first();
-                $this->identifiedHandType['activeCards'][] = $rank->ranking;
+                $this->identifiedHandType['activeCards'][] = $this->checkForHighAceActiveCardRanking($rank) ?: $rank->ranking;
                 $this->identifiedHandType['kicker'] = $this->checkForAceKicker($this->allCards, __FUNCTION__, $this->identifiedHandType['activeCards'])
                     ?: $this->allCards->where('ranking', '!=', $rank->ranking)->sortByDesc('ranking')->first()->ranking;
                 return true;
@@ -331,13 +340,13 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 3){
                 $this->threeOfAKind = $rank;
-                $this->identifiedHandType['activeCards'][] = $rank->ranking;
+                $this->identifiedHandType['activeCards'][] = $this->checkForHighAceActiveCardRanking($rank) ?: $rank->ranking;
             }
         }
 
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 2 && $this->threeOfAKind !== $rank){
-                $this->pairs[] = $rank;
+                $this->pairs[] = $this->checkForHighAceActiveCardRanking($rank) ?: $rank->ranking;
             }
         }
 
@@ -366,7 +375,7 @@ class HandIdentifier
                 $this->fourOfAKind = $rank;
 
                 $this->identifiedHandType['handType'] = $this->handTypes->where('name', 'Four of a Kind')->first();
-                $this->identifiedHandType['activeCards'][] = $rank->ranking;
+                $this->identifiedHandType['activeCards'][] = $this->checkForHighAceActiveCardRanking($rank) ?: $rank->ranking;
                 $this->identifiedHandType['kicker'] = $this->checkForAceKicker($this->allCards, __FUNCTION__, $this->identifiedHandType['activeCards'])
                     ?: $this->allCards->where('ranking', '!=', $rank->ranking)->sortByDesc('ranking')->first()->ranking;
 

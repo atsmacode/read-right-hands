@@ -213,6 +213,86 @@ class ShowdownKickerAndRankingTest extends TestEnvironment
      * @test
      * @return void
      */
+    public function aces_and_deuces_beats_kings_and_deuces()
+    {
+
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
+
+        $wholeCards = [
+            [
+                'player' => $this->player1,
+                'rank' => 'King',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Queen',
+                'suit' => 'Hearts'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Ace',
+                'suit' => 'Clubs'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Ace',
+                'suit' => 'Hearts'
+            ],
+        ];
+
+        $this->setWholeCards($wholeCards);
+
+        $flopCards = [
+            [
+                'rank' => 'King',
+                'suit' => 'Diamonds'
+            ],
+            [
+                'rank' => 'Deuce',
+                'suit' => 'Clubs'
+            ],
+            [
+                'rank' => 'Deuce',
+                'suit' => 'Hearts'
+            ]
+        ];
+
+        $this->setFlop($flopCards);
+
+        $turnCard = [
+            'rank' => 'Jack',
+            'suit' => 'Diamonds'
+        ];
+
+        $this->setTurn($turnCard);
+
+        $riverCard = [
+            'rank' => 'Five',
+            'suit' => 'Spades'
+        ];
+
+        $this->setRiver($riverCard);
+
+        $this->executeActions([
+            'actions' => $this->gamePlay->hand->playerActions->fresh(),
+            'handTable' => $this->gamePlay->handTable->fresh()
+        ]);
+
+        $gamePlay = $this->gamePlay->play();
+
+        $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
+        $this->assertEquals($this->handTypes->where('name', 'Two Pair')->first()->id, $gamePlay['winner']['handType']->id);
+        $this->assertEquals(14, $gamePlay['winner']['kicker']);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
     public function kings_and_tens_beats_jacks_and_tens()
     {
 
