@@ -285,7 +285,7 @@ class ShowdownKickerAndRankingTest extends TestEnvironment
 
         $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'Two Pair')->first()->id, $gamePlay['winner']['handType']->id);
-        $this->assertEquals(14, $gamePlay['winner']['kicker']);
+        $this->assertEquals(13, $gamePlay['winner']['kicker']);
 
     }
 

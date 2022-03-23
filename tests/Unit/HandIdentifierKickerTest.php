@@ -290,7 +290,7 @@ class HandIdentifierKickerTest extends TestEnvironment
         );
 
         $this->assertContains(
-            Rank::where('name', 'Ace')->first()->ranking,
+            14,
             $this->handIdentifier->identifiedHandType['activeCards']
         );
 

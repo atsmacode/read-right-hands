@@ -24,7 +24,7 @@ class HandIdentifier
     public $fourOfAKind = false;
     public $straightFlush = false;
     public $royalFlush = false;
-    public $handMethods = [
+    protected $handMethods = [
         'hasRoyalFlush',
         'hasStraightFlush',
         'hasFourOfAKind',
@@ -58,9 +58,7 @@ class HandIdentifier
 
     protected function checkForAceKicker($allCards, $forHandCheck, $activeCards = null)
     {
-        if(($activeCards && $allCards->contains('ranking', 1) && !in_array(1, $activeCards)) ||
-            (in_array(1, $activeCards) && $forHandCheck === 'hasFlush')
-        ){
+        if($this->thereIsNoAceInTheActiveCardsUnlessHandIsFlush($allCards, $forHandCheck, $activeCards)){
             return 14;
         }
 
@@ -74,6 +72,14 @@ class HandIdentifier
         }
 
         return false;
+    }
+
+    protected function thereIsNoAceInTheActiveCardsUnlessHandIsFlush($allCards, $forHandCheck, $activeCards)
+    {
+        return ($activeCards && $allCards->contains('ranking', 1)
+                && !in_array(1, $activeCards)
+                && !in_array(14, $activeCards))
+            || (in_array(1, $activeCards) && $forHandCheck === 'hasFlush');
     }
 
     public function highestCard()
