@@ -70,13 +70,6 @@ export default {
                     "bg-danger"
                 ]
             },
-            actionBetAmounts: {
-                "Fold": null,
-                "Check": null,
-                "Call": 50.0,
-                "Bet": 50.0,
-                "Raise": 50.0
-            }
         }
     },
     props: {

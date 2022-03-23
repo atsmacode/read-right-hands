@@ -35,6 +35,13 @@ const app = new Vue({
 					"border border-2 border-dark"
 				]
 			},
+            actionBetAmounts: {
+                "Fold": null,
+                "Check": null,
+                "Call": 50.0,
+                "Bet": 50.0,
+                "Raise": 50.0
+            }
 		}
 	},
 	computed: {

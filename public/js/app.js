@@ -2113,13 +2113,6 @@ __webpack_require__.r(__webpack_exports__);
         "Call": ["bg-success"],
         "Bet": ["bg-warning"],
         "Raise": ["bg-danger"]
-      },
-      actionBetAmounts: {
-        "Fold": null,
-        "Check": null,
-        "Call": 50.0,
-        "Bet": 50.0,
-        "Raise": 50.0
       }
     };
   },
@@ -2182,6 +2175,13 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_2__["default"]({
         "Diamonds": ["text-danger", "border border-2 border-danger"],
         "Hearts": ["text-danger", "border border-2 border-danger"],
         "Spades": ["text-dark", "border border-2 border-dark"]
+      },
+      actionBetAmounts: {
+        "Fold": null,
+        "Check": null,
+        "Call": 50.0,
+        "Bet": 50.0,
+        "Raise": 50.0
       }
     };
   },
