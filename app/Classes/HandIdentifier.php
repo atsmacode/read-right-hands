@@ -331,6 +331,7 @@ class HandIdentifier
         foreach(Rank::all() as $rank){
             if($this->allCards->where('rank_id', $rank->id)->count() === 3){
                 $this->threeOfAKind = $rank;
+                $this->identifiedHandType['activeCards'][] = $rank->ranking;
             }
         }
 
@@ -353,6 +354,7 @@ class HandIdentifier
 
         $this->pairs = [];
         $this->threeOfAKind = false;
+        $this->identifiedHandType['activeCards'][] = 0;
         return $this;
     }
 

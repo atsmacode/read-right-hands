@@ -20,7 +20,7 @@ use App\Models\WholeCard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\CreatesApplication;
 
-class ShowdownKickerTest extends TestEnvironment
+class ShowdownKickerAndRankingTest extends TestEnvironment
 {
 
     protected function setUp(): void
@@ -64,22 +64,22 @@ class ShowdownKickerTest extends TestEnvironment
 
         $wholeCards = [
             [
-                'player' => $this->player1,
+                'player' => $this->player3,
                 'rank' => 'King',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player1,
+                'player' => $this->player3,
                 'rank' => 'Three',
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'Queen',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'Seven',
                 'suit' => 'Diamonds'
             ],
@@ -125,7 +125,7 @@ class ShowdownKickerTest extends TestEnvironment
 
         $gamePlay = $this->gamePlay->play();
 
-        $this->assertEquals($this->player1->id, $gamePlay['winner']['player']->id);
+        $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'High Card')->first()->id, $gamePlay['winner']['handType']->id);
 
     }
@@ -143,22 +143,22 @@ class ShowdownKickerTest extends TestEnvironment
 
         $wholeCards = [
             [
-                'player' => $this->player1,
+                'player' => $this->player3,
                 'rank' => 'Jack',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player1,
+                'player' => $this->player3,
                 'rank' => 'Three',
                 'suit' => 'Diamonds'
             ],
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'Ten',
                 'suit' => 'Spades'
             ],
             [
-                'player' => $this->player3,
+                'player' => $this->player1,
                 'rank' => 'Seven',
                 'suit' => 'Diamonds'
             ],
@@ -204,7 +204,7 @@ class ShowdownKickerTest extends TestEnvironment
 
         $gamePlay = $this->gamePlay->play();
 
-        $this->assertEquals($this->player1->id, $gamePlay['winner']['player']->id);
+        $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'Pair')->first()->id, $gamePlay['winner']['handType']->id);
 
     }
@@ -285,6 +285,327 @@ class ShowdownKickerTest extends TestEnvironment
 
         $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
         $this->assertEquals($this->handTypes->where('name', 'Two Pair')->first()->id, $gamePlay['winner']['handType']->id);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function jacks_and_tens_with_king_kicker_beats_jacks_and_tens_with_lower_kicker()
+    {
+
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
+
+        $wholeCards = [
+            [
+                'player' => $this->player1,
+                'rank' => 'Jack',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Nine',
+                'suit' => 'Diamonds'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'King',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Jack',
+                'suit' => 'Diamonds'
+            ],
+        ];
+
+        $this->setWholeCards($wholeCards);
+
+        $flopCards = [
+            [
+                'rank' => 'Three',
+                'suit' => 'Clubs'
+            ],
+            [
+                'rank' => 'Jack',
+                'suit' => 'Hearts'
+            ],
+            [
+                'rank' => 'Deuce',
+                'suit' => 'Clubs'
+            ]
+        ];
+
+        $this->setFlop($flopCards);
+
+        $turnCard = [
+            'rank' => 'Ten',
+            'suit' => 'Clubs'
+        ];
+
+        $this->setTurn($turnCard);
+
+        $riverCard = [
+            'rank' => 'Ten',
+            'suit' => 'Hearts'
+        ];
+
+        $this->setRiver($riverCard);
+
+        $this->executeActions([
+            'actions' => $this->gamePlay->hand->playerActions->fresh(),
+            'handTable' => $this->gamePlay->handTable->fresh()
+        ]);
+
+        $gamePlay = $this->gamePlay->play();
+
+        $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
+        $this->assertEquals($this->handTypes->where('name', 'Two Pair')->first()->id, $gamePlay['winner']['handType']->id);
+        $this->assertEquals(13, $gamePlay['winner']['kicker']);
+
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function three_jacks_beats_three_tens()
+    {
+
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
+
+        $wholeCards = [
+            [
+                'player' => $this->player3,
+                'rank' => 'Jack',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Jack',
+                'suit' => 'Diamonds'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Ten',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Ten',
+                'suit' => 'Diamonds'
+            ],
+        ];
+
+        $this->setWholeCards($wholeCards);
+
+        $flopCards = [
+            [
+                'rank' => 'King',
+                'suit' => 'Clubs'
+            ],
+            [
+                'rank' => 'Jack',
+                'suit' => 'Hearts'
+            ],
+            [
+                'rank' => 'Deuce',
+                'suit' => 'Clubs'
+            ]
+        ];
+
+        $this->setFlop($flopCards);
+
+        $turnCard = [
+            'rank' => 'Nine',
+            'suit' => 'Diamonds'
+        ];
+
+        $this->setTurn($turnCard);
+
+        $riverCard = [
+            'rank' => 'Ten',
+            'suit' => 'Hearts'
+        ];
+
+        $this->setRiver($riverCard);
+
+        $this->executeActions([
+            'actions' => $this->gamePlay->hand->playerActions->fresh(),
+            'handTable' => $this->gamePlay->handTable->fresh()
+        ]);
+
+        $gamePlay = $this->gamePlay->play();
+
+        $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
+        $this->assertEquals($this->handTypes->where('name', 'Three of a Kind')->first()->id, $gamePlay['winner']['handType']->id);
+        $this->assertEquals(11, $gamePlay['winner']['highestActiveCard']);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function jacks_full_beats_tens_full()
+    {
+
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
+
+        $wholeCards = [
+            [
+                'player' => $this->player3,
+                'rank' => 'Jack',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Jack',
+                'suit' => 'Diamonds'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Ten',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Ten',
+                'suit' => 'Diamonds'
+            ],
+        ];
+
+        $this->setWholeCards($wholeCards);
+
+        $flopCards = [
+            [
+                'rank' => 'King',
+                'suit' => 'Clubs'
+            ],
+            [
+                'rank' => 'Jack',
+                'suit' => 'Hearts'
+            ],
+            [
+                'rank' => 'King',
+                'suit' => 'Hearts'
+            ]
+        ];
+
+        $this->setFlop($flopCards);
+
+        $turnCard = [
+            'rank' => 'Nine',
+            'suit' => 'Diamonds'
+        ];
+
+        $this->setTurn($turnCard);
+
+        $riverCard = [
+            'rank' => 'Ten',
+            'suit' => 'Hearts'
+        ];
+
+        $this->setRiver($riverCard);
+
+        $this->executeActions([
+            'actions' => $this->gamePlay->hand->playerActions->fresh(),
+            'handTable' => $this->gamePlay->handTable->fresh()
+        ]);
+
+        $gamePlay = $this->gamePlay->play();
+
+        $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
+        $this->assertEquals($this->handTypes->where('name', 'Full House')->first()->id, $gamePlay['winner']['handType']->id);
+        $this->assertEquals(11, $gamePlay['winner']['highestActiveCard']);
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function four_eights_beats_four_sixes()
+    {
+
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
+
+        $wholeCards = [
+            [
+                'player' => $this->player3,
+                'rank' => 'Eight',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Eight',
+                'suit' => 'Diamonds'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Six',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Six',
+                'suit' => 'Diamonds'
+            ],
+        ];
+
+        $this->setWholeCards($wholeCards);
+
+        $flopCards = [
+            [
+                'rank' => 'Eight',
+                'suit' => 'Clubs'
+            ],
+            [
+                'rank' => 'Eight',
+                'suit' => 'Hearts'
+            ],
+            [
+                'rank' => 'Six',
+                'suit' => 'Hearts'
+            ]
+        ];
+
+        $this->setFlop($flopCards);
+
+        $turnCard = [
+            'rank' => 'Six',
+            'suit' => 'Clubs'
+        ];
+
+        $this->setTurn($turnCard);
+
+        $riverCard = [
+            'rank' => 'Ten',
+            'suit' => 'Hearts'
+        ];
+
+        $this->setRiver($riverCard);
+
+        $this->executeActions([
+            'actions' => $this->gamePlay->hand->playerActions->fresh(),
+            'handTable' => $this->gamePlay->handTable->fresh()
+        ]);
+
+        $gamePlay = $this->gamePlay->play();
+
+        $this->assertEquals($this->player3->id, $gamePlay['winner']['player']->id);
+        $this->assertEquals($this->handTypes->where('name', 'Four of a Kind')->first()->id, $gamePlay['winner']['handType']->id);
+        $this->assertEquals(8, $gamePlay['winner']['highestActiveCard']);
 
     }
 
