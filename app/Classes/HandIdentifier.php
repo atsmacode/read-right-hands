@@ -11,7 +11,7 @@ class HandIdentifier
     public $handTypes;
     public $identifiedHandType = [
         'handType' => null,
-        'activeCards' => null,
+        'activeCards' => [0],
         'kicker' => null
     ];
     public $allCards;
@@ -90,8 +90,18 @@ class HandIdentifier
             if($this->allCards->where('rank_id', $rank->id)->count() === 2){
                 $this->pairs[] = $rank;
                 $this->identifiedHandType['activeCards'][] = $rank->ranking;
-                $this->identifiedHandType['kicker'] = $this->checkForAceKicker($this->allCards, __FUNCTION__, $this->identifiedHandType['activeCards'])
-                    ?: $this->allCards->where('ranking', '!=', $rank->ranking)->sortByDesc('ranking')->first()->ranking;
+                /*
+                 * The showdown may be called pre-flop when the pot is checked down to BB.
+                 * In which case they may have a pair and no other kicker rank.
+                 * Ultimately this will be handled more elegantly when kickers are fully fleshed out.
+                 */
+                if($this->allCards->count() > 2){
+                    $this->identifiedHandType['kicker'] = $this->checkForAceKicker($this->allCards, __FUNCTION__,  $this->identifiedHandType['activeCards'])
+                        ?: $this->allCards->where('ranking', '!=', $rank->ranking)->sortByDesc('ranking')->first()->ranking;
+                } else {
+                    $this->identifiedHandType['kicker'] = $rank->ranking;
+                }
+
             }
         }
 

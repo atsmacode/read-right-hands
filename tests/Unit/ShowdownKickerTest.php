@@ -130,6 +130,85 @@ class ShowdownKickerTest extends TestEnvironment
 
     }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function a_pair_of_jacks_beats_a_pair_of_tens()
+    {
+
+        $this->gamePlay->initiateStreetActions()
+            ->initiatePlayerStacks()
+            ->setDealerAndBlindSeats();
+
+        $wholeCards = [
+            [
+                'player' => $this->player1,
+                'rank' => 'Jack',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player1,
+                'rank' => 'Three',
+                'suit' => 'Diamonds'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Ten',
+                'suit' => 'Spades'
+            ],
+            [
+                'player' => $this->player3,
+                'rank' => 'Seven',
+                'suit' => 'Diamonds'
+            ],
+        ];
+
+        $this->setWholeCards($wholeCards);
+
+        $flopCards = [
+            [
+                'rank' => 'Four',
+                'suit' => 'Clubs'
+            ],
+            [
+                'rank' => 'Jack',
+                'suit' => 'Spades'
+            ],
+            [
+                'rank' => 'Deuce',
+                'suit' => 'Clubs'
+            ]
+        ];
+
+        $this->setFlop($flopCards);
+
+        $turnCard = [
+            'rank' => 'Nine',
+            'suit' => 'Diamonds'
+        ];
+
+        $this->setTurn($turnCard);
+
+        $riverCard = [
+            'rank' => 'Ten',
+            'suit' => 'Spades'
+        ];
+
+        $this->setRiver($riverCard);
+
+        $this->executeActions([
+            'actions' => $this->gamePlay->hand->playerActions->fresh(),
+            'handTable' => $this->gamePlay->handTable->fresh()
+        ]);
+
+        $gamePlay = $this->gamePlay->play();
+
+        $this->assertEquals($this->player1->id, $gamePlay['winner']['player']->id);
+        $this->assertEquals($this->handTypes->where('name', 'Pair')->first()->id, $gamePlay['winner']['handType']->id);
+
+    }
+
     protected function setWholeCards($wholeCards)
     {
         foreach($wholeCards as $wholeCard){
