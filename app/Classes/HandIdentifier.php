@@ -423,7 +423,7 @@ class HandIdentifier
 
                 return ($value->ranking === $previousCardRankingMinusOne || $value->ranking === $nextCardRankingPlusOne) &&
                     ($value->ranking === $twoCardsPreviousRankingMinusTwo || $value->ranking === $twoCardsInFrontRankingPlusTwo);
-            });
+            })->take(5);
 
             if($straightFlush && count($straightFlush) === 5){
                 $this->straightFlush = true;
