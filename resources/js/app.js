@@ -1,8 +1,13 @@
 import './bootstrap'
 import Vue from 'vue'
 
+import Player from '../js/Player.vue';
+
 const app = new Vue({
     el: '#app',
+    components: {
+        Player
+    },
     data() {
 		return {
 			deck: false,
@@ -30,30 +35,6 @@ const app = new Vue({
 					"border border-2 border-dark"
 				]
 			},
-			actionColours: {
-				"Fold": [
-					"bg-info"
-				],
-				"Check": [
-					"bg-info"
-				],
-				"Call": [
-					"bg-success"
-				],
-				"Bet": [
-					"bg-warning"
-				],
-				"Raise": [
-					"bg-danger"
-				]
-			},
-            actionBetAmounts: {
-				"Fold": null,
-				"Check": null,
-				"Call": 50.0,
-				"Bet": 50.0,
-				"Raise": 50.0
-			}
 		}
 	},
 	computed: {
@@ -64,9 +45,6 @@ const app = new Vue({
 		}
 	},
 	methods: {
-        showOptions(action_on){
-            return action_on === true && this.winner === false;
-        },
 		action(action, player){
 
 			let active = 1;
@@ -109,7 +87,7 @@ const app = new Vue({
 		gameData(){
 			window.axios.get('play').then(response => {
 
-				console.log(response.data);
+                console.log(response.data);
 				this.winner = false;
 				this.players = response.data.players;
 				this.communityCards = response.data.communityCards;
@@ -120,7 +98,9 @@ const app = new Vue({
 		}
 	},
     mounted() {
-        console.log('mounted')
         this.gameData();
+        this.$root.$on("action", function(action, player) {
+            this.action(action, player);
+        });
     }
 });

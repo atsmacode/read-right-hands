@@ -2054,28 +2054,51 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./resources/js/app.js":
-/*!*****************************!*\
-  !*** ./resources/js/app.js ***!
-  \*****************************/
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/Player.vue?vue&type=script&lang=js&":
+/*!**************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/Player.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _bootstrap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
-/* harmony import */ var _bootstrap__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_bootstrap__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-
-
-var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
-  el: '#app',
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  name: "Player",
   data: function data() {
     return {
-      deck: false,
-      pot: 0,
-      players: false,
-      communityCards: false,
-      winner: false,
       errors: {},
       loading: false,
       suitColours: {
@@ -2100,6 +2123,68 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
       }
     };
   },
+  props: {
+    player: {
+      type: Object,
+      "default": null
+    },
+    winner: {
+      type: Boolean,
+      "default": false
+    }
+  },
+  methods: {
+    showOptions: function showOptions(action_on) {
+      return action_on === true && this.winner === false;
+    },
+    isActive: function isActive() {
+      return this.player.active;
+    },
+    action: function action(_action, player) {
+      this.$root.$emit('action', _action, player);
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./resources/js/app.js":
+/*!*****************************!*\
+  !*** ./resources/js/app.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _bootstrap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
+/* harmony import */ var _bootstrap__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_bootstrap__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony import */ var _js_Player_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../js/Player.vue */ "./resources/js/Player.vue");
+
+
+
+var app = new vue__WEBPACK_IMPORTED_MODULE_2__["default"]({
+  el: '#app',
+  components: {
+    Player: _js_Player_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+  },
+  data: function data() {
+    return {
+      deck: false,
+      pot: 0,
+      players: false,
+      communityCards: false,
+      winner: false,
+      errors: {},
+      loading: false,
+      suitColours: {
+        "Clubs": ["text-dark", "border border-2 border-dark"],
+        "Diamonds": ["text-danger", "border border-2 border-danger"],
+        "Hearts": ["text-danger", "border border-2 border-danger"],
+        "Spades": ["text-dark", "border border-2 border-dark"]
+      }
+    };
+  },
   computed: {
     payload: function payload() {
       return {//
@@ -2107,9 +2192,6 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
     }
   },
   methods: {
-    showOptions: function showOptions(action_on) {
-      return action_on === true && this.winner === false;
-    },
     action: function action(_action, player) {
       var _this = this;
 
@@ -2157,8 +2239,10 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_1__["default"]({
     }
   },
   mounted: function mounted() {
-    console.log('mounted');
     this.gameData();
+    this.$root.$on("action", function (action, player) {
+      this.action(action, player);
+    });
   }
 });
 
@@ -19610,6 +19694,355 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 process.umask = function() { return 0; };
+
+
+/***/ }),
+
+/***/ "./resources/js/Player.vue":
+/*!*********************************!*\
+  !*** ./resources/js/Player.vue ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _Player_vue_vue_type_template_id_630acb02_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Player.vue?vue&type=template&id=630acb02&scoped=true& */ "./resources/js/Player.vue?vue&type=template&id=630acb02&scoped=true&");
+/* harmony import */ var _Player_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Player.vue?vue&type=script&lang=js& */ "./resources/js/Player.vue?vue&type=script&lang=js&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+;
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _Player_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Player_vue_vue_type_template_id_630acb02_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render,
+  _Player_vue_vue_type_template_id_630acb02_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "630acb02",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/Player.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/Player.vue?vue&type=script&lang=js&":
+/*!**********************************************************!*\
+  !*** ./resources/js/Player.vue?vue&type=script&lang=js& ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Player_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Player.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/Player.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Player_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/Player.vue?vue&type=template&id=630acb02&scoped=true&":
+/*!****************************************************************************!*\
+  !*** ./resources/js/Player.vue?vue&type=template&id=630acb02&scoped=true& ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Player_vue_vue_type_template_id_630acb02_scoped_true___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Player_vue_vue_type_template_id_630acb02_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Player_vue_vue_type_template_id_630acb02_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Player.vue?vue&type=template&id=630acb02&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/Player.vue?vue&type=template&id=630acb02&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/Player.vue?vue&type=template&id=630acb02&scoped=true&":
+/*!*******************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/Player.vue?vue&type=template&id=630acb02&scoped=true& ***!
+  \*******************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function () {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "m-1 p-3 bg-dark rounded" },
+    [
+      _vm.player
+        ? [
+            _c("p", { staticClass: "text-center" }, [
+              _vm._v(
+                "\n            Player " +
+                  _vm._s(_vm.player.player_id) +
+                  " " +
+                  _vm._s(_vm.player.stack) +
+                  ":\n            "
+              ),
+              _vm.player.is_dealer
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "d-inline rounded p-1",
+                      class: "bg-primary",
+                    },
+                    [_c("strong", [_vm._v("D")])]
+                  )
+                : _vm.player.big_blind
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "d-inline rounded p-1",
+                      class: "bg-primary",
+                    },
+                    [_c("strong", [_vm._v("BB")])]
+                  )
+                : _vm.player.small_blind
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "d-inline rounded p-1",
+                      class: "bg-primary",
+                    },
+                    [_c("strong", [_vm._v("SB")])]
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.player.action_id
+                ? _c(
+                    "span",
+                    {
+                      staticClass: "d-inline rounded p-1",
+                      class: _vm.actionColours[_vm.player.action_name],
+                    },
+                    [_c("strong", [_vm._v(_vm._s(_vm.player.action_name))])]
+                  )
+                : _vm._e(),
+            ]),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                directives: [
+                  {
+                    name: "show",
+                    rawName: "v-show",
+                    value: _vm.isActive(1),
+                    expression: "isActive(1)",
+                  },
+                ],
+                staticClass: "row mb-2 m-0 p-0 justify-content-center",
+              },
+              _vm._l(_vm.player.whole_cards, function (card) {
+                return _c(
+                  "div",
+                  {
+                    staticClass: "m-0 me-1 bg-white",
+                    class: _vm.suitColours[card.suit],
+                    staticStyle: { width: "100px", height: "130px" },
+                  },
+                  [
+                    _c("div", { staticClass: "card-body ps-1 pe-0" }, [
+                      _c("p", { staticClass: "fs-2" }, [
+                        _c("strong", [_vm._v(_vm._s(card.rank))]),
+                        _vm._v(" " + _vm._s(card.suitAbbreviation)),
+                      ]),
+                    ]),
+                  ]
+                )
+              }),
+              0
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                directives: [
+                  {
+                    name: "show",
+                    rawName: "v-show",
+                    value: _vm.showOptions(_vm.player.action_on),
+                    expression: "showOptions(player.action_on)",
+                  },
+                ],
+                staticClass: "row",
+              },
+              [
+                _c(
+                  "div",
+                  {
+                    staticClass:
+                      "d-grid gap-2 d-md-flex justify-content-md-center",
+                  },
+                  _vm._l(_vm.player.availableOptions, function (option) {
+                    return _c(
+                      "button",
+                      {
+                        key: option.name,
+                        staticClass: "btn btn-primary me-1",
+                        attrs: { "data-action-id": option.id },
+                        on: {
+                          click: function ($event) {
+                            return _vm.action(option, _vm.player)
+                          },
+                        },
+                      },
+                      [
+                        _vm._v(
+                          "\n                    " +
+                            _vm._s(option.name) +
+                            "\n                "
+                        ),
+                      ]
+                    )
+                  }),
+                  0
+                ),
+              ]
+            ),
+          ]
+        : _vm._e(),
+    ],
+    2
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/runtime/componentNormalizer.js ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ normalizeComponent)
+/* harmony export */ });
+/* globals __VUE_SSR_CONTEXT__ */
+
+// IMPORTANT: Do NOT use ES2015 features in this file (except for modules).
+// This module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle.
+
+function normalizeComponent (
+  scriptExports,
+  render,
+  staticRenderFns,
+  functionalTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier, /* server only */
+  shadowMode /* vue-cli only */
+) {
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (render) {
+    options.render = render
+    options.staticRenderFns = staticRenderFns
+    options._compiled = true
+  }
+
+  // functional template
+  if (functionalTemplate) {
+    options.functional = true
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = 'data-v-' + scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = shadowMode
+      ? function () {
+        injectStyles.call(
+          this,
+          (options.functional ? this.parent : this).$root.$options.shadowRoot
+        )
+      }
+      : injectStyles
+  }
+
+  if (hook) {
+    if (options.functional) {
+      // for template-only hot-reload because in that case the render fn doesn't
+      // go through the normalizer
+      options._injectStyles = hook
+      // register for functional component in vue file
+      var originalRender = options.render
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return originalRender(h, context)
+      }
+    } else {
+      // inject component registration as beforeCreate hook
+      var existing = options.beforeCreate
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    }
+  }
+
+  return {
+    exports: scriptExports,
+    options: options
+  }
+}
 
 
 /***/ }),
