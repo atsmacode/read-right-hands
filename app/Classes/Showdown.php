@@ -39,14 +39,14 @@ class Showdown
 
         foreach($this->handIdentifier->handTypes as $handType){
 
-            $playerHandsOfHandType = $playerHands->where('handType' , $handType);
+            $playerHandsOfHandType = $playerHands->where('handType.id' , $handType->id);
 
             if($playerHandsOfHandType->count() > 1){
 
                 $this->considerRankings = true;
 
                 $playerHandsReset = $playerHands->reject(function($value) use($handType){
-                    return $value['handType'] === $handType;
+                    return $value['handType']->id === $handType->id;
                 });
 
                 $highestRankedHandOfThisType = $playerHandsOfHandType->reject(function($value) use($playerHands, $handType){
@@ -79,7 +79,7 @@ class Showdown
                     });
                 }
 
-                $playerHandsReset->push($highestRankedHandOfThisType->first());
+                $playerHandsReset = $playerHandsReset->push($highestRankedHandOfThisType->first());
 
             }
 
