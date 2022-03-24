@@ -9,7 +9,7 @@
                 <span v-if="player.action_id" v-bind:class="actionColours[player.action_name]" class="d-inline rounded p-1"><strong>{{player.action_name}}</strong></span>
             </p>
 
-            <div v-show="isActive(1)" class="row mb-2 m-0 p-0 justify-content-center">
+            <div v-show="isActive()" class="row mb-2 m-0 p-0 justify-content-center">
                 <div v-for="card in player.whole_cards" class="m-0 me-1 bg-white" v-bind:class="suitColours[card.suit]" style="width:100px;height:130px;">
                     <div class="card-body ps-1 pe-0">
                         <p class="fs-2"><strong>{{card.rank}}</strong> {{card.suitAbbreviation}}</p>
