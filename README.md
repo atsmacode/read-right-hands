@@ -1,64 +1,52 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+Hello, thanks for checking out this repo!
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## About Read Right Hands
 
-## About Laravel
+Read Right Hands is a basic poker game under development using Laravel and Vue.js 2.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+It's a project I've been working on to practice some new knowledge and workflow approaches I've learned recently. Mainly test driven development and writing code in a more OOP way.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+I'm keen to share the repository publicly and get some feedback from other developers, which is something I have not had much of over the years!
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+I'm particularly interested in hearing from any poker playing devs out there.
 
-## Learning Laravel
+### What The Game Can Do At Present
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+There is currently only one six-seater table where 1 game can take place at a time. However, the codebase was partly written with the possibility of accommodating multiple tables/games in the future.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+A new hand will be started each time the page is refreshed of when you click the 'next hand' button after the current hand is complete.
 
-## Laravel Sponsors
+Here is a list of some technical aspects of the project:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- Card, Rank, and Suit models that compile into a 52 card deck during the build process
+- A dealer class that can shuffle the deck and deal cards to players and hand streets
+  - The amount of whole cards and street cards dealt will depend on the game type being played (Currently only PotLimitHoldEm exists as an implementation of the Game interface)
+- A GamePlay class that is the primary handler of the game that figures out the following based on the latest PlayerAction:
+  - What the next step in the hand is
+  - What the status of the last player to act should be
+  - What the status of the other players still in the hand should be
+- A HandIdentifier class that reads the community cards whole cards of each player that is still in the hand after the river and identifies what hands are in play as well as the rankings and kickers if appropriate
+- A Showdown class that decides the winner based on the data from the HandIdentifier
 
-### Premium Partners
+### What The Game Can NOT Do At Present
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+At the moment, you control every action of each player and can see all the cards in play. The next steps planned here are:
 
-## Contributing
+- Set players 2-6 as AI
+- Hide the AI cards from the front-end user (Player 1)
+- Programme a basic randomised response for each AI player
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+This would at least produce a slightly more engaging game.
 
-## Code of Conduct
+### Future Changes
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- Handle split pots
+- End the game when 1 player has all the chips in play
+- Add user accounts
+- Store hand history including every individual action of the players
 
-## Security Vulnerabilities
+### Build Process
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Run: php artisan build:env
+  - This will populate the DB with all the required resources (Table, Players, Cards etc)
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
