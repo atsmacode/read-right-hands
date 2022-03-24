@@ -2101,12 +2101,6 @@ __webpack_require__.r(__webpack_exports__);
     return {
       errors: {},
       loading: false,
-      suitColours: {
-        "Clubs": ["text-dark", "border border-2 border-dark"],
-        "Diamonds": ["text-danger", "border border-2 border-danger"],
-        "Hearts": ["text-danger", "border border-2 border-danger"],
-        "Spades": ["text-dark", "border border-2 border-dark"]
-      },
       actionColours: {
         "Fold": ["bg-info"],
         "Check": ["bg-info"],
@@ -2122,8 +2116,8 @@ __webpack_require__.r(__webpack_exports__);
       "default": null
     },
     winner: {
-      type: Boolean,
-      "default": false
+      type: [Object, Boolean],
+      "default": null
     }
   },
   methods: {
@@ -19848,8 +19842,8 @@ var render = function () {
                   {
                     name: "show",
                     rawName: "v-show",
-                    value: _vm.isActive(1),
-                    expression: "isActive(1)",
+                    value: _vm.isActive(),
+                    expression: "isActive()",
                   },
                 ],
                 staticClass: "row mb-2 m-0 p-0 justify-content-center",
@@ -19859,7 +19853,7 @@ var render = function () {
                   "div",
                   {
                     staticClass: "m-0 me-1 bg-white",
-                    class: _vm.suitColours[card.suit],
+                    class: _vm.$root.suitColours[card.suit],
                     staticStyle: { width: "100px", height: "130px" },
                   },
                   [

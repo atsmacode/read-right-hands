@@ -10,7 +10,7 @@
             </p>
 
             <div v-show="isActive()" class="row mb-2 m-0 p-0 justify-content-center">
-                <div v-for="card in player.whole_cards" class="m-0 me-1 bg-white" v-bind:class="suitColours[card.suit]" style="width:100px;height:130px;">
+                <div v-for="card in player.whole_cards" class="m-0 me-1 bg-white" v-bind:class="$root.suitColours[card.suit]" style="width:100px;height:130px;">
                     <div class="card-body ps-1 pe-0">
                         <p class="fs-2"><strong>{{card.rank}}</strong> {{card.suitAbbreviation}}</p>
                     </div>
@@ -35,24 +35,6 @@ export default {
         return {
             errors: {},
             loading: false,
-            suitColours: {
-                "Clubs": [
-                    "text-dark",
-                    "border border-2 border-dark"
-                ],
-                "Diamonds": [
-                    "text-danger",
-                    "border border-2 border-danger"
-                ],
-                "Hearts": [
-                    "text-danger",
-                    "border border-2 border-danger"
-                ],
-                "Spades": [
-                    "text-dark",
-                    "border border-2 border-dark"
-                ]
-            },
             actionColours: {
                 "Fold": [
                     "bg-info"
@@ -78,8 +60,8 @@ export default {
             default: null
         },
         winner: {
-            type: Boolean,
-            default: false
+            type: [Object, Boolean],
+            default: null
         }
     },
     methods: {
