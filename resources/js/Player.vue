@@ -61,7 +61,7 @@ export default {
         },
         winner: {
             type: [Object, Boolean],
-            default: null
+            default: false
         }
     },
     methods: {
