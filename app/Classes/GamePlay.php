@@ -56,8 +56,7 @@ class GamePlay
 
         PotHelper::awardPot($this->hand->fresh()->pot, $winner['player']);
 
-        $this->hand->completed_on = now();
-        $this->hand->save();
+        $this->hand->complete();
 
         return [
             'deck' => $this->dealer->getDeck(),
