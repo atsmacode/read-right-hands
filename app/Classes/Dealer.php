@@ -70,22 +70,33 @@ class Dealer
      * @param Hand $hand
      * @return $this
      */
-    public function dealTo($players, $hand = null)
+    public function dealTo($players, $cardCount, $hand = null)
     {
         if($players instanceof Player){
-            $players->wholeCards()->create([
-                'card_id' => $this->pickCard()->getCard()->id,
-                'hand_id' => $hand ? $hand->id : null
-            ]);
+
+            $dealtCards = 0;
+            while($dealtCards < $cardCount){
+                $players->wholeCards()->create([
+                    'card_id' => $this->pickCard()->getCard()->id,
+                    'hand_id' => $hand ? $hand->id : null
+                ]);
+                $dealtCards++;
+            }
 
             return $this;
         }
 
         foreach($players as $player){
-            $player->wholeCards()->create([
-                'card_id' => $this->pickCard()->getCard()->id,
-                'hand_id' => $hand ? $hand->id : null
-            ]);
+
+            $dealtCards = 0;
+            while($dealtCards < $cardCount){
+                $player->wholeCards()->create([
+                    'card_id' => $this->pickCard()->getCard()->id,
+                    'hand_id' => $hand ? $hand->id : null
+                ]);
+                $dealtCards++;
+            }
+
         }
 
         return $this;

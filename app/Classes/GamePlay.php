@@ -104,11 +104,11 @@ class GamePlay
         $this->dealer->setDeck()->shuffle();
 
         if($this->game->streets[0]['whole_cards']){
-            $dealtCards = 0;
-            while($dealtCards < $this->game->streets[0]['whole_cards']){
-                $this->dealer->dealTo($this->handTable->fresh()->players, $this->hand);
-                $dealtCards++;
-            }
+            $this->dealer->dealTo(
+                $this->handTable->fresh()->players,
+                $this->game->streets[0]['whole_cards'],
+                $this->hand,
+            );
         }
 
         return [
